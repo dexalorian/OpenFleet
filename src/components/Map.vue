@@ -85,7 +85,6 @@ function addTmpMapPnt() {
 
 </script>
 
-
 <template>
 
     <div style="display: flex; flex-direction: column; width: 100%; height: 100vh;  border-color: brown; border-width: 5px;">

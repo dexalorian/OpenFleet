@@ -1,3 +1,4 @@
+
 import express from "express";
 import path from "path"
 import fs from "fs"
@@ -10,7 +11,7 @@ const fileparser  =  multer({ dest:  'uploads/'  })
 
 import { createNewPhoto, getAllPhotos } from "./service.js";
 const app = express()
-mongoose.connect('mongodb://127.0.0.1:27017/').then(
+mongoose.connect('mongodb://host.docker.internal:27017/').then(
     () => console.log('Mongoose connected'),
     err => console.log('Mongoose not connected')    
 )
@@ -27,8 +28,6 @@ app.get('/', (req, res) =>  {console.log('kek'); res.cookie('token', 'token_valu
 }); res.send('kek')} 
 )
 
-
-
 app.post('/upload', fileparser.single('file'), createNewPhoto)
 
 app.get('/photos', (req, res) => {
@@ -41,7 +40,6 @@ getAllPhotos(req, res)
  app.get('/photo/*', (req, res) => {  
 
     const file = fs.readFileSync(__dirname + '/uploads/'+req.params[0])
-
     res.sendFile(__dirname + '/uploads/'+req.params[0])
     // console.log(file)
 
