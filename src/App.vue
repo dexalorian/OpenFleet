@@ -1,29 +1,33 @@
-<script lang="ts" setup>
-import { RouterLink, RouterView } from 'vue-router'
-import leaflet from "leaflet"
+<script setup>
+
 import { onMounted } from 'vue';
-import { watchEffect, watch } from 'vue';
-import GeoPinPicker from './GeoPinPicker.vue'
-import { createApp } from 'vue';
+
 import Map from './components/Map.vue';
 import { useSelGeoPnt, usePtrLineCoords, useMyPhotos } from '@/main'
 import LineFrame from './LineFrame.vue';
 import PhotoSideBar from './PhotoSideBar.vue';
+import MapPoint from './components/MapPoint.vue';
 
-const pickedGeoPnt = useSelGeoPnt()
+// const pickedGeoPnt = useSelGeoPnt()
 const ptrLineCoords = usePtrLineCoords()
-const MyPhotos = useMyPhotos()
+// const MyPhotos = useMyPhotos()
+
+// onMounted(    
+//   () =>  {
+//         // await MyPhotos.fetchPhotos()
+//         MyPhotos.fetchPhotos()
+//         // console.log(await MyPhotos.fetchPhotos())
+//         console.log(  MyPhotos.photos )
+//         console.log(  'dfdfd')
+//       // data.forEach( (e) => MyPhotos.addPhoto(e) )
+//       }
+//  )
+
 
 onMounted(    
-    async () =>  {
-
-      console.log('Cookie ', document.cookie)
-
-      cookies = document.cookie.split(';').findIndex( )
-
-      const resp = await fetch( import.meta.env.VITE_BASE_URL + '/photos',  {method: 'GET'});
-      const data =  await resp.json()   
-      data.forEach( (e) => MyPhotos.addPhoto(e) )
+  () =>  {
+        console.log('dfdfd')
+      // data.forEach( (e) => MyPhotos.addPhoto(e) )
       }
  )
 
@@ -36,16 +40,21 @@ onMounted(
           
           <LineFrame :from="ptrLineCoords.from" :to="ptrLineCoords.to" />
               <Map>
-                
-                 <GeoPinPicker :lat="pickedGeoPnt.lat" :lng="pickedGeoPnt.lng"  />
+                <MapPoint  lat=45.3343433 lng=23.2323232 @click= "() =>  {console.log('kek2')}"  />
+                  <MapPoint  lat=45.3343433 lng=23.2323232 @click= "() =>  {console.log('kek2')}"  />
+                    <MapPoint  lat=45.3343433 lng=23.2323232 @click= "() =>  {console.log('kek2')}"  />
+
+        
+                <!-- <div>odjfljdl;f</div>
+                 <div>7890-</div>
+                 <div>dflkjhlksdhflk</div>
+                 <GeoPinPicker :lat="pickedGeoPnt.lat" :lng="pickedGeoPnt.lng"  /> -->
+           
               </Map>
         </div>
 
         <PhotoSideBar></PhotoSideBar>
     </div>
-
-
-      
    
 </template>
 
