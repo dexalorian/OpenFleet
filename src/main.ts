@@ -12,6 +12,7 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 
 const pinia =  createPinia()
 const app = createApp(App)
+app.use(pinia)
 
 
 export const useUser = defineStore('userParams', 
@@ -31,6 +32,8 @@ export const useSelGeoPnt = defineStore( 'selectedGeoPoint', {
     })
   } )
 
+
+//Keeps coords for line rendering 
 export const usePtrLineCoords = defineStore('ptrLineCoords', {
 
     state: () => (
@@ -43,15 +46,22 @@ export const useMyPhotos = defineStore('myPhotos',
 
     const photos = ref([])
 
-    function addPhoto(filename) {
-        photos.value.push(filename)
+    // function addPhoto(filename) {
+    //     photos.value.push(filename)
+    // }
+
+    async function fetchPhotos() {
+
+     photos.value = await fetch( import.meta.env.VITE_BASE_URL + '/photos',  {method: 'GET'});
+
     }
-    return { photos, addPhoto }
+
+    return { photos, fetchPhotos }
    }
 )
   
 
-app.use(pinia)
+
 
 
 app.mount('#app')
