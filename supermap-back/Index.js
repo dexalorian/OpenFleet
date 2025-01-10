@@ -39,8 +39,16 @@ getAllPhotos(req, res)
 
  app.get('/photo/*', (req, res) => {  
 
-    const file = fs.readFileSync(__dirname + '/uploads/'+req.params[0])
-    res.sendFile(__dirname + '/uploads/'+req.params[0])
+     try {
+        const file = fs.readFileSync(__dirname + '/uploads/'+req.params[0])
+
+        res.sendFile(__dirname + '/uploads/'+req.params[0])
+        
+     } catch (error) {
+        res.status(404).send()
+     } 
+    
+    
     // console.log(file)
 
  })

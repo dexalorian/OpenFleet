@@ -1,48 +1,50 @@
 <script setup lang="ts">
-const props = defineProps({  lat: Number, lng: Number })
+    const props = defineProps({  lat: Number, lng: Number })
 
-import { log } from "console";
-import { ref, watchEffect, watch } from "vue";
-import { useMyPhotos } from "./main";
-import { title } from "process";
+    import { log } from "console";
+    import { ref, watchEffect, watch } from "vue";
+    import { useMyPhotos } from "../main";
+    import { title } from "process";
 
-const MyPhotos = useMyPhotos()
+    const MyPhotos = useMyPhotos()
+    const selfile = ref(null);  
+    const params = ref({})
+    const imgUri: Url = ref(null)
 
-const selfile = ref(null);  
-const params = ref({})
+    watchEffect( () => {selfile.value  !== null ? imgUri.value  =  URL.createObjectURL(selfile.value) :  null; console.log(selfile.value)}) 
+
+    const newPhoto = async () => {
+        const sendreq = new FormData( )
+        sendreq.append('file', selfile.value)
+        sendreq.append('coords', JSON.stringify({lat: props.lat, lng: props.lng}))
+        console.log(JSON.stringify(params.value))
+        sendreq.append('params',  JSON.stringify(params.value))
+
+    fetch(import.meta.env.VITE_BASE_URL + '/upload',  {
+        method: 'POST',
+        body: sendreq
+    }).then(() => MyPhotos.fetchPhotos())
+    
+    
+
+    
+    
 
 
-const imgUri: Url = ref(null)
-
-watchEffect( () => {selfile.value  !== null ? imgUri.value  =  URL.createObjectURL(selfile.value) :  null; console.log(selfile.value)}) 
-
-const sendFile = async () => {
-    const sendreq = new FormData( )
-    sendreq.append('file', selfile.value)
-    sendreq.append('coords', JSON.stringify({lat: props.lat, lng: props.lng}))
-    console.log(JSON.stringify(params.value))
-    sendreq.append('params',  JSON.stringify(params.value))
-   
-
-let resp = await fetch(import.meta.env.VITE_BASE_URL + '/upload',  {
-    method: 'POST',
-    body: sendreq
-})
-
-
-// MyPhotos.addPhoto(`${props.lat},${props.lng}.`+selfile.value.name.split('.').at(-1))
-}
+    
+    // MyPhotos.addPhoto(`${props.lat},${props.lng}.`+selfile.value.name.split('.').at(-1))
+    }
 
 </script>
-
 
 <template >
     <div class="form">
         <h1 style="margin: 0; padding: 0;">Upload photo</h1>
+    
         <div style="display: flex; gap: 10px; width: fit-content;">
             <img :src=" imgUri " style="background-color: blueviolet; width: 200px; "/></div>
 
-        <form  @submit.prevent="sendFile" enctype="multipart/form-data" 
+        <form  @submit.prevent="newPhoto" enctype="multipart/form-data" 
         style="display: flex; width: 100%; flex-direction: column; gap: 10px">
 
             <input type="file" @change=" e => {selfile  =  e.target.files[0]} " />
@@ -77,7 +79,6 @@ let resp = await fetch(import.meta.env.VITE_BASE_URL + '/upload',  {
                     
                     <input id="exact_time" type="radio" name="time" value="exact" v-model="params.shotTimeMode" checked>
                     <label for="exact_time" >Exact</label>
-                    
                     <input id="spread_time" type="radio" v-model="params.shotTimeMode" value="spread" name="time">
                     <label for="spread_time" >Spread</label>
               </div>

@@ -24,7 +24,6 @@ export const useUser = defineStore('userParams',
    }
 )
 
-
 export const useSelGeoPnt = defineStore( 'selectedGeoPoint', {
     state: () => ({
       lat: 0,
@@ -51,9 +50,8 @@ export const useMyPhotos = defineStore('myPhotos',
     // }
 
     async function fetchPhotos() {
-
-     photos.value = await fetch( import.meta.env.VITE_BASE_URL + '/photos',  {method: 'GET'});
-
+      const resp = await fetch( import.meta.env.VITE_BASE_URL + '/photos',  {method: 'GET'});
+     photos.value = await resp.json()
     }
 
     return { photos, fetchPhotos }

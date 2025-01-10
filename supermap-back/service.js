@@ -16,13 +16,14 @@ export function createNewPhoto(req, res) {
         __dirname + '/uploads/'  + newfilename  ); 
 
         console.log( JSON.parse(req.body.params)  )
-        dbPhoto.create({id: uuid(), filename: newfilename, ... JSON.parse(req.body.params)})
+        const { lat, lng } = JSON.parse(req.body.coords)
+        dbPhoto.create({id: uuid(), lat, lng , filename: newfilename, ... JSON.parse(req.body.params)})
         
-   
+   res.status(200).send()
 }
 
 
 export async function getAllPhotos(req, res) {
-    res.json( await dbPhoto.find())
-    console.log(await dbPhoto.find())
+    dbPhoto.find().then(e => res.json(e))
+    // res.json( await dbPhoto.find())
 }

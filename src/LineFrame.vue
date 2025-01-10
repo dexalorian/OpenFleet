@@ -33,8 +33,6 @@ onMounted(
         ctx.beginPath();
         ctx.moveTo(0, 0);
         ctx.lineTo(ptrLineCoords.to[0], ptrLineCoords.to[1]);
-        console.log('draw call')
-        // Draw the Path
         ctx.stroke();
         
     }
@@ -51,6 +49,6 @@ onMounted(
 
 
 <template>
-        <canvas ref="canv" style="display: flex; position: absolute; z-index: 999; background: none; pointer-events: none; border-style: double; " >
+        <canvas ref="canv" style="display: flex; position: absolute; z-index: 999; background: none; pointer-events: none; " >
         </canvas>
 </template>

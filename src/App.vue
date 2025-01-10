@@ -7,51 +7,46 @@ import { useSelGeoPnt, usePtrLineCoords, useMyPhotos } from '@/main'
 import LineFrame from './LineFrame.vue';
 import PhotoSideBar from './PhotoSideBar.vue';
 import MapPoint from './components/MapPoint.vue';
+import GeoPinPicker from './components/GeoPinPicker.vue';
+import MainUserMenu from './components/MainUserMenu.vue'
 
-// const pickedGeoPnt = useSelGeoPnt()
+const pickedGeoPnt = useSelGeoPnt()
 const ptrLineCoords = usePtrLineCoords()
-// const MyPhotos = useMyPhotos()
-
-// onMounted(    
-//   () =>  {
-//         // await MyPhotos.fetchPhotos()
-//         MyPhotos.fetchPhotos()
-//         // console.log(await MyPhotos.fetchPhotos())
-//         console.log(  MyPhotos.photos )
-//         console.log(  'dfdfd')
-//       // data.forEach( (e) => MyPhotos.addPhoto(e) )
-//       }
-//  )
-
+const MyPhotos = useMyPhotos()
 
 onMounted(    
-  () =>  {
-        console.log('dfdfd')
+  async  () =>  {
+        // await MyPhotos.fetchPhotos()
+        await MyPhotos.fetchPhotos()
+        // console.log(await MyPhotos.fetchPhotos())
+
       // data.forEach( (e) => MyPhotos.addPhoto(e) )
       }
  )
 
+
 </script>
 
 <template>
-    <div style="display: flex; flex-direction: column; height: 100vh; ">
+    <div style="display: flex; flex-direction: column; height: 100vh; width: 100%; overflow: hidden;">
                   <!-- {{ map }} -->
-                  <div class="map" style="display: flex; width: 100vw; height: 100vh;" id="map">
-          
-          <LineFrame :from="ptrLineCoords.from" :to="ptrLineCoords.to" />
+                    <MainUserMenu />
+                 
+                    <LineFrame :from="ptrLineCoords.from" :to="ptrLineCoords.to" />
+                    <GeoPinPicker :lat="pickedGeoPnt.lat" :lng="pickedGeoPnt.lng" ></GeoPinPicker>
               <Map>
-                <MapPoint  lat=45.3343433 lng=23.2323232 @click= "() =>  {console.log('kek2')}"  />
-                  <MapPoint  lat=45.3343433 lng=23.2323232 @click= "() =>  {console.log('kek2')}"  />
-                    <MapPoint  lat=45.3343433 lng=23.2323232 @click= "() =>  {console.log('kek2')}"  />
 
-        
-                <!-- <div>odjfljdl;f</div>
-                 <div>7890-</div>
-                 <div>dflkjhlksdhflk</div>
-                 <GeoPinPicker :lat="pickedGeoPnt.lat" :lng="pickedGeoPnt.lng"  /> -->
+<!--                
+                  <MapPoint :lat=52.03214283467665 :lng=23.876037597656254  />
+                  <MapPoint :lat=52.119354046379925 :lng=23.69387017880704  />
+                  <MapPoint :lat=52.1006000630478 :lng=23.716388602280972  /> -->
+
+                  <MapPoint v-for="pnt in MyPhotos.photos" ></MapPoint>
+                
+ 
            
               </Map>
-        </div>
+       
 
         <PhotoSideBar></PhotoSideBar>
     </div>

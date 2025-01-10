@@ -1,19 +1,45 @@
 <script setup>
+import { nextTick } from "vue";
 import PhotoSideBarItem from "./components/PhotoSideBarItem.vue"
 
 import { useMyPhotos } from "./main";
+import { useTemplateRef, onMounted } from "vue"
+import { watch } from "vue";
 
 const myPhotos = useMyPhotos()
+
+const botbar = useTemplateRef('bottombar');
+
+
+
+watch( () => myPhotos.photos,  () => {
+
+      nextTick(
+            () => {
+                  if (botbar.value) {
+                  botbar.value.scrollLeft = botbar.value.scrollWidth
+                  console.log('width ', botbar.value.scrollWidth)
+                  console.log(' top ', botbar.value.scrollTop )
+            }
+      
+         
+
+            }
+
+      )
+ 
+})
+
 
 </script>
 
 
 <template>
 
-        <div style="background-color: white; z-index: 999; height: 120px; display: flex; flex-direction: row; margin: 10px; gap: 6px; overflow-y: hidden;">
+        <div ref="bottombar" style="background-color: white; z-index: 999; height: 140px; display: flex; flex-direction: row; gap: 6px; overflow-y: hidden; overflow-x: auto; width: 100vw;">
             
-        <div v-for="i in myPhotos.photos" :key="i">
-            <PhotoSideBarItem  :imgsrc="`http://localhost:3000/photo/${i}`"/>
+        <div  v-for="i in myPhotos.photos" :key="i">
+              <PhotoSideBarItem v-if="i.filename"  :imgsrc="`http://localhost:3000/photo/${i.filename}`"/>
         </div>
 
            
