@@ -6,6 +6,7 @@
     import { useMyPhotos } from "../main";
     import { title } from "process";
 
+
     const MyPhotos = useMyPhotos()
     const selfile = ref(null);  
     const params = ref({})
@@ -25,21 +26,16 @@
         body: sendreq
     }).then(() => MyPhotos.fetchPhotos())
     
-    
-
-    
-    
-
-
-    
     // MyPhotos.addPhoto(`${props.lat},${props.lng}.`+selfile.value.name.split('.').at(-1))
     }
 
 </script>
 
 <template >
+    
     <div class="form">
-        <h1 style="margin: 0; padding: 0;">Upload photo</h1>
+        
+        <h1 class="text-2xl font-bold" style="margin: 0; padding: 0;">Upload photo</h1>
     
         <div style="display: flex; gap: 10px; width: fit-content;">
             <img :src=" imgUri " style="background-color: blueviolet; width: 200px; "/></div>
@@ -92,7 +88,7 @@
                 </div>
                
             <div>
-            <button type="submit">upload</button>
+            <button class="button"  type="submit">Upload</button>
 
 
             </div>
@@ -108,7 +104,7 @@
 <style>
 
 .form {
-    display: flex; flex-direction: column; position: absolute; gap: 10px; background-color: darkkhaki;  width: 300px; height: fit-content; padding: 10px; z-index: 999;
+    display: flex; flex-direction: column; position: absolute; gap: 10px; background-color: darkkhaki;  width: 300px; height: fit-content; padding: 10px;
 
 }
 

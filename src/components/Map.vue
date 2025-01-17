@@ -5,6 +5,22 @@ import leaflet, { icon } from "leaflet"
 import { useSelGeoPnt, usePtrLineCoords, useMyPhotos } from '@/main'
 import { watchEffect, watch } from 'vue';
 import { useSlots, ref } from 'vue';
+import MainUserMenu from '@/components/MainUserMenu.vue'
+
+import { useRoute } from 'vue-router'
+import LoginDialog from '@/LoginDialog.vue';
+
+const route = useRoute()
+
+const showLogin = ref(false)
+
+
+
+watch( () => route.path, (e) => {  if (e === '/login') {showLogin.value = !showLogin.value} } )
+
+
+
+
 let pinicon_active = leaflet.divIcon({html: '<div class="pinicon_active"/>', iconSize: [0, 0]})
 
 const myPhotos = useMyPhotos()
@@ -30,6 +46,7 @@ function putPhotosOnMap(mapcluster) {
 }
 
 onMounted(() => {
+  if (route.path === '/login') {showLogin.value = true} 
   el_slots.value = useSlots().default()
   const map = leaflet.map('map').setView(localStorage.getItem('mapframecoords').split('+'), localStorage.getItem('zoom'));
   leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19,
@@ -85,10 +102,10 @@ console.log('myPhotos.photos', myPhotos)
 
 <template>
 
-<div class="map" style="display: flex; width: 100vw; height: 100vh;" id="map">
-
-     
-    </div>
+<div class="map"  style="display: flex; width: 100vw; height: 100vh;" id="map">
+   <MainUserMenu  /> 
+   <LoginDialog :shown="showLogin" />
+</div>
 
 </template>
 

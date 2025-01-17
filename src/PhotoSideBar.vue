@@ -21,8 +21,6 @@ watch( () => myPhotos.photos,  () => {
                   console.log('width ', botbar.value.scrollWidth)
                   console.log(' top ', botbar.value.scrollTop )
             }
-      
-         
 
             }
 
@@ -36,14 +34,11 @@ watch( () => myPhotos.photos,  () => {
 
 <template>
 
-        <div ref="bottombar" style="background-color: white; z-index: 999; height: 140px; display: flex; flex-direction: row; gap: 6px; overflow-y: hidden; overflow-x: auto; width: 100vw;">
-            
+        <div ref="bottombar" style="background-color: white; height: 140px; display: flex; flex-direction: row; gap: 6px; overflow-y: hidden; overflow-x: auto; width: 100vw;">
         <div  v-for="i in myPhotos.photos" :key="i">
               <PhotoSideBarItem v-if="i.filename"  :imgsrc="`http://localhost:3000/photo/${i.filename}`"/>
         </div>
 
-           
-       
         </div>
 
 </template>

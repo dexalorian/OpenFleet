@@ -4,16 +4,37 @@ import { createApp, ref } from 'vue'
 import { createPinia, defineStore } from 'pinia'
 
 import App from './App.vue'
+import Map from './Map.vue'
 
 import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 
+import { createRouter, createWebHistory } from 'vue-router';
 
-const pinia =  createPinia()
+
+const routes = [
+  {
+    path: '/',
+    name: 'App',
+    component: Map, // Renders HomePage as the root '/'
+  },
+  {
+    path: '/login',
+    name: 'LoginModal',
+    component: Map
+  },
+]
+
+
+const router = createRouter({history: createWebHistory(), routes});
+
+
+
+const pinia = createPinia()
 const app = createApp(App)
 app.use(pinia)
-
+app.use(router)
 
 export const useUser = defineStore('userParams', 
    () => {

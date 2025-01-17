@@ -1,4 +1,4 @@
-import mongoose from "mongoose"
+import mongoose, { mongo } from "mongoose"
 
 const photoSchema  = new mongoose.Schema(
     {
@@ -40,3 +40,4 @@ const userSchema = new mongoose.Schema(
 )
 
 export const dbPhoto = mongoose.model('Photo', photoSchema)
+export const dbUser = mongoose.model('User', userSchema)
