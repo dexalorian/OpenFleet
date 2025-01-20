@@ -5,6 +5,7 @@ import { v4 as uuid } from "uuid"
 import path from "path"
 import { fileURLToPath } from "url";
 import { dbPhoto } from "./schemas.js";
+import nodemailer from 'nodemailer'
 
 let __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -23,7 +24,27 @@ export function createNewPhoto(req, res) {
 }
 
 
+
+export function sendActivationMail(adress, token) {
+const mail = nodemailer.createTransport(
+  {service: 'mailersend',
+    host: 'smtp.mailersend.net',
+    port: 587,
+    auth: {
+        user: 'MS_It5ww6@trial-pr9084zqd9j4w63d.mlsender.net',
+        pass: 'ZwjlhoKrXtlRRZiF'
+    }
+  }
+)
+
+mail.sendMail({from: 'MS_It5ww6@trial-pr9084zqd9j4w63d.mlsender.net',   to: adress, subject: 'Activate Supermap', text: 'http://localhost:3000/activate?act_tkn='+token}, e => { console.log(e)})
+    
+
+}
+
+
 export async function getAllPhotos(req, res) {
+    
     dbPhoto.find().then(e => res.json(e))
     // res.json( await dbPhoto.find())
 }

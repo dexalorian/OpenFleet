@@ -5,19 +5,11 @@ import leaflet, { icon } from "leaflet"
 import { useSelGeoPnt, usePtrLineCoords, useMyPhotos } from '@/main'
 import { watchEffect, watch } from 'vue';
 import { useSlots, ref } from 'vue';
-import MainUserMenu from '@/components/MainUserMenu.vue'
+
 
 import { useRoute } from 'vue-router'
-import LoginDialog from '@/LoginDialog.vue';
 
 const route = useRoute()
-
-const showLogin = ref(false)
-
-
-
-watch( () => route.path, (e) => {  if (e === '/login') {showLogin.value = !showLogin.value} } )
-
 
 
 
@@ -46,9 +38,10 @@ function putPhotosOnMap(mapcluster) {
 }
 
 onMounted(() => {
-  if (route.path === '/login') {showLogin.value = true} 
+ 
   el_slots.value = useSlots().default()
-  const map = leaflet.map('map').setView(localStorage.getItem('mapframecoords').split('+'), localStorage.getItem('zoom'));
+  const map = leaflet.map('map')
+  localStorage.getItem('mapframecoords') ? map.setView(localStorage.getItem('mapframecoords').split('+'), localStorage.getItem('zoom')) : map.setView({lat: 52.104326, lng: 23.707570}, 15);
   leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19,
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);
   map.zoomControl.setPosition('bottomright');
@@ -103,8 +96,7 @@ console.log('myPhotos.photos', myPhotos)
 <template>
 
 <div class="map"  style="display: flex; width: 100vw; height: 100vh;" id="map">
-   <MainUserMenu  /> 
-   <LoginDialog :shown="showLogin" />
+
 </div>
 
 </template>

@@ -1,10 +1,9 @@
 <script setup lang="ts">
     const props = defineProps({  lat: Number, lng: Number })
 
-    import { log } from "console";
     import { ref, watchEffect, watch } from "vue";
     import { useMyPhotos } from "../main";
-    import { title } from "process";
+
 
 
     const MyPhotos = useMyPhotos()

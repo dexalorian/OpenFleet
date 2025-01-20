@@ -8,35 +8,38 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { watch } from 'vue';
+import { watch, nextTick } from 'vue';
 import { ref, Teleport } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { FormMessage, FormControl, Form, FormLabel, FormField, FormItem } from '@/components/ui/form'
 import { ErrorMessage, useForm } from 'vee-validate';
-import { log } from 'console';
 import { useRoute, useRouter } from 'vue-router'
+import { useUser } from './main';
 
+const userObj = useUser()
 
-const props = defineProps({ shown: Boolean })
+const props = defineProps({ show: Boolean })
 const router = useRouter()
 
+const open = ref(false)
 
-
-const kek = ref(false)
-
-watch( () => props.shown, () => {kek.value = !kek.value; console.log('dfldfldfldlf')}  )
+watch( () => props.show, () => {open.value = props.show}  )
 
 const form = useForm()
 const Submit = form.handleSubmit( 
+  async (val) => {
+  fetch(import.meta.env.VITE_BASE_URL + '/login', { headers: {'Content-Type': 'application/json'}, 
+  method: 'POST', credentials: 'include', body: JSON.stringify(val)}).then( e =>  {userObj.email = e.body.email; userObj.isAuth = true})
+  console.log(val)
+  open.value = false
+  router.push('/')
+ 
 
-async (val) => {
-fetch(import.meta.env.VITE_BASE_URL + '/login', { headers: {'Content-Type': 'application/json'}, 
-method: 'POST', credentials: 'include', body: JSON.stringify(val)}).then( )
-console.log(val)
 
 } 
+
 
 )
 
@@ -44,50 +47,57 @@ console.log(val)
 
 <template>
  
-      <Dialog v-model:open="kek" @update:open="() => router.push('/')">
+      <Dialog v-model:open="open" @update:open="() => router.push('/')">
     
-        <DialogContent class="max-w-96">
+        <DialogContent class="max-w-sm">
         <DialogHeader>
           <DialogTitle>Login</DialogTitle>
   
         </DialogHeader>
 
           <form @submit.prevent="Submit" >
+     
               <FormField v-slot="{ componentField }" :rules="e => e.length > 2 ? true : false" name="username" >
-                <FormLabel>E-mail</FormLabel>
-             
-                    <Input type="text" placeholder="shadcn" v-bind="componentField" />
-                    <ErrorMessage name="username" />
-                  <!-- <FormMessage /> -->
+                <FormItem>
+                  <FormLabel>E-mail</FormLabel>
+                    <FormControl>
+                      <Input type="text" placeholder="shadcn" v-bind="componentField" />
+                    </FormControl>
+                
+                <ErrorMessage name="username" />
+   
+                </FormItem>
+              
 
               </FormField>
-              <br>
+              
               <FormField v-slot="{ componentField }" :rules="e => e.length > 2 ? true : false" name="password">
-           
+                <FormItem>
+
                   <FormLabel>Password</FormLabel>
-                    <Input type="password" placeholder="shadcn" v-bind="componentField" />
+                    <FormControl>
+                      <Input type="password" placeholder="shadcn" v-bind="componentField" />
+                    </FormControl>
+                    
                   <ErrorMessage name="password"  />
                   <!-- <FormMessage /> -->
+                </FormItem>
+              
            
               </FormField>
+            </form>
                 
                 <DialogFooter>
-                  <Button variant="secondary" @click.prevent=" ">Sign Up</Button>
-                  <Button type="submit">Login</Button>
+                  <Button variant="secondary" @click.prevent=" () => router.push('/signup') ">Sign Up</Button>
+                  <Button  @click="Submit">Login</Button>  
                 
                 </DialogFooter>
 
-          </form>
-
+         
 
 
       </DialogContent>
 
-     
- 
-
     </Dialog>
-
-
 
 </template>

@@ -10,7 +10,7 @@ import MapPoint from './components/MapPoint.vue';
 import GeoPinPicker from './components/GeoPinPicker.vue';
 import MainUserMenu from './components/MainUserMenu.vue'
 import { useRoute, useRouter } from 'vue-router';
-
+import SignUpDialog from './SignUpDialog.vue'
 
 const pickedGeoPnt = useSelGeoPnt()
 const ptrLineCoords = usePtrLineCoords()
@@ -23,7 +23,6 @@ onMounted(
         // await MyPhotos.fetchPhotos()
         await MyPhotos.fetchPhotos()
         // console.log(await MyPhotos.fetchPhotos())
-
       // data.forEach( (e) => MyPhotos.addPhoto(e) )
       }
  )
@@ -35,8 +34,7 @@ onMounted(
 <template>
     <div style="display: flex; flex-direction: column; height: 100vh; width: 100%; ">
                   <!-- {{ map }} -->
-                  <MainUserMenu />
-              <LoginDialog></LoginDialog> 
+            
                
                 <LineFrame :from="ptrLineCoords.from" :to="ptrLineCoords.to" />
                 <GeoPinPicker class="z-10" :lat="pickedGeoPnt.lat" :lng="pickedGeoPnt.lng"></GeoPinPicker>

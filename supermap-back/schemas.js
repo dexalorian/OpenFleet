@@ -30,10 +30,11 @@ const userSchema = new mongoose.Schema(
         photos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Photo' }],
         firstname: String,
         surname: String,
-        email: {type: String, require: true},
+        email: {type: String, require: true, unique: true},
         pwd: {type: String, require: true},
         originTown: String,
-
+        activated: Boolean,
+        activation_token: String
 
     }
 
