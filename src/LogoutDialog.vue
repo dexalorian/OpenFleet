@@ -20,10 +20,9 @@ watch( () => props.show, () => open.value = props.show )
 
 async function GlobalLogout() {
     await fetch(import.meta.env.VITE_BASE_URL+'/logout', { method: 'POST', credentials: 'include' } )
-    
+
     userObj.reset()
     router.push('/')
-    myPhotos.photos = []
     open.value = false
     
 
