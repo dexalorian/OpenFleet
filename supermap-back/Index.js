@@ -1,7 +1,6 @@
 
 import express from "express";
 import path from "path"
-
 import cors from "cors"
 import { fileURLToPath } from "url";
 import mongoose from "mongoose";
@@ -37,6 +36,8 @@ app.use( (req, res, next) => {
         if (req.cookies.access_tkn) {
             console.log('JWT', jwt.verify(req.cookies.access_tkn, 'kawabunga'));
             next();
+        } else if (req.originalUrl ==='/signup') {
+            next()
         } else {
             res.status(302).redirect('/login')
             console.log('trying to redirect')
@@ -50,8 +51,22 @@ app.use( (req, res, next) => {
   
           // Find user in the database by email
           console.log(req.body)
-          const user = await dbUser.findOne({ email: req.body.username   });
+          const user = await dbUser.findOne({ email: req.body.username });
+
+           console.log( 'user from db', user)
       
+      
+
+        if (!user) {
+            console.log("User not exist")
+            return res.status(401).send("User not exist")
+        } else {
+            if (!user?.activated) {
+                console.log("Not activated")
+                return res.status(401).send("Fail")
+            }
+        }
+
             console.log(user)
           // Compare the password using bcrypt (synchronous comparison)
           const isPasswordValid = bcrypt.compareSync(req.body.password, user.pwd);
@@ -85,7 +100,6 @@ app.use( (req, res, next) => {
 
 
 app.post('/logout', async (req, res) => {
-
     res.cookie( 'access_tkn', null, {
         secure: false,
         sameSite: 'lax',
@@ -132,7 +146,6 @@ app.get('/activate', async (req, res) => {
  let user = await dbUser.findOne( {activation_token: req.query.act_tkn} )
     user.activated = true
     user.save()
-
     console.log('Found '+ user)
 
 })
@@ -159,8 +172,6 @@ getAllPhotos(req, res)
      } catch (error) {
         res.status(404).send()
      } 
-    
-    
     // console.log(file)
 
  })

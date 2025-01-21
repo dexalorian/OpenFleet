@@ -5,7 +5,6 @@ import { useRoute } from 'vue-router'
 import LoginDialog from './LoginDialog.vue';
 import SignUpDialog from './SignUpDialog.vue';
 import MainUserMenu from '@/components/MainUserMenu.vue'
-
 import { useUser } from './main';
 import LogoutDialog from './LogoutDialog.vue';
 
@@ -19,9 +18,9 @@ const showLogin = ref(false)
 const showSignup = ref(false)
 const showLogout = ref(false)
 
+
 onMounted(
 async () => {
-
   if (!userObj.isAuth) {
    let e = await fetch(import.meta.env.VITE_BASE_URL + '/auth', {method: 'POST' , credentials: 'include', headers: {'Content-Type': 'application/json'}})
    let res = await e.json()

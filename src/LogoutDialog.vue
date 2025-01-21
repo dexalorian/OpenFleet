@@ -25,7 +25,6 @@ async function GlobalLogout() {
     router.push('/')
     open.value = false
     
-
 }
 
 
@@ -35,7 +34,7 @@ async function GlobalLogout() {
 
     <Dialog v-model:open="open" @update:open="() => router.push('/')">
 
-            <DialogContent >
+            <DialogContent class="max-w-96">
                 <DialogHeader>Are your sure?</DialogHeader>
                 <Button @click="GlobalLogout">Logout</Button>
             </DialogContent>

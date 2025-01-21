@@ -105,7 +105,13 @@ export const useMyPhotos = defineStore('myPhotos',
     
     async function fetchPhotos() {
       const resp = await fetch( import.meta.env.VITE_BASE_URL + '/photos',  {method: 'GET', credentials: 'include'});
-     photos.value = await resp.json()
+      console.log('Fetch photos resp status: ', resp.status)
+      if (resp.status === 404) {
+        photos.value = []
+      } else {
+        photos.value = await resp.json()
+      }
+    
     }
 
     return { photos, fetchPhotos }

@@ -10,6 +10,7 @@ import { Button } from './components/ui/button';
 
 const form = useForm()
 const router = useRouter()
+const DoneStageVisible = ref(false)
 
 const open = ref(false)
 const props = defineProps({ show: Boolean })
@@ -21,10 +22,9 @@ async (val) => {
 fetch(import.meta.env.VITE_BASE_URL + '/signup', { headers: {'Content-Type': 'application/json'}, 
 method: 'POST', credentials: 'include', body: JSON.stringify(val)}).then( )
 console.log(val)
+DoneStageVisible.value = true
 
-} 
-
-)
+} )
 
 </script>
 
@@ -32,7 +32,13 @@ console.log(val)
 <template>
 
     <Dialog v-model:open="open" @update:open="router.push('/')">
-            <DialogContent class="max-w-96">
+
+        <DialogContent v-if="DoneStageVisible">
+            <div>Activation email been sent to your e-mail.<br>Click link in the letter to activate account.</div>
+            <Button @click="router.push('/')">Done</Button>
+        </DialogContent>
+
+            <DialogContent class="max-w-96" v-if="!DoneStageVisible">
 
               <DialogHeader>
                   <DialogTitle>Sign up</DialogTitle>
@@ -82,7 +88,6 @@ console.log(val)
                 
                 </DialogFooter>
                     
-                
                 </form>
                      
             </DialogContent>

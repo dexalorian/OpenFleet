@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { watch, nextTick } from 'vue';
+import { watch, nextTick, onMounted } from 'vue';
 import { ref, Teleport } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -24,19 +24,39 @@ const props = defineProps({ show: Boolean })
 const router = useRouter()
 
 const open = ref(false)
+const resp = ref({})
 
 watch( () => props.show, () => {open.value = props.show}  )
 
 const form = useForm()
+
 const Submit = form.handleSubmit( 
   async (val) => {
-  fetch(import.meta.env.VITE_BASE_URL + '/login', { headers: {'Content-Type': 'application/json'}, 
-  method: 'POST', credentials: 'include', body: JSON.stringify(val)}).then( e =>  {userObj.email = e.body.email; userObj.isAuth = true})
-  console.log(val)
-  open.value = false
-  router.push('/')
- 
 
+  const res =  await fetch(import.meta.env.VITE_BASE_URL + '/login', { headers: {'Content-Type': 'application/json'},
+  method: 'POST', credentials: 'include', body: JSON.stringify(val)})
+
+  resp.value = await res.json()
+  
+    console.log(resp.value.id)
+
+  if (resp.value?.status === 401) {
+
+    console.log( 'Not authoresed' )
+    form.validate()
+    resp.value = {}
+
+  }
+
+  if (resp.value.id.length > 0) {
+    userObj.email = resp.value.email;
+    userObj.isAuth = true
+    console.log(val)
+    open.value = false
+    router.push('/')
+  } else {
+
+  }
 
 } 
 
@@ -55,19 +75,16 @@ const Submit = form.handleSubmit(
   
         </DialogHeader>
 
-          <form @submit.prevent="Submit" >
+          <form @submit.prevent="Submit" @change="() => {form.setErrors({}); resp.value = {}}">
      
-              <FormField v-slot="{ componentField }" :rules="e => e.length > 2 ? true : false" name="username" >
+              <FormField v-slot="{ componentField, errors, errorMessage }" :rules="() => {return (resp.status === 401) ? 'Wrong creds' : true  }" name="username" >
                 <FormItem>
                   <FormLabel>E-mail</FormLabel>
-                    <FormControl>
-                      <Input type="text" placeholder="shadcn" v-bind="componentField" />
-                    </FormControl>
-                
-                <ErrorMessage name="username" />
+                 
+                      <Input id="email" type="text" placeholder="shadcn" v-bind="componentField" />
+                <ErrorMessage name="username" > {{ errorMessage }} {{ errors[0] }}</ErrorMessage>
    
                 </FormItem>
-              
 
               </FormField>
               
@@ -75,23 +92,23 @@ const Submit = form.handleSubmit(
                 <FormItem>
 
                   <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input type="password" placeholder="shadcn" v-bind="componentField" />
-                    </FormControl>
-                    
-                  <ErrorMessage name="password"  />
+                      <Input id="password" type="password" placeholder="shadcn" v-bind="componentField" />
+                  <ErrorMessage name="password"/>
                   <!-- <FormMessage /> -->
                 </FormItem>
               
-           
               </FormField>
+          
+                  
+           
             </form>
                 
-                <DialogFooter>
-                  <Button variant="secondary" @click.prevent=" () => router.push('/signup') ">Sign Up</Button>
-                  <Button  @click="Submit">Login</Button>  
+            <DialogFooter>
+                <Button type="button" @click="Submit">Login</Button> 
+                <Button variant="secondary" @click.prevent=" () => router.push('/signup') ">Sign Up</Button>
                 
                 </DialogFooter>
+
 
          
 
