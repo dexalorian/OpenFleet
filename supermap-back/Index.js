@@ -10,7 +10,6 @@ import jwt from 'jsonwebtoken'
 import { dbUser } from "./schemas.js";
 const fileparser  =  multer({ dest:  'uploads/'  })
 import fs from 'fs'
-
 import { v4 as uuid, validate } from "uuid"
 
 import { createNewPhoto, getAllPhotos, sendActivationMail } from "./service.js";
@@ -24,17 +23,19 @@ mongoose.connect('mongodb://localhost:27017/').then(
 let __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 app.use(cookieParser())
-app.use(cors({ origin: 'http://localhost:5173',
-    credentials: true}))
+app.use(cors({ origin: 'http://localhost:5173', credentials: true}))
 app.use(express.json())
-// Auth cookien check
-app.use( (req, res, next) => {
-    console.log(req.cookies)
+
+app.use(async (req, res, next) => {
+    console.log( 'Income cookie: ', req.cookies)
     if (req.originalUrl === '/login') {
         next()
     } else {
         if (req.cookies.access_tkn) {
             console.log('JWT', jwt.verify(req.cookies.access_tkn, 'kawabunga'));
+            req.jwt = await jwt.verify(req.cookies.access_tkn, 'kawabunga')
+
+            console.log('Decoded income JWT: ', req.jwt)
             next();
         } else if (req.originalUrl ==='/signup') {
             next()
@@ -52,11 +53,8 @@ app.use( (req, res, next) => {
           // Find user in the database by email
           console.log(req.body)
           const user = await dbUser.findOne({ email: req.body.username });
-
            console.log( 'user from db', user)
       
-      
-
         if (!user) {
             console.log("User not exist")
             return res.status(401).send("User not exist")
@@ -66,11 +64,9 @@ app.use( (req, res, next) => {
                 return res.status(401).send("Fail")
             }
         }
-
             console.log(user)
           // Compare the password using bcrypt (synchronous comparison)
           const isPasswordValid = bcrypt.compareSync(req.body.password, user.pwd);
-       
       
           // Generate JWT token
           const tkn = jwt.sign(
@@ -158,7 +154,6 @@ app.post('/upload', fileparser.single('file'), createNewPhoto)
 app.get('/photos', (req, res) => {
 getAllPhotos(req, res)
 
-//  fs.readdir(__dirname + '/uploads/', (err, e) =>   res.status(200).json(e))
  })
 
  app.get('/photo/*', (req, res) => {  

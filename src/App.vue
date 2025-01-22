@@ -18,7 +18,6 @@ const showLogin = ref(false)
 const showSignup = ref(false)
 const showLogout = ref(false)
 
-
 onMounted(
 async () => {
   if (!userObj.isAuth) {
@@ -26,11 +25,8 @@ async () => {
    let res = await e.json()
       console.log('dfdfd ', res);
       res.valid ? userObj.isAuth = true : userObj.isAuth = false
-   
   } 
-
 })
-
 
 watch( () => route.path, e => {
 console.log('path changed')
@@ -57,7 +53,6 @@ console.log('path changed')
 }
 
 )
-
 
 </script>
 

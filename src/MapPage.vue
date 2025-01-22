@@ -11,6 +11,8 @@ import GeoPinPicker from './components/GeoPinPicker.vue';
 import MainUserMenu from './components/MainUserMenu.vue'
 import { useRoute, useRouter } from 'vue-router';
 import SignUpDialog from './SignUpDialog.vue'
+import { storeToRefs } from 'pinia';
+import { useUser } from '@/main';
 
 const pickedGeoPnt = useSelGeoPnt()
 const ptrLineCoords = usePtrLineCoords()
@@ -18,31 +20,27 @@ const MyPhotos = useMyPhotos()
 
 const route = useRoute()
 
-onMounted(    
+
+const { photos } = storeToRefs(MyPhotos)
+
+onMounted(     
   async  () =>  {
-        // await MyPhotos.fetchPhotos()
         await MyPhotos.fetchPhotos()
         // console.log(await MyPhotos.fetchPhotos())
       // data.forEach( (e) => MyPhotos.addPhoto(e) )
       }
  )
 
- watch( () => route.path, (e) => console.log(e))
-
 </script>
 
 <template>
-    <div style="display: flex; flex-direction: column; height: 100vh; width: 100%; ">
+    <div style="display: flex; flex-direction: column; height: 100vh; width: 100%;">
                   <!-- {{ map }} -->
-            
-               
-                <LineFrame :from="ptrLineCoords.from" :to="ptrLineCoords.to" />
-                <GeoPinPicker class="z-10" :lat="pickedGeoPnt.lat" :lng="pickedGeoPnt.lng"></GeoPinPicker>
+            <LineFrame :from="ptrLineCoords.from" :to="ptrLineCoords.to" />
+              <GeoPinPicker class="z-10" :lat="pickedGeoPnt.lat" :lng="pickedGeoPnt.lng"></GeoPinPicker>
               <Map class="z-0">
-                  <MapPoint v-for="pnt in MyPhotos.photos" ></MapPoint> 
+                  <MapPoint v-for="pnt in photos" ></MapPoint> 
               </Map>
-              
-
         <PhotoSideBar></PhotoSideBar>
     </div>
    

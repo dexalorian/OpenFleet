@@ -10,16 +10,15 @@ const photoSchema  = new mongoose.Schema(
         uploadDate: {type: Date, require: true, default: Date.now},
         filename: String,
         author: String,
+        uploadedBy: {type: mongoose.Schema.Types.ObjectId, ref: 'User'}, // unique, required
         hiden: {type: Boolean, default: false} ,
         deleted: {type: Boolean, default: false},
-
         shotTimeMode: String,
         shotDateMode: String,
         shotTimeBegin: String,
         shotTimeEnd: String,
         shotDateBegin: String,
         shotDateEnd: String,
-
     }
 )
 
@@ -30,7 +29,7 @@ const userSchema = new mongoose.Schema(
         photos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Photo' }],
         firstname: String,
         surname: String,
-        email: {type: String, require: true, unique: true},
+        email: {type: String, require: true, unique: true },
         pwd: {type: String, require: true},
         originTown: String,
         activated: Boolean,

@@ -7,22 +7,22 @@
 
 
     const MyPhotos = useMyPhotos()
-    const selfile = ref(null);  
+    const selectedFile = ref(null);  
     const params = ref({})
     const imgUri: Url = ref(null)
 
-    watchEffect( () => {selfile.value  !== null ? imgUri.value  =  URL.createObjectURL(selfile.value) :  null; console.log(selfile.value)}) 
+    watchEffect( () => {selectedFile.value  !== null ? imgUri.value  =  URL.createObjectURL(selectedFile.value) :  null; console.log(selectedFile.value)}) 
 
     const newPhoto = async () => {
         const sendreq = new FormData( )
-        sendreq.append('file', selfile.value)
+        sendreq.append('file', selectedFile.value)
         sendreq.append('coords', JSON.stringify({lat: props.lat, lng: props.lng}))
         console.log(JSON.stringify(params.value))
         sendreq.append('params',  JSON.stringify(params.value))
 
     fetch(import.meta.env.VITE_BASE_URL + '/upload',  {
         method: 'POST',
-        body: sendreq
+        body: sendreq, credentials: 'include', 
     }).then(() => MyPhotos.fetchPhotos())
     
     // MyPhotos.addPhoto(`${props.lat},${props.lng}.`+selfile.value.name.split('.').at(-1))
@@ -42,7 +42,7 @@
         <form  @submit.prevent="newPhoto" enctype="multipart/form-data" 
         style="display: flex; width: 100%; flex-direction: column; gap: 10px">
 
-            <input type="file" @change=" e => {selfile  =  e.target.files[0]} " />
+            <input type="file" @change=" e => {selectedFile  =  e.target.files[0]} " />
 
             <div style="display: flex; gap: 3px; width: fit-content;">
                 <input type="number" style="display: flex; width: 100%;" placeholder="Lat" :value="lat">

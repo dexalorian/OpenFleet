@@ -15,7 +15,6 @@ const DoneStageVisible = ref(false)
 const open = ref(false)
 const props = defineProps({ show: Boolean })
 watch( () => props.show, () => open.value = props.show)
-
 const Submit = form.handleSubmit( 
 
 async (val) => {
@@ -25,7 +24,6 @@ console.log(val)
 DoneStageVisible.value = true
 
 } )
-
 </script>
 
 

@@ -66,6 +66,7 @@ export const useUser = defineStore('userParams',
       const email = ref('')
       const name = ref('')
       const isAuth = ref(false)
+      const id = ref('')
 
     function reset() {
       console.log('User store reset')
@@ -73,29 +74,31 @@ export const useUser = defineStore('userParams',
       refreshTkn.value = ''
       email.value = ''
       name.value = ''
+      id.value = ''
       isAuth.value = false
-      
-
     }
-
       return { accessTkn, refreshTkn, email, name, isAuth, reset }
    }
 )
 
-export const useSelGeoPnt = defineStore( 'selectedGeoPoint', {
-    state: () => ({
-      lat: 0,
-      lng: 0
-    })
+export const useSelGeoPnt = defineStore( 'selectedGeoPoint', 
+  () => {
+    const lat = ref(0);
+    const lng = ref(0);
+    const visible = ref(false);
+
+    return { lat, lng, visible }
   } )
 
 
 //Keeps coords for line rendering 
-export const usePtrLineCoords = defineStore('ptrLineCoords', {
+export const usePtrLineCoords = defineStore('ptrLineCoords', () => {
+      const from = ref([0,0]); 
+      const to = ref([0,0]);
+      const visible = ref(false)
 
-    state: () => (
-      {from: [0,0], to: [0,0]}
-    )
+      return { from, to, visible }
+    
 }) 
 
 export const useMyPhotos = defineStore('myPhotos', 
@@ -105,7 +108,6 @@ export const useMyPhotos = defineStore('myPhotos',
     
     async function fetchPhotos() {
       const resp = await fetch( import.meta.env.VITE_BASE_URL + '/photos',  {method: 'GET', credentials: 'include'});
-      console.log('Fetch photos resp status: ', resp.status)
       if (resp.status === 404) {
         photos.value = []
       } else {

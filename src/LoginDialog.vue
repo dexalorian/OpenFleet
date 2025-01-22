@@ -24,7 +24,7 @@ const props = defineProps({ show: Boolean })
 const router = useRouter()
 
 const open = ref(false)
-const resp = ref({})
+const res = ref({})
 
 watch( () => props.show, () => {open.value = props.show}  )
 
@@ -33,24 +33,22 @@ const form = useForm()
 const Submit = form.handleSubmit( 
   async (val) => {
 
-  const res =  await fetch(import.meta.env.VITE_BASE_URL + '/login', { headers: {'Content-Type': 'application/json'},
+  res.value = await fetch(import.meta.env.VITE_BASE_URL + '/login', { headers: {'Content-Type': 'application/json'},
   method: 'POST', credentials: 'include', body: JSON.stringify(val)})
 
-  resp.value = await res.json()
-  
-    console.log(resp.value.id)
+    console.log('respp ', res.value)
 
-  if (resp.value?.status === 401) {
-
-    console.log( 'Not authoresed' )
+  if (res.value.status === 401) {
+    console.log( 'Not authorized' )
     form.validate()
-    resp.value = {}
-
+    res.value = {}
   }
 
-  if (resp.value.id.length > 0) {
-    userObj.email = resp.value.email;
-    userObj.isAuth = true
+  if (res.value.status === 200) {
+    const resp = res.value.json()
+    userObj.email = resp.email;
+    userObj.id = resp.id;
+    userObj.isAuth = true   
     console.log(val)
     open.value = false
     router.push('/')
@@ -75,9 +73,9 @@ const Submit = form.handleSubmit(
   
         </DialogHeader>
 
-          <form @submit.prevent="Submit" @change="() => {form.setErrors({}); resp.value = {}}">
+          <form @submit.prevent="Submit">
      
-              <FormField v-slot="{ componentField, errors, errorMessage }" :rules="() => {return (resp.status === 401) ? 'Wrong creds' : true  }" name="username" >
+              <FormField v-slot="{ componentField, errors, errorMessage }" :rules="() => {return (res.status === 401) ? 'Wrong creds' : true  }" name="username" >
                 <FormItem>
                   <FormLabel>E-mail</FormLabel>
                  
