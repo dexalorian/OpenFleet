@@ -1,37 +1,28 @@
 <script setup lang="ts">
 
-import { onMounted, watch, ref, reactive } from 'vue';
-import LoginDialog from "@/LoginDialog.vue";
 import Map from './components/Map.vue';
 import { useSelGeoPnt, usePtrLineCoords, useMyPhotos } from '@/main'
 import LineFrame from './LineFrame.vue';
 import PhotoSideBar from './PhotoSideBar.vue';
-import MapPoint from './components/MapPoint.vue';
 import GeoPinPicker from './components/GeoPinPicker.vue';
-import MainUserMenu from './components/MainUserManuIsland.vue'
-import { useRoute, useRouter } from 'vue-router';
-import SignUpDialog from './SignUpDialog.vue'
 import { storeToRefs } from 'pinia';
-import { useUser } from '@/main';
-import { nextTick } from 'vue';
-import { onBeforeMount } from 'vue';
+
 
 const pickedGeoPnt = useSelGeoPnt()
-const ptrLineCoords = usePtrLineCoords()
+// const ptrLinesCoords = usePtrLinesCoords()
 const MyPhotos = useMyPhotos()
-const SharedMapId = reactive()
-const route = useRoute()
 
-const { photos } = storeToRefs(MyPhotos);
 
 </script>
 
 <template>
     <div style="display: flex; flex-direction: column; height: 100vh; width: 100%;">
-                  <!-- {{ map }} -->
-            <LineFrame :from="ptrLineCoords.from" :to="ptrLineCoords.to" />
+            <!-- Picker line canvas -->
+            <!-- <LineFrame :lines="[{ from: [0, 0] , to: ptrLineCoords.to, visible: ptrLineCoords.visible }]" /> -->
+            <!-- Pointers lines canvas -->
+            <LineFrame :lines="[]" />
               <GeoPinPicker class="z-10" :lat="pickedGeoPnt.lat" :lng="pickedGeoPnt.lng"></GeoPinPicker>
-              <Map :mapPoints="photos" class="z-0" />
+              <Map v-model="MyPhotos.photos" class="z-0" />
         <PhotoSideBar></PhotoSideBar>
     </div>
    

@@ -3,22 +3,18 @@ import { onMounted } from 'vue';
 import { useTemplateRef, ref } from 'vue';
 import { usePtrLineCoords } from './main';
 import { watch } from 'vue';
+import { boolean } from 'zod';
+import { watchEffect } from 'vue';
 
-const props = defineProps( { from: Array, to: Array, pointVisible: Boolean})
-const ptrLineCoords = usePtrLineCoords()
+type Line = { id: Number, from: Number[], to: Number[], visible: Boolean } 
+
+const props = defineProps( { lines: Array<Line> })
+// const ptrLineCoords = usePtrLineCoords()
 const canv = ref(null)
 let ctx = null;
 
-watch( () => ptrLineCoords.visible , () => 
-  {ptrLineCoords.visible ? null : ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)})
-
-watch([() => props.from, () => props.to], () => {
-  if (ptrLineCoords.visible) {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); ctx.beginPath();
-    ctx.moveTo(0, 0); ctx.lineTo(ptrLineCoords.to[0], ptrLineCoords.to[1]); ctx.stroke();
-  }
-   
- } )
+// watch( () => ptrLineCoords.visible , () => 
+//   {ptrLineCoords.visible ? null : ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)})
 
 onMounted(
 
@@ -32,21 +28,34 @@ onMounted(
     if (ctx) {
         ctx.canvas.width  = window.innerWidth;
         ctx.canvas.height = window.innerHeight;
-        if (ptrLineCoords.visible) {
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(ptrLineCoords.to[0], ptrLineCoords.to[1]);
-        ctx.stroke();
-        }
     }
   } else {
     console.error('Canvas element is not available');
   }
 
+  watchEffect(() => {
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  props.lines?.forEach( (e) => {
+
+    if (e.visible) {
+      // ctx.moveTo(0,0)
+     ctx.beginPath();
+    ctx.moveTo(e.from[0], e.from[1]); ctx.lineTo(e.to[0], e.to[1]); ctx.stroke();
+    } else {
+      // ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    }
+
+  })
+
+   
+ } )
+
     }
 
 )
  
+
+
 
 </script>
 

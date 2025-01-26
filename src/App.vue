@@ -25,7 +25,6 @@ async () => {
    credentials: 'include', headers: {'Content-Type': 'application/json'}})
    let res = await e.json()
       res.valid ? userObj.isAuth = true : userObj.isAuth = false
-
       if (res.defaultMap) {
         console.log('def map', res.defaultMap) 
         SharedMapId.value = res.defaultMap; 
