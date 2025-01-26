@@ -2,10 +2,9 @@
     const props = defineProps({  lat: Number, lng: Number })
 
     import { ref, watchEffect, watch } from "vue";
-    import { useMyPhotos } from "../main";
+    import { useMyPhotos, useSelGeoPnt } from "../main";
 
-
-
+    const selPtn = useSelGeoPnt()
     const MyPhotos = useMyPhotos()
     const selectedFile = ref(null);  
     const params = ref({})
@@ -20,11 +19,12 @@
         console.log(JSON.stringify(params.value))
         sendreq.append('params',  JSON.stringify(params.value))
 
-    fetch(import.meta.env.VITE_BASE_URL + '/upload',  {
+    await fetch(import.meta.env.VITE_BASE_URL + '/upload',  {
         method: 'POST',
         body: sendreq, credentials: 'include', 
-    }).then(() => MyPhotos.fetchPhotos())
-    
+    })
+    await MyPhotos.fetchPhotos()
+    selPtn.visible = false
     // MyPhotos.addPhoto(`${props.lat},${props.lng}.`+selfile.value.name.split('.').at(-1))
     }
 

@@ -1,6 +1,6 @@
-<script setup>
+<script setup lang="ts">
 
-import { onMounted, watch } from 'vue';
+import { onMounted, watch, ref, reactive } from 'vue';
 import LoginDialog from "@/LoginDialog.vue";
 import Map from './components/Map.vue';
 import { useSelGeoPnt, usePtrLineCoords, useMyPhotos } from '@/main'
@@ -8,28 +8,21 @@ import LineFrame from './LineFrame.vue';
 import PhotoSideBar from './PhotoSideBar.vue';
 import MapPoint from './components/MapPoint.vue';
 import GeoPinPicker from './components/GeoPinPicker.vue';
-import MainUserMenu from './components/MainUserMenu.vue'
+import MainUserMenu from './components/MainUserManuIsland.vue'
 import { useRoute, useRouter } from 'vue-router';
 import SignUpDialog from './SignUpDialog.vue'
 import { storeToRefs } from 'pinia';
 import { useUser } from '@/main';
+import { nextTick } from 'vue';
+import { onBeforeMount } from 'vue';
 
 const pickedGeoPnt = useSelGeoPnt()
 const ptrLineCoords = usePtrLineCoords()
 const MyPhotos = useMyPhotos()
-
+const SharedMapId = reactive()
 const route = useRoute()
 
-
-const { photos } = storeToRefs(MyPhotos)
-
-onMounted(     
-  async  () =>  {
-        await MyPhotos.fetchPhotos()
-        // console.log(await MyPhotos.fetchPhotos())
-      // data.forEach( (e) => MyPhotos.addPhoto(e) )
-      }
- )
+const { photos } = storeToRefs(MyPhotos);
 
 </script>
 
@@ -38,9 +31,7 @@ onMounted(
                   <!-- {{ map }} -->
             <LineFrame :from="ptrLineCoords.from" :to="ptrLineCoords.to" />
               <GeoPinPicker class="z-10" :lat="pickedGeoPnt.lat" :lng="pickedGeoPnt.lng"></GeoPinPicker>
-              <Map class="z-0">
-                  <MapPoint v-for="pnt in photos" ></MapPoint> 
-              </Map>
+              <Map :mapPoints="photos" class="z-0" />
         <PhotoSideBar></PhotoSideBar>
     </div>
    

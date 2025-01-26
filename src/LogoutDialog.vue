@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { Button } from './components/ui/button';
 import { DialogContent, Dialog, DialogHeader } from './components/ui/dialog';
 import { useRouter } from 'vue-router';
@@ -21,13 +21,12 @@ watch( () => props.show, () => open.value = props.show )
 
 
 async function GlobalLogout() {
-    userObj.reset()
     await fetch(import.meta.env.VITE_BASE_URL+'/logout', { method: 'POST', credentials: 'include' } )
-    myPhotos.fetchPhotos()
+    ptrLineCoords.visible = true
+    userObj.reset()
     router.push('/')
     open.value = false
-    ptrLineCoords.visible = false
-    
+    myPhotos.fetchPhotos()
 }
 
 
@@ -35,13 +34,11 @@ async function GlobalLogout() {
 
 <template>
 
-    <Dialog v-model:open="open" @update:open="() => router.push('/')">
-
+    <Dialog v-model:open="open">
             <DialogContent class="max-w-96">
                 <DialogHeader>Are your sure?</DialogHeader>
                 <Button @click="GlobalLogout">Logout</Button>
             </DialogContent>
-
     </Dialog>
 
 </template>

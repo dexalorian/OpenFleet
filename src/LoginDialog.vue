@@ -16,18 +16,17 @@ import { Input } from '@/components/ui/input'
 import { FormMessage, FormControl, Form, FormLabel, FormField, FormItem } from '@/components/ui/form'
 import { ErrorMessage, useForm } from 'vee-validate';
 import { useRoute, useRouter } from 'vue-router'
-import { useUser } from './main';
+import { useMyPhotos, useUser } from './main';
+import { inject } from 'vue';
 
 const userObj = useUser()
 
-const props = defineProps({ show: Boolean })
+const show = defineModel({default: false})
 const router = useRouter()
 
 const open = ref(false)
 const res = ref({})
-
-watch( () => props.show, () => {open.value = props.show}  )
-
+// watch( () => props.show, () => {open.value = props.show}  )
 const form = useForm()
 
 const Submit = form.handleSubmit( 
@@ -36,12 +35,10 @@ const Submit = form.handleSubmit(
   res.value = await fetch(import.meta.env.VITE_BASE_URL + '/login', { headers: {'Content-Type': 'application/json'},
   method: 'POST', credentials: 'include', body: JSON.stringify(val)})
 
-    console.log('respp ', res.value)
-
   if (res.value.status === 401) {
     console.log( 'Not authorized' )
+  
     form.validate()
-    res.value = {}
   }
 
   if (res.value.status === 200) {
@@ -49,15 +46,13 @@ const Submit = form.handleSubmit(
     userObj.email = resp.email;
     userObj.id = resp.id;
     userObj.isAuth = true   
-    console.log(val)
     open.value = false
+    console.log(val)
     router.push('/')
-  } else {
 
-  }
+  } else {useMyPhotos().fetchPhotos()}
 
 } 
-
 
 )
 
@@ -65,7 +60,7 @@ const Submit = form.handleSubmit(
 
 <template>
  
-      <Dialog v-model:open="open" @update:open="() => router.push('/')">
+      <Dialog v-model:open="show" @update:open="router.push('/')">
     
         <DialogContent class="max-w-sm">
         <DialogHeader>

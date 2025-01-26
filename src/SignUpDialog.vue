@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input'
@@ -20,6 +20,9 @@ const Submit = form.handleSubmit(
 async (val) => {
 fetch(import.meta.env.VITE_BASE_URL + '/signup', { headers: {'Content-Type': 'application/json'}, 
 method: 'POST', credentials: 'include', body: JSON.stringify(val)}).then( )
+
+fetch(import.meta.env.VITE_BASE_URL + '/', {})
+
 console.log(val)
 DoneStageVisible.value = true
 

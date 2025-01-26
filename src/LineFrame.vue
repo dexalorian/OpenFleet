@@ -1,17 +1,16 @@
-<script setup>
+<script lang="ts" setup>
 import { onMounted } from 'vue';
 import { useTemplateRef, ref } from 'vue';
 import { usePtrLineCoords } from './main';
 import { watch } from 'vue';
 
-
-const props = defineProps( { from: Array, to: Array, pointVisible: Boolean} )
+const props = defineProps( { from: Array, to: Array, pointVisible: Boolean})
 const ptrLineCoords = usePtrLineCoords()
 const canv = ref(null)
 let ctx = null;
 
-
-watch( () => ptrLineCoords.visible , () => {ptrLineCoords.visible ? null : ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)})
+watch( () => ptrLineCoords.visible , () => 
+  {ptrLineCoords.visible ? null : ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)})
 
 watch([() => props.from, () => props.to], () => {
   if (ptrLineCoords.visible) {
@@ -52,7 +51,7 @@ onMounted(
 </script>
 
 <template>
-        <canvas ref="canv" style="display: flex; position: absolute; z-index: 999; 
+        <canvas ref="canv" class="z-10"  style="display: flex; position: absolute; 
         background: none; pointer-events: none; " >
         </canvas>
 </template>

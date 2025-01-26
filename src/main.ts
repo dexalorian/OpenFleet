@@ -1,6 +1,6 @@
 import './assets/main.css'
 
-import { createApp, ref, watch } from 'vue'
+import { createApp, ref, watch, reactive, computed } from 'vue'
 import { createPinia, defineStore } from 'pinia'
 import { onMounted } from 'vue'
 
@@ -13,7 +13,6 @@ import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 
 import { createRouter, createWebHistory } from 'vue-router';
-import path from 'path'
 
 
 const routes = [
@@ -51,7 +50,6 @@ const routes = [
   }
 ]
 
-
 const router = createRouter({history: createWebHistory(), routes});
 const pinia = createPinia()
 const app = createApp(App)
@@ -86,7 +84,6 @@ export const useSelGeoPnt = defineStore( 'selectedGeoPoint',
     const lat = ref(0);
     const lng = ref(0);
     const visible = ref(false);
-
     return { lat, lng, visible }
   } )
 
@@ -96,7 +93,6 @@ export const usePtrLineCoords = defineStore('ptrLineCoords', () => {
       const from = ref([0,0]); 
       const to = ref([0,0]);
       const visible = ref(false)
-
       return { from, to, visible }
     
 }) 
@@ -107,9 +103,11 @@ export const useMyPhotos = defineStore('myPhotos',
     const photos = ref([])
     
     async function fetchPhotos() {
-      const resp = await fetch( import.meta.env.VITE_BASE_URL + '/photos',  {method: 'GET', credentials: 'include'});
-      if (resp.status === 404) {
+      const resp = await fetch( import.meta.env.VITE_BASE_URL + '/photos',  
+        {method: 'GET', credentials: 'include'});
+      if (resp.status === 404  || resp.status === 401 ) {
         photos.value = []
+        // usePtrLineCoords().visible = false
       } else {
         photos.value = await resp.json()
       }
@@ -119,14 +117,11 @@ export const useMyPhotos = defineStore('myPhotos',
     return { photos, fetchPhotos }
    }
 )
-  
 
 const userObj = useUser()
 const myPhotosStore = useMyPhotos()
 
-
 watch( () => userObj.email, () => myPhotosStore.fetchPhotos() )
-
 
 
 app.mount('#app')

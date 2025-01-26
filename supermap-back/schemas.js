@@ -22,8 +22,30 @@ const photoSchema  = new mongoose.Schema(
     }
 )
 
-const userSchema = new mongoose.Schema(
+const MapSchema = new mongoose.Schema(
+    {
+        id: {type: String, require: true},
+        members: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
+        admins: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}] ,
+        author: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+        zoom: Number,
+        center: String,
+        photos: [{type: mongoose.Schema.Types.ObjectId, ref: 'Photo'}],
+        guests: Boolean
+    }
+)
 
+
+const guestSchena = new mongoose.Schema(
+    {
+        id: {type: String, require: true},
+        photos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Photo' }],
+        defaultMapId: {type: mongoose.Schema.Types.ObjectId, ref: 'Map'}
+    }
+)
+
+
+const userSchema = new mongoose.Schema(
     {
         id: {type: String, require: true},
         photos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Photo' }],
@@ -33,11 +55,13 @@ const userSchema = new mongoose.Schema(
         pwd: {type: String, require: true},
         originTown: String,
         activated: Boolean,
-        activation_token: String
-
+        activation_token: String,
+        maps: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Map' }],
+        defaultMapId: { type: mongoose.Schema.Types.ObjectId, ref: 'Map' }
     }
-
 )
 
 export const dbPhoto = mongoose.model('Photo', photoSchema)
 export const dbUser = mongoose.model('User', userSchema)
+export const dbMap = mongoose.model('Map', MapSchema)
+export const dbGuest = mongoose.model('Guest', guestSchena)

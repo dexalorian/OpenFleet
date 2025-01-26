@@ -10,7 +10,6 @@ import nodemailer from 'nodemailer'
 let __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export async function createNewPhoto(req, res) {
-  console.log( 'Create new photo JWT: ', req.jwt)
     const newfilename = uuid() +  path.extname(req.file.originalname)
     fs.renameSync(__dirname + '/uploads/' +req.file.filename, 
         __dirname + '/uploads/'  + newfilename  ); 
@@ -46,9 +45,9 @@ mail.sendMail({from: 'MS_It5ww6@trial-pr9084zqd9j4w63d.mlsender.net',
 
 
 export async function getAllPhotos(req, res) {
-  const user = await dbUser.findOne({id: req.jwt.id}).populate('photos').exec()
+  const user = await dbUser.findOne({id: req.jwt?.id}).populate('photos').exec()
     // dbPhoto.find().then(e => res.json(e))
   res.json(user.photos)
-  console.log('Get all photos:', user.photos )
+
     // res.json( await dbPhoto.find())
 }
