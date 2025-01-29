@@ -20,6 +20,9 @@ provide('sharedmapID', SharedMapId)
 onMounted(
 async () => {
 
+  const mylocation = navigator.geolocation.getCurrentPosition(e => console.log('geolocation ', e))
+
+
   if (!userObj.isAuth) {
    let e = await fetch(import.meta.env.VITE_BASE_URL + '/auth', {method: 'POST', 
    credentials: 'include', headers: {'Content-Type': 'application/json'}})

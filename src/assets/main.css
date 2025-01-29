@@ -78,8 +78,3 @@
 
 }
 
-@layer components {
-  button {
-    @apply bg-slate-500 text-slate-100;
-  }
-}

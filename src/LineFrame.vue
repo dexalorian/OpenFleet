@@ -34,13 +34,14 @@ onMounted(
   }
 
   watchEffect(() => {
+
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   props.lines?.forEach( (e) => {
 
-    if (e.visible) {
+    if (true) {
       // ctx.moveTo(0,0)
      ctx.beginPath();
-    ctx.moveTo(e.from[0], e.from[1]); ctx.lineTo(e.to[0], e.to[1]); ctx.stroke();
+    ctx.moveTo(e.pointXY[0], e.pointXY[1]); ctx.lineTo(e.thumbXY[0], e.thumbXY[1]); ctx.stroke();
     } else {
       // ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
@@ -56,11 +57,10 @@ onMounted(
  
 
 
-
 </script>
 
 <template>
-        <canvas ref="canv" class="z-10"  style="display: flex; position: absolute; 
+        <canvas ref="canv" style="display: flex; position: absolute; 
         background: none; pointer-events: none; " >
         </canvas>
 </template>
