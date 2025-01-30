@@ -14,10 +14,8 @@ const route = useRoute()
 let map: leaflet.Map ;
 
 const props = defineProps({
-  points: {
-    type: Array
-  },
-  thumbs: {type: Array<any> }
+  points: {type: Array},
+  thumbs: {type: Array<any>}
 })
 
 
@@ -27,10 +25,8 @@ watchEffect( () => pointsBuffer.value = props.points )
 
 
 let pinicon_active = leaflet.divIcon({html: '<div class="pinicon_active"/>', iconSize: [0, 0]})
-
 const selectedGeoPnt = useSelGeoPnt()
 const ptrLineCoords = usePtrLineCoords()
-
 let newPnt = ref({});
 let line = {};
 let lines = ref([])
@@ -65,25 +61,18 @@ function fetchAllPointsXY(geopoints: Array<any>): any {
 
 function ThumbsPointsMerge( points: Array, thumbs: Array ): Array<any> {
   // console.log(' merge ', thumbs.v)
-  let map = points.map( (e) => ( { id: e.id , pointXY: [e.x, e.y],  thumbXY: (() => { let tmp = thumbs.filter( k => k.props.photoID === e.id )[0]; return [tmp.screenXY.x, tmp.screenXY.y ] } 
-  
-  
-  )() }  ) )
+  let map = points.map( (e) => (
+    { id: e.id , from: [e.x, e.y],  to: (() => { let tmp = thumbs.filter( k => k.props.photoID === e.id )[0]; 
+      return [tmp.screenXY.x, tmp.screenXY.y ] 
+    } )(), point_visible: true, line_visible: true }  ) )
   
   return map
 }
 
 
-watch( () => props.thumbs , () => {lines.value = 
-  ThumbsPointsMerge( fetchAllPointsXY(pointsBuffer.value), props.thumbs ) } )
-
-
-function fetchThumbXY(id: string): Point {
-   let pointXY: Array<Point> = props.thumbs?.filter( e => {
-     e.$el.photoID === id 
-   })
-   return pointXY
-}
+watch( () => props.thumbs , () => {
+  lines.value = ThumbsPointsMerge( fetchAllPointsXY(pointsBuffer.value), props.thumbs ) 
+})
 
 
 function fetchAllThumbsXY(): Array<Point> {
@@ -119,7 +108,7 @@ onMounted(() => {
    ptrLineCoords.visible = false
     
   })
-  map.on('contextmenu', (e) => { ptrLineCoords.visible = true; selectedGeoPnt.visible = true; selectedGeoPnt.lat = e.latlng.lat; selectedGeoPnt.lng = e.latlng.lng; } )
+  map.on('contextmenu', (e) => { ptrLineCoords.visible = true; selectedGeoPnt.visible = true; ptrLineCoords.to =  selectedGeoPnt.lat = e.latlng.lat; selectedGeoPnt.lng = e.latlng.lng; } )
   map.on('zoomend', e => localStorage.setItem('zoom', map.getZoom()))
   map.on('move', (e) =>  {line = map.latLngToContainerPoint( { lat: selectedGeoPnt.lat, lng: selectedGeoPnt.lng } ); ptrLineCoords.to = [line.x, line.y]; lines.value = 
     ThumbsPointsMerge( fetchAllPointsXY(pointsBuffer.value), props.thumbs )  }  )
@@ -180,6 +169,7 @@ function addTmpMapPnt() {
 <template>
 
  <div style="display: flex; width: 100vw; height: 100vh;">
+  
   <LineFrame class="z-20" :lines="lines" />
   <div ref="mapRef" class="flex w-full h-full z-0" id="map"></div>
  </div> 

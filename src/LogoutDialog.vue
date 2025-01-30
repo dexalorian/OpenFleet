@@ -24,9 +24,10 @@ async function GlobalLogout() {
     await fetch(import.meta.env.VITE_BASE_URL+'/logout', { method: 'POST', credentials: 'include' } )
     ptrLineCoords.visible = true
     userObj.reset()
-    router.push('/')
+    
     open.value = false
     myPhotos.fetchPhotos()
+    router.push('/')
 }
 
 
@@ -34,7 +35,7 @@ async function GlobalLogout() {
 
 <template>
 
-    <Dialog v-model:open="open">
+    <Dialog v-model:open="open" @update:open="router.push('/')" >
             <DialogContent class="max-w-96">
                 <DialogHeader>Are your sure?</DialogHeader>
                 <Button @click="GlobalLogout">Logout</Button>

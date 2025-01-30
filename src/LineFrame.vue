@@ -6,7 +6,7 @@ import { watch } from 'vue';
 import { boolean } from 'zod';
 import { watchEffect } from 'vue';
 
-type Line = { id: Number, from: Number[], to: Number[], visible: Boolean } 
+type Line = { id: Number, from: Number[], to: Number[], line_visible: Boolean, point_visible: Boolean } 
 
 const props = defineProps( { lines: Array<Line> })
 // const ptrLineCoords = usePtrLineCoords()
@@ -38,10 +38,10 @@ onMounted(
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   props.lines?.forEach( (e) => {
 
-    if (true) {
+    if (e.line_visible) {
       // ctx.moveTo(0,0)
      ctx.beginPath();
-    ctx.moveTo(e.pointXY[0], e.pointXY[1]); ctx.lineTo(e.thumbXY[0], e.thumbXY[1]); ctx.stroke();
+    ctx.moveTo(e.from[0], e.from[1]); ctx.lineTo(e.to[0], e.to[1]); ctx.stroke();
     } else {
       // ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
@@ -55,7 +55,6 @@ onMounted(
 
 )
  
-
 
 </script>
 

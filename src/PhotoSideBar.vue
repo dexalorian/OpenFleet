@@ -40,17 +40,6 @@ watch( () => myPhotos.photos,  () => {
             
 })
 
-onMounted( () => {
-      console.log('before nextick')
-      nextTick(
-            () => {
-                  console.log('before getThumbs')
-                  GetThumbsXY()
-                  console.log('after getThumbs')
-            }
-      )
-      
-})
 
 
 
@@ -64,13 +53,18 @@ nextTick(
 
 
 function GetThumbsXY() {
+      
       // ThumbsRectBuffer.value?.forEach( (e, i) => {   e.screenXY = e.$el.getBoundingClientRect(); this[i] = e  })
       let buf
       buf =  Thumbs.value?.map( (e, i, arr) => {  e.screenXY = e.$el.getBoundingClientRect() ; return e })
       // console.log( 'hfdksjahlkj;',  buf[0].screenXY)
       Thumbs.value = buf
-      console.log(' photoSidebar size ', botbar.value?.clientWidth)
-}
+
+      Thumbs.value.forEach( (e) => e.hideRemoteBtn())
+      
+}     
+
+
       // console.log('PhotoSide ', ThumbsRectBuffer)
 
 // botbar.value.$el.on
@@ -81,13 +75,12 @@ function GetThumbsXY() {
 
 
 <template>
-        <div ref="bottombar" @scroll="(e) => GetThumbsXY()"  class="bg-white h-36 flex  flex-row gap-2 overflow-x-scroll overflow-y-clip  relative w-auto ">
-    
 
-              <PhotoSideBarItem @mounted="() => GetThumbsXY()" v-for="i in myPhotos.photos" ref="Thumbs" class="flex relative" 
-                  :photoID = "i.id" :key="i" :imgsrc="`http://localhost:3000/photo/${i.filename}`"/>
-        </div>
-
-
+      <div ref="bottombar" @scroll="(e) => { GetThumbsXY(); }"  class=" flex flex-row w-full gap-2  overflow-y-hidden overflow-x-auto bg-lime-600">
+            <div v-for="i in myPhotos.photos" :key="i" class=" flex-row bg-lime-600 border-gray-950">
+                  <PhotoSideBarItem  @mounted="() => GetThumbsXY()" ref="Thumbs" class=" flex z-50"  :photoID = "i.id" :key="i" :imgsrc="`http://localhost:3000/photo/${i.filename}`"/>                 
+            </div>
+      
+      </div>
 
 </template>

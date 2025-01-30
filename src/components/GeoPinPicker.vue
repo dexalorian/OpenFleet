@@ -2,17 +2,22 @@
     const props = defineProps({  lat: Number, lng: Number })
 
     import { ref, watchEffect, watch } from "vue";
-    import { useMyPhotos, useSelGeoPnt } from "../main";
+    import { useMyPhotos, useSelGeoPnt, usePtrLineCoords } from "../main";
     import Button from "./ui/button/Button.vue";
     import Input from "./ui/input/Input.vue";
     import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
     import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+    import LineFrame from '@/LineFrame.vue'; 
 
     const selPtn = useSelGeoPnt()
     const MyPhotos = useMyPhotos()
     const selectedFile = ref(null);  
     const params = ref({})
     const imgUri: Url = ref(null)
+    const pickerIsland = ref(null)
+
+    const ptrLineCoords = usePtrLineCoords()
+
 
     watchEffect( () => {selectedFile.value  !== null ? imgUri.value  =  URL.createObjectURL(selectedFile.value) :  null; console.log(selectedFile.value)}) 
 
@@ -29,27 +34,31 @@
     })
     await MyPhotos.fetchPhotos()
     selPtn.visible = false
-    // MyPhotos.addPhoto(`${props.lat},${props.lng}.`+selfile.value.name.split('.').at(-1))
     }
+
+    const LineBaseCoords = ref([0,0])
+    watch( ptrLineCoords,  () => {
+        let boundaries = pickerIsland.value?.getBoundingClientRect()
+        LineBaseCoords.value = [boundaries?.right-2, boundaries?.top +22]
+
+    } )
 
 </script>
 
 <template >
 
-<!-- .form {
-    display: flex; flex-direction: column; position: absolute; gap: 10px; background-color: darkkhaki;  width: 300px; height: fit-content; padding: 10px;
 
-} -->
-    
-    
-    <div class="flex flex-col absolute gap-3 bg-slate-900 w-80 h-fit p-4 text-white rounded-3xl bg-opacity-80 backdrop-blur-sm dark p-0 m-0">
 
+
+<div style="display: flex; position: absolute; width: 100vw; height: 100vh; pointer-events: none; " class="m-0 p-0 flex">
+
+    <LineFrame :lines="[{ id: 6789, from: LineBaseCoords , to: [ptrLineCoords.to[0]+8, ptrLineCoords.to[1]+2], line_visible: ptrLineCoords.visible, point_visible: true }]" class=" z-0"/>
+
+    <div  ref="pickerIsland" class="flex m-4 flex-col absolute gap-3 bg-slate-900 w-80 pointer-events-auto h-fit p-4 text-white rounded-3xl bg-opacity-80 backdrop-blur-sm dark p-0 m-0">
     <Accordion type="multiple" collapsible class="p-0 m-0">
     <AccordionItem value="item-1" class="border-b-0 p-0 m-0"> 
       <AccordionTrigger class="p-0 m-0"><ion-icon name="camera"></ion-icon> <h1 class="text-xs font-bold"  >Upload photo</h1></AccordionTrigger>
       <AccordionContent>
-
-       
     
     <div style="display: flex; gap: 10px; width: fit-content;" class="py-2">
         <img :src=" imgUri " style="background-color: blueviolet; width: 200px; "/></div>
@@ -176,6 +185,10 @@
        
 
     </div>
+
+</div>
+
+
 
 </template>
 
