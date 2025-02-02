@@ -7,7 +7,11 @@
     import Input from "./ui/input/Input.vue";
     import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
     import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+    import { Label } from "./ui/label";
     import LineFrame from '@/LineFrame.vue'; 
+    import { Textarea } from "./ui/textarea";
+    import { useVideoConnections } from "../main";
+import { DialogContent, Dialog, DialogTrigger, DialogFooter } from "./ui/dialog";
 
     const selPtn = useSelGeoPnt()
     const MyPhotos = useMyPhotos()
@@ -15,9 +19,9 @@
     const params = ref({})
     const imgUri: Url = ref(null)
     const pickerIsland = ref(null)
+    const videoConns = useVideoConnections()
 
     const ptrLineCoords = usePtrLineCoords()
-
 
     watchEffect( () => {selectedFile.value  !== null ? imgUri.value  =  URL.createObjectURL(selectedFile.value) :  null; console.log(selectedFile.value)}) 
 
@@ -43,19 +47,49 @@
 
     } )
 
+    const outSDP = ref(null)
+    let inSDP;
+    let peer: RTCPeerConnection ;
+
+    async function createConn() {
+        peer = new RTCPeerConnection({ iceServers: [{urls: 'stun:stun.l.google.com:19302'}]})
+        // peer.createDataChannel("service")
+        let media =  await navigator.mediaDevices.getUserMedia({video: true})
+        let tracks = media.getTracks()[0]
+        peer.addTrack(tracks)
+        let offer = await peer.createOffer()
+        peer.setLocalDescription(offer)
+        // peer.onconnectionstatechange = e => console.log('conn state ', e)
+        peer.onicegatheringstatechange = () => {
+
+           if (peer.iceGatheringState === "complete") {
+            outSDP.value = JSON.stringify(peer.localDescription)
+            console.log("ice gathering complete")
+           } 
+        }
+        
+    }
+
+    async function connect() {
+        peer.ontrack = e =>  { console.log('track on ', e); videoConns.connections.value = e} 
+        peer.onconnectionstatechange = (e) => console.log('conn stat', e)
+        peer.setRemoteDescription(JSON.parse(inSDP) )
+        peer.onicegatheringstatechange = e => console.log('gath state', e)
+
+    }
+
+
 </script>
 
 <template >
 
-
-
-
 <div style="display: flex; position: absolute; width: 100vw; height: 100vh; pointer-events: none; " class="m-0 p-0 flex">
 
-    <LineFrame :lines="[{ id: 6789, from: LineBaseCoords , to: [ptrLineCoords.to[0]+8, ptrLineCoords.to[1]+2], line_visible: ptrLineCoords.visible, point_visible: true }]" class=" z-0"/>
+    <LineFrame :lines="[{ id: 'geopicker', from: LineBaseCoords , 
+        to: [ptrLineCoords.to[0]+8, ptrLineCoords.to[1]+2], line_visible: ptrLineCoords.visible, point_visible: true }]" class=" z-0"/>
 
     <div  ref="pickerIsland" class="flex m-4 flex-col absolute gap-3 bg-slate-900 w-80 pointer-events-auto h-fit p-4 text-white rounded-3xl bg-opacity-80 backdrop-blur-sm dark p-0 m-0">
-    <Accordion type="multiple" collapsible class="p-0 m-0">
+    <Accordion type="multiple" :default-value="[`item-1`, `connect`]" collapsible class="p-0 m-0">
     <AccordionItem value="item-1" class="border-b-0 p-0 m-0"> 
       <AccordionTrigger class="p-0 m-0"><ion-icon name="camera"></ion-icon> <h1 class="text-xs font-bold"  >Upload photo</h1></AccordionTrigger>
       <AccordionContent>
@@ -67,24 +101,20 @@
     style="display: flex; width: 100%; flex-direction: column; gap: 10px">
 
         <input type="file" @change=" e => {selectedFile  =  e.target.files[0]} " />
-
-
         <div style="display: flex; gap: 3px; width: fit-content;">
             <div class="flex flex-col">
                 <label for="lat_input" >Latitude</label>
-                <Input  id="lat_input" class="h-8" type="number" :value="lat"/>
+                <Input  id="lat_input" class="h-8" type="number" :default-value="props.lat" :value="props.lat"/>
             </div>
             <div class="flex flex-col">
                 <label for="lat_input" >Longitude</label>
-                <Input id="lng_input" class="h-8" type="number" :value="lng"/>
+                <Input id="lng_input" class="h-8" type="number" :default-value="props.lng"  :value="props.lng"/>
             </div>
      
         </div>
 
         <!-- <input id="title" type="text" placeholder="Title" v-model="params.title" > -->
         <Input  id="title" placeholder="Title or description" v-model="params.title" />
-
-
         <h3 style="margin: 0; padding: 0">Date of shot</h3>
              <Tabs default-value="unknown" class="w-full" v-model="params.shotDateMode">
                 <TabsList>
@@ -168,17 +198,38 @@
 
            
         <div>
-
             <Button type="submit">Upload</Button>
         <!-- <button class="button"  type="submit">Upload</button> -->
-
-
         </div>
 
     </form>
    
 
       </AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="connect" class="border-b-0 p-0 m-0">
+        <AccordionTrigger ><ion-icon name="car"></ion-icon> <h1 class="text-xs font-bold">Vehicle</h1></AccordionTrigger>
+        <AccordionContent class="flex gap-2 flex-wrap">
+            
+            <Dialog>
+                <DialogTrigger>
+
+                    <Button @click="() => createConn()">Connect to vehicle</Button>
+                </DialogTrigger>
+                <DialogContent>
+                        <Label>Your SDP to send to vehicle app</Label>
+                        <Textarea :value="outSDP" class="min-h-80" placeholder="sdp"/>
+                        <Label>SDP from vehicle </Label>
+                        <Input v-model="inSDP" placeholder="sdp"></Input>
+                        <DialogFooter>
+                            <Button>Back</Button>
+                            <Button @click="() => connect()">Connect</Button>
+                        </DialogFooter>
+                </DialogContent>
+
+         </Dialog>
+         
+        </AccordionContent>
     </AccordionItem>
   </Accordion>
         
@@ -188,10 +239,7 @@
 
 </div>
 
-
-
 </template>
-
 
 <style>
 

@@ -10,11 +10,10 @@ import Photo from "./components/Photo.vue";
 import { watchEffect } from "vue";
 import { inject, toRaw } from "vue";
 import { onUpdated } from "vue";
+import VideoSideBarItem from "./components/VideoSideBarItem.vue";
 
 const myPhotos = useMyPhotos()
 const botbar = useTemplateRef('bottombar')
-
-// botbar.value.on
 
 const emit = defineEmits(['scroll'])
 
@@ -24,9 +23,7 @@ watch( () => myPhotos.photos,  () => {
       nextTick(
             
             () => {
-           
-
-                  console.log('scroll ',botbar.value.scrollWidth )
+                  console.log('scroll ', botbar.value.scrollWidth )
                   
                   if (botbar.value) {
                   botbar.value.scrollLeft = botbar.value.scrollWidth  
@@ -35,12 +32,7 @@ watch( () => myPhotos.photos,  () => {
             }
             }) 
             
-
-            
-            
 })
-
-
 
 
 const Thumbs = inject('Thumbs')
@@ -59,7 +51,6 @@ function GetThumbsXY() {
       buf =  Thumbs.value?.map( (e, i, arr) => {  e.screenXY = e.$el.getBoundingClientRect() ; return e })
       // console.log( 'hfdksjahlkj;',  buf[0].screenXY)
       Thumbs.value = buf
-
       Thumbs.value.forEach( (e) => e.hideRemoteBtn())
       
 }     
@@ -70,16 +61,27 @@ function GetThumbsXY() {
 // botbar.value.$el.on
 
 
+
+
 // console.log('ref ', PhotoThumbRef.value)
 </script>
 
 
 <template>
 
-      <div ref="bottombar" @scroll="(e) => { GetThumbsXY(); }"  class=" flex flex-row w-full gap-2  overflow-y-hidden overflow-x-auto bg-lime-600">
+      <div ref="bottombar" @scroll="(e) => { GetThumbsXY(); }"  class=" flex flex-row w-full  overflow-y-hidden overflow-x-auto bg-lime-600">
+
+
+            <VideoSideBarItem  class="bg-red-700"></VideoSideBarItem>
             <div v-for="i in myPhotos.photos" :key="i" class=" flex-row bg-lime-600 border-gray-950">
-                  <PhotoSideBarItem  @mounted="() => GetThumbsXY()" ref="Thumbs" class=" flex z-50"  :photoID = "i.id" :key="i" :imgsrc="`http://localhost:3000/photo/${i.filename}`"/>                 
+                  
+                  <PhotoSideBarItem  @mounted="() => GetThumbsXY()" ref="Thumbs" class="flex z-50"
+                          :photoID = "i.id" :key="i" :imgsrc="`http://localhost:3000/photo/${i.filename}`"/>                 
+                  
             </div>
+
+
+            
       
       </div>
 

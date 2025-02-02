@@ -6,7 +6,7 @@ import { watch } from 'vue';
 import { boolean } from 'zod';
 import { watchEffect } from 'vue';
 
-type Line = { id: Number, from: Number[], to: Number[], line_visible: Boolean, point_visible: Boolean } 
+type Line = { id: String, from: Number[], to: Number[], line_visible: Boolean, point_visible: Boolean } 
 
 const props = defineProps( { lines: Array<Line> })
 // const ptrLineCoords = usePtrLineCoords()

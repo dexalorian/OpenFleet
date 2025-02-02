@@ -5,6 +5,7 @@ import { useSelGeoPnt, usePtrLineCoords, useMyPhotos } from '@/main'
 import LineFrame from './LineFrame.vue';
 import PhotoSideBar from './PhotoSideBar.vue';
 import GeoPinPicker from './components/GeoPinPicker.vue';
+import { Button } from '@/components/ui/button'
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue'
 import { watchEffect, toRaw } from 'vue';
@@ -13,11 +14,7 @@ import { useTemplateRef, watch } from 'vue';
 
 
 const pickedGeoPnt = useSelGeoPnt()
-
 const MyPhotos = useMyPhotos()
-
-
-
 const ThumbsRefs = ref([])
 
 provide('Thumbs', ThumbsRefs)
@@ -27,11 +24,9 @@ provide('Thumbs', ThumbsRefs)
 
 <template>
     <div style="display: flex; flex-direction: column; height: 100vh; width: 100%;" class="p-0 m-0" >
-            <!-- Picker line canvas -->
-            
-            <!-- Pointers lines canvas -->
+         
           
-              <GeoPinPicker ref="" class="z-50" :lat="pickedGeoPnt.lat" :lng="pickedGeoPnt.lng"></GeoPinPicker>
+            <GeoPinPicker ref="" class="z-50" :lat="pickedGeoPnt.lat" :lng="pickedGeoPnt.lng"></GeoPinPicker>
               <Map :thumbs="ThumbsRefs" :points="MyPhotos.photos" class="z-0" />
             <PhotoSideBar/>
     </div>

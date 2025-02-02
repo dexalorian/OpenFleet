@@ -11,7 +11,7 @@
   "dependencies": {
     "@vee-validate/zod": "^4.15.0",
     "@vue/tsconfig": "^0.7.0",
-    "@vueuse/core": "^12.4.0",
+    "@vueuse/core": "^12.5.0",
     "axios": "^1.7.9",
     "body-parser": "^1.20.3",
     "class-variance-authority": "^0.7.1",

@@ -6,6 +6,7 @@ import { onMounted } from 'vue'
 
 import App from './App.vue'
 import Map from './MapPage.vue'
+import VehiclePage  from './VehiclePage.vue'
 import AppHeader from './components/AppHeader.vue'
 
 import 'leaflet.markercluster';
@@ -13,6 +14,7 @@ import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 
 import { createRouter, createWebHistory } from 'vue-router';
+import { Path } from 'leaflet'
 
 
 const routes = [
@@ -47,7 +49,14 @@ const routes = [
       default: Map,
       header: AppHeader
     }
-  }
+  },
+  {
+    path: '/vehicleapp',
+    name: 'VehicleApp',
+    components: {
+      default: VehiclePage
+    }
+  },
 ]
 
 const router = createRouter({history: createWebHistory(), routes});
@@ -56,6 +65,10 @@ const app = createApp(App)
 app.use(pinia)
 app.use(router)
 
+export const useVideoConnections = defineStore('videoConnections', () => {
+  const connections = ref({})
+  return { connections }
+} )
 
 export const useUser = defineStore('userParams', 
    () => {

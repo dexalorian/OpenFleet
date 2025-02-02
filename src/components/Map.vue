@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { inject, onMounted, defineModel, toRaw } from 'vue';
-import leaflet, { icon, latLng, Point } from "leaflet"
+import leaflet, { icon, latLng, Point, type LeafletEvent } from "leaflet"
 import { useSelGeoPnt, usePtrLineCoords, useMyPhotos } from '@/main'
 import { watchEffect, watch } from 'vue';
 import { useSlots, ref, nextTick } from 'vue';
@@ -27,7 +27,7 @@ watchEffect( () => pointsBuffer.value = props.points )
 let pinicon_active = leaflet.divIcon({html: '<div class="pinicon_active"/>', iconSize: [0, 0]})
 const selectedGeoPnt = useSelGeoPnt()
 const ptrLineCoords = usePtrLineCoords()
-let newPnt = ref({});
+let GeoSelector: leaflet.Marker = ref(null);
 let line = {};
 let lines = ref([])
 
@@ -85,8 +85,6 @@ function fetchAllThumbsXY(): Array<Point> {
 
 
 onMounted(() => {
-
-
   map = leaflet.map('map',{
     center: [0, 0], // Initial center
     zoom: 2,
@@ -103,66 +101,93 @@ onMounted(() => {
   leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19,
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);
   map.zoomControl.setPosition('bottomright');
-  map.on('click', () => {
-   clusters.removeLayer(newPnt)
-   ptrLineCoords.visible = false
-    
-  })
-  map.on('contextmenu', (e) => { ptrLineCoords.visible = true; selectedGeoPnt.visible = true; ptrLineCoords.to =  selectedGeoPnt.lat = e.latlng.lat; selectedGeoPnt.lng = e.latlng.lng; } )
+  // map.on('click', () => {
+  //  clusters.removeLayer(GeoSelector)
+  //  ptrLineCoords.visible = false })
+  map.on('contextmenu', (e) => { ptrLineCoords.visible = true; selectedGeoPnt.visible = true;  selectedGeoPnt.lat = e.latlng.lat; selectedGeoPnt.lng = e.latlng.lng; } )
   map.on('zoomend', e => localStorage.setItem('zoom', map.getZoom()))
-  map.on('move', (e) =>  {line = map.latLngToContainerPoint( { lat: selectedGeoPnt.lat, lng: selectedGeoPnt.lng } ); ptrLineCoords.to = [line.x, line.y]; lines.value = 
-    ThumbsPointsMerge( fetchAllPointsXY(pointsBuffer.value), props.thumbs )  }  )
-map.on('moveend', e => localStorage.setItem('mapframecoords', map.getCenter().lat+'+'+map.getCenter().lng))
-  map.on('zoom', (e) =>  {line = map.latLngToContainerPoint( { lat: selectedGeoPnt.lat, 
-    lng: selectedGeoPnt.lng  } ); ptrLineCoords.to = [line.x, line.y]; })
+  map.on('move', (e) => { 
+    line = map.latLngToContainerPoint( { lat: selectedGeoPnt.lat, lng: selectedGeoPnt.lng } ); 
+    ptrLineCoords.to = [line.x, line.y]; 
+    lines.value = ThumbsPointsMerge(fetchAllPointsXY(pointsBuffer.value), props.thumbs ) 
+  })
+
+  map.on('moveend', e => localStorage.setItem('mapframecoords', map.getCenter().lat+'+'+map.getCenter().lng))
+  map.on('zoom', (e) =>  {line = map.latLngToContainerPoint( { lat: selectedGeoPnt.lat, lng: selectedGeoPnt.lng  } ); ptrLineCoords.to = [line.x, line.y]; })
   map.on('zoomstart', (e) =>  {ptrLineCoords.to = [0, 0]})
+  
   map.on('resize', (e) =>  {line = map.latLngToContainerPoint( { lat: selectedGeoPnt.lat, 
-    lng: selectedGeoPnt.lng  } ); ptrLineCoords.to = [line.x, line.y]}  )
+    lng: selectedGeoPnt.lng  } ); ptrLineCoords.to = [line.x, line.y]} )
 
     lines.value = ThumbsPointsMerge( fetchAllPointsXY(pointsBuffer.value), props.thumbs ) 
     const clusters = leaflet.markerClusterGroup({maxClusterRadius: 50, 
       disableClusteringAtZoom: 15, animate: false})
       
+
+      
     map.addLayer(clusters)
-    // map.eachLayer(e => console.log('map layer ', e))
-    addTmpMapPnt()
-    watch(selectedGeoPnt, addTmpMapPnt )
     
+    // map.eachLayer(e => console.log('map layer ', e))
+   
     // L.featureGroup([marker1, marker2, polyline])
     // .bindPopup('Hello world!')
     // .on('click', function() { alert('Clicked on a member of the group!'); })
     // .addTo(map);
-
-    
-
-    watchEffect( () => {
+    watch(pointsBuffer, () => {
       
       clusters.clearLayers()
-        console.log('map points watcher', pointsBuffer)
+        // console.log('map points watcher', pointsBuffer)
       putPhotosOnMap(clusters)
       // map.eachLayer(e => console.log('map layer ', e))
-      addTmpMapPnt()
+      addGeoSelector()
       
         } )
   
 
-function addTmpMapPnt() {
-    if (newPnt) {
-     clusters.removeLayer(newPnt)
-     newPnt = null
-    }
-    if (selectedGeoPnt.visible) {
+function addGeoSelector(): Leaflet.marker {
 
-      let marker = leaflet.marker( { lat: selectedGeoPnt.lat, lng: selectedGeoPnt.lng}, 
+  if (GeoSelector.value) {
+    console.log('selector not added')
+    return
+  }
+    // if (selectedGeoPnt.visible) {
+      ptrLineCoords.visible = true; 
+      selectedGeoPnt.visible = true; 
+      let marker: leaflet.Marker = leaflet.marker( { lat: selectedGeoPnt.lat, lng: selectedGeoPnt.lng}, 
     {icon: pinicon_active, draggable: true} )
-    line = map.latLngToContainerPoint( { lat: selectedGeoPnt.lat, lng: selectedGeoPnt.lng  } )
+    // marker.on('drag', (e) => { selectedGeoPnt.lat = e.latlng.lat; selectedGeoPnt.lng = e.latlng.lng;  ptrLineCoords.visible = true; selectedGeoPnt.visible = true;})
+    // marker.on('drag', (e) => { ptrLineCoords.visible = true; selectedGeoPnt.visible = true; selectedGeoPnt.lat = e.latlng.lat; selectedGeoPnt.lng = e.latlng.lng;  })
+   
+    line = map.latLngToContainerPoint( { lat: selectedGeoPnt.lat, lng: selectedGeoPnt.lng } )
       ptrLineCoords.to = [line.x, line.y]
+       marker.on('drag', (e) => { updGeoSelector( e.latlng.lat, e.latlng.lng, true ) })
+      
      clusters.addLayer(marker)
-     newPnt = marker
+     GeoSelector = marker
+     console.log('selector added')
+    
+     return marker
 
-    }
+    // }
 }
 })
+
+watch( selectedGeoPnt , () => {  GeoSelector.setLatLng( { lat: selectedGeoPnt.lat, lng: selectedGeoPnt.lng});
+line = map.latLngToContainerPoint( { lat: selectedGeoPnt.lat, lng: selectedGeoPnt.lng  } ); ptrLineCoords.to = [line.x, line.y]; 
+      
+} )
+
+function updGeoSelector(lat: Number, lng: Number, visible: true) {
+    ptrLineCoords.visible = true; 
+    selectedGeoPnt.visible = true; 
+    selectedGeoPnt.lat = lat;
+    selectedGeoPnt.lng = lng; 
+    line = map.latLngToContainerPoint( { lat: selectedGeoPnt.lat, lng: selectedGeoPnt.lng } ); 
+    ptrLineCoords.to = [line.x, line.y]; 
+}
+
+
+
 
 </script>
 
