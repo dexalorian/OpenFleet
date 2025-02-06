@@ -1,5 +1,7 @@
 # OpenFleet
 
+Open Cross-platform Saas for operating taxi and cargo fleet
+
 ## Project Setup
 
 ```sh
@@ -17,4 +19,3 @@ npm run dev
 ```sh
 npm run build
 ```
-# OpenFleet
