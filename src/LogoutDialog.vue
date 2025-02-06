@@ -3,11 +3,11 @@ import { Button } from './components/ui/button';
 import { DialogContent, Dialog, DialogHeader } from './components/ui/dialog';
 import { useRouter } from 'vue-router';
 import { ref, watch } from 'vue'
-import { useUser, useMyPhotos, usePtrLineCoords } from './main';
+import { useUser, usePtrLineCoords } from './main';
 
 
 const userObj = useUser()
-const myPhotos = useMyPhotos()
+// const Vehicles = useVehicles()
 
 const ptrLineCoords = usePtrLineCoords()
 
@@ -21,12 +21,12 @@ watch( () => props.show, () => open.value = props.show )
 
 
 async function GlobalLogout() {
-    await fetch(import.meta.env.VITE_BASE_URL+'/logout', { method: 'POST', credentials: 'include' } )
+    await fetch(import.meta.env.VITE_BASE_VEHICLE_URL+'/logout', { method: 'POST', credentials: 'include' } )
     ptrLineCoords.visible = true
     userObj.reset()
     
     open.value = false
-    myPhotos.fetchPhotos()
+    // Vehicles.fetchVehicles()
     router.push('/')
 }
 

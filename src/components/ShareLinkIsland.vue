@@ -15,7 +15,7 @@ import { inject, watch, ref, computed } from 'vue';
 
 const id = inject('sharedmapID')
 
-const url = import.meta.env.VITE_BASE_URL;
+const url = import.meta.env.VITE_BASE_VEHICLE_URL;
 // let link = id.value.id + 'd;fojdl;fk;'
 
 </script>

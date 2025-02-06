@@ -1,38 +1,34 @@
 <script setup lang="ts">
 import { nextTick } from "vue";
-import PhotoSideBarItem from "./components/PhotoSideBarItem.vue"
+import PhotoSideBarItem from "./components/VideoBarItem.vue"
 
-import { useMyPhotos } from "./main";
+// import { useVehicles } from "./main";
 import { useTemplateRef, onMounted } from "vue"
 import { watch } from "vue";
-import { provide, ref } from "vue";
-import Photo from "./components/Photo.vue";
-import { watchEffect } from "vue";
 import { inject, toRaw } from "vue";
 import { onUpdated } from "vue";
 import VideoSideBarItem from "./components/VideoSideBarItem.vue";
 
-const myPhotos = useMyPhotos()
+// const Vehicles = useVehicles()
 const botbar = useTemplateRef('bottombar')
 
 const emit = defineEmits(['scroll'])
 
-watch( () => myPhotos.photos,  () => {
-      console.log('photos changed ', myPhotos.photos)
+// watch( () => Vehicles.vehicles,  () => {
+//       console.log('photos changed ')
     
-      nextTick(
+//       nextTick(
             
-            () => {
-                  console.log('scroll ', botbar.value.scrollWidth )
+//             () => {
+//                   console.log('scroll ', botbar.value.scrollWidth )
+//                   if (botbar.value) {
+//                   botbar.value.scrollLeft = botbar.value.scrollWidth  
+//                   GetThumbsXY()
                   
-                  if (botbar.value) {
-                  botbar.value.scrollLeft = botbar.value.scrollWidth  
-                  GetThumbsXY()
-                  
-            }
-            }) 
+//             }
+//             }) 
             
-})
+// })
 
 
 const Thumbs = inject('Thumbs')

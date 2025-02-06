@@ -4,9 +4,8 @@ import { watch, ref, onMounted, provide, reactive } from 'vue';
 import { useRoute } from 'vue-router'
 import LoginDialog from './LoginDialog.vue';
 import SignUpDialog from './SignUpDialog.vue';
-import { useMyPhotos, usePtrLineCoords, useUser } from './main';
+import {  usePtrLineCoords, useUser } from './main';
 import LogoutDialog from './LogoutDialog.vue';
-
 
 const userObj = useUser()
 const route = useRoute()
@@ -22,26 +21,27 @@ async () => {
 
   const mylocation = navigator.geolocation.getCurrentPosition(e => console.log('geolocation ', e))
 
-  if (!userObj.isAuth) {
-   let e = await fetch(import.meta.env.VITE_BASE_URL + '/auth', {method: 'POST', 
-   credentials: 'include', headers: {'Content-Type': 'application/json'}})
-   let res = await e.json()
-      res.valid ? userObj.isAuth = true : userObj.isAuth = false
-      if (res.defaultMap) {
-        console.log('def map', res.defaultMap) 
-        SharedMapId.value = res.defaultMap; 
-      } else {
-        // await fetch('  ')
-        console.log('no default map, error ', res)
-      }
+  // if (!userObj.isAuth) {
+  //  let e = await fetch(import.meta.env.VITE_BASE_VEHICLE_URL + '/auth', {method: 'POST', 
+  //  credentials: 'include', headers: {'Content-Type': 'application/json'}})
+  //  let res = await e.json()
+  //     res.valid ? userObj.isAuth = true : userObj.isAuth = false
+  //     if (res.defaultMap) {
+  //       console.log('def map', res.defaultMap) 
+  //       SharedMapId.value = res.defaultMap; 
+  //     } else {
+  //       // await fetch('  ')
+  //       console.log('no default map, error ', res)
+  //     }
 
-  } 
+  // } 
         
 })
 
+
 watch( () => userObj.isAuth, async  () => {
 
-   let e = await fetch(import.meta.env.VITE_BASE_URL + '/auth', {method: 'POST', 
+   let e = await fetch(import.meta.env.VITE_BASE_VEHICLE_URL + '/auth', {method: 'POST', 
    credentials: 'include', headers: {'Content-Type': 'application/json'}})
  
    let res = await e.json()
@@ -54,7 +54,7 @@ watch( () => userObj.isAuth, async  () => {
         // await fetch('  ')
         console.log('no default map, error ', res)
       }
-      useMyPhotos().fetchPhotos()
+      // useVehicles().fetchVehicles()
 })
 
 watch( () => route.path, e => {
@@ -86,9 +86,9 @@ console.log('path changed to ',route.path)
 </script>
 
 <template>
-  <LogoutDialog :show="showLogout"/>
+  <!-- <LogoutDialog :show="showLogout"/>
   <LoginDialog v-model="showLogin"/>
   <SignUpDialog :show="showSignup" />
-  <router-view name="header"/>
+  <router-view name="header"/> -->
   <router-view class="flex w-full"/>
 </template>

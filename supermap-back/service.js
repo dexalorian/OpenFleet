@@ -4,7 +4,7 @@ import fs from "fs"
 import { v4 as uuid } from "uuid"
 import path from "path"
 import { fileURLToPath } from "url";
-import { dbPhoto, dbUser } from "./schemas.js";
+// import { dbUser } from "./schemas.js";
 import nodemailer from 'nodemailer'
 
 let __dirname = path.dirname(fileURLToPath(import.meta.url))

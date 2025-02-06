@@ -52,12 +52,12 @@ const iceServers = [
 //         peerconn.onicecandidate = (e) => console.log('ice candid ',e)
 //         let offer = await peerconn.createOffer()
 //         peerconn.setLocalDescription(offer)
-        
   
 //     }
-
 // )
 
+
+// const kek = [{connID: '', peercon: RTCPeerConnection}]
 
 defineExpose({props , setRemoteBtnPos, hideRemoteBtn, imgTile} )
 

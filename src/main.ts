@@ -1,29 +1,30 @@
 import './assets/main.css'
+// import '@types/w3c-web-usb';
 
 import { createApp, ref, watch, reactive, computed } from 'vue'
 import { createPinia, defineStore } from 'pinia'
-import { onMounted } from 'vue'
 
 import App from './App.vue'
 import Map from './MapPage.vue'
-import VehiclePage  from './VehiclePage.vue'
+import VehicleIndex  from './VehicleApp/Index.vue'
 import AppHeader from './components/AppHeader.vue'
+import DriverPage from './DriverApp/Index.vue'
+import SignUp from './VehicleApp/SignUp.vue'
+import Login from './VehicleApp/Login.vue'
 
 import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 
 import { createRouter, createWebHistory } from 'vue-router';
-import { Path } from 'leaflet'
-
 
 const routes = [
   {
     path: '/',
     name: 'App',
     components: {
-      default: Map,
-      header: AppHeader
+      default: Map
+      // header: AppHeader
     }
   },
   {
@@ -54,9 +55,24 @@ const routes = [
     path: '/vehicleapp',
     name: 'VehicleApp',
     components: {
-      default: VehiclePage
-    }
+      default: VehicleIndex,
+    }, 
+    // children: [{
+    //   path: 'signup',
+    //   component: SignUp },
+    //   { path: 'login',
+    //     component: Login,
+    //   },
+    //   // { path: '', component: VehicleIndex }
+    // ]
   },
+  {
+    path: '/driverapp',
+    name: 'DriverApp',
+    components: {
+      default: DriverPage
+    }
+  }
 ]
 
 const router = createRouter({history: createWebHistory(), routes});
@@ -110,31 +126,31 @@ export const usePtrLineCoords = defineStore('ptrLineCoords', () => {
     
 }) 
 
-export const useMyPhotos = defineStore('myPhotos', 
-   () => {
+// export const useVehicles = defineStore('Vehicles', 
+//    () => {
 
-    const photos = ref([])
+//     const vehicles = ref([])
     
-    async function fetchPhotos() {
-      const resp = await fetch( import.meta.env.VITE_BASE_URL + '/photos',  
-        {method: 'GET', credentials: 'include'});
-      if (resp.status === 404  || resp.status === 401 ) {
-        photos.value = []
-        // usePtrLineCoords().visible = false
-      } else {
-        photos.value = await resp.json()
-      }
+//     async function fetchVehicles() {
+//       const resp = await fetch( import.meta.env.VITE_BASE_VEHICLE_URL + '/vehicles',  
+//         {method: 'GET'});
+//       if (resp.status === 404  || resp.status === 401 ) {
+//         vehicles.value = []
+//         // usePtrLineCoords().visible = false
+//       } else {
+//         vehicles.value = await resp.json()
+//       }
     
-    }
+//     }
 
-    return { photos, fetchPhotos }
-   }
-)
+//     return { vehicles, fetchVehicles, useVehicles }
+//    }
+// )
 
-const userObj = useUser()
-const myPhotosStore = useMyPhotos()
+// const userObj = useUser()
+// const VehiclesStore = useVehicles()
 
-watch( () => userObj.email, () => myPhotosStore.fetchPhotos() )
+// watch( () => userObj.email, () => VehiclesStore.fetchVehicles() )
 
 
 app.mount('#app')

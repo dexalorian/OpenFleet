@@ -7,13 +7,15 @@ import mongoose from "mongoose";
 import multer from "multer";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { dbUser, dbMap, dbGuest } from "./schemas.js";
+import WebSocket, {WebSocketServer} from "ws";
+// import { dbUser, dbMap, dbGuest } from "./schemas.js";
 const fileparser  =  multer({ dest:  'uploads/'  })
 import fs from 'fs'
 import { v4 as uuid, validate } from "uuid"
 
 import { createNewPhoto, getAllPhotos, sendActivationMail } from "./service.js";
 import cookieParser from "cookie-parser";
+import { vehicle } from "./schemas.js";
 const app = express()
 mongoose.connect('mongodb://localhost:27017/').then(
     () => console.log('Mongoose connected'),
@@ -22,24 +24,30 @@ mongoose.connect('mongodb://localhost:27017/').then(
 
 let __dirname = path.dirname(fileURLToPath(import.meta.url))
 
+const wsserv = new WebSocketServer({port: 8484})
+
+wsserv.on('connection', conn => 
+    conn.onmessage = e => { console.log(e), conn.send(e.data, 'kek from server') } 
+)
+
 app.use(cookieParser())
 app.use(cors({ origin: 'http://localhost:5173', credentials: true}))
 app.use(express.json())
 
-app.use(async (req, res, next) => {
-    if (req.cookies.access_tkn) {
-        req.jwt = await jwt.verify(req.cookies.access_tkn, 'kawabunga')
-        next()
-    } else if (req.originalUrl === '/login' || req.originalUrl === '/auth' || req.originalUrl === '/signup') {
-        next()
-    } else {
-        res.status(401).send()
-    }
+// app.use(async (req, res, next) => {
+//     if (req.cookies.access_tkn) {
+//         req.jwt = await jwt.verify(req.cookies.access_tkn, 'kawabunga')
+//         next()
+//     } else if (req.originalUrl === '/login' || req.originalUrl === '/auth' || req.originalUrl === '/signup') {
+//         next()
+//     } else {
+//         res.status(401).send()
+//     }
 
-        }
+//         }
 
-    // next()
-       )
+//     // next()
+//        )
 
     app.post('/login', async (req, res) => {
         console.log('Login triggered')
@@ -98,56 +106,75 @@ app.post('/logout', async (req, res) => {
 
 })
 
-app.get('/guest', (req, res) => {
 
-    res.json({ guest_id: uuid() })
-
-})
-
-app.post('/auth', async (req, res) => {
-     let user = req.cookies.access_tkn ? jwt.verify(req.cookies?.access_tkn, 'kawabunga') : null
-    // console.log('Auth jwt: ', user)
-    if (user?.email) {
-        console.log('Mail exist')
-        const userdb = await dbUser.findOne( {id: user.id} )
-        if (!userdb.defaultMapId) {
-            const newid = await uuid()
-            // user.defaultMap = 'dfdfd'
-            const newmap = await dbMap.create({ id: newid, author: userdb._id, admins: [userdb._id] })
-            userdb.maps.push(newmap._id)
-            userdb.defaultMapId = newmap._id
-            userdb.save()
-        }
-
-        res.json({valid: true, defaultMap: userdb.id }).send()
-
-    } else {
-
-        let guestid = ''
-        console.log("Mail don't exist")
-        if (!req.cookies.guest_tkn) {
-            console.log('No guest cookie')
-            const new_guest = await uuid()
-            const newmap =  await dbMap.create({ id: uuid() })
-            await dbGuest.create({ id: new_guest, defaultMapId: newmap._id })
-            res.cookie('guest_tkn', jwt.sign({id: new_guest}, 'kawabunga'), {expiresIn: '30d', 
-                secure: false, httpOnly: false, sameSite: 'lax'})
-        } else {
-            console.log('guest cookie ', req.cookies.guest_tkn)
-            const dectkn = jwt.verify(req.cookies.guest_tkn, 'kawabunga');
-            guestid = await dbGuest.findOne({ id: dectkn.id }) 
-            console.log('guest cookie', dectkn)
-            if (guestid) {
-                res.cookie('guest_tkn', jwt.sign({id: guestid.id}, 'kawabunga'), {expiresIn: '30d'})
-            }
-
-        }
-
-         
-        res.json({valid: false, defaultMap: guestid.defaultMapId}).send()
-    }
+app.post('/vehicle/signup', async (req ,res) => {
+    console.log('signup req',  req.body)
+    let hashed =  await bcrypt.hash( req.body.pwd , 8)
+    let newVehicle =  await vehicle.create( { ... req.body, pwd: hashed, id: uuid(), 
+        activated: false,  } )
+    console.log('New vehicle rec ', newVehicle)
     
 })
+app.post('/vehicle/login', async (req, res) => { 
+    console.log('login req ', req.body)
+    const vehicleObj =  await vehicle.findOne({login: req.body.login})
+    if  (await bcrypt.compare( req.body.login, vehicleObj.login )) {
+        res.cookie('access_tkn', jwt.sign('', process.env.SCRT, { expiresIn: '1d', } ))
+        res.status(200).json({ ... vehicleObj.id })
+    } else {
+        res.status(401)
+    } } )
+app.post('/driver/signup', (req ,res) => {})
+app.post('/driver/login', (req, res) => {} )
+
+app.get('/guest', (req, res) => {
+    res.json({ guest_id: uuid() })
+})
+
+// app.post('/auth', async (req, res) => {
+//      let user = req.cookies.access_tkn ? jwt.verify(req.cookies?.access_tkn, 'kawabunga') : null
+//     // console.log('Auth jwt: ', user)
+//     if (user?.email) {
+//         console.log('Mail exist')
+//         const userdb = await dbUser.findOne( {id: user.id} )
+//         if (!userdb.defaultMapId) {
+//             const newid = await uuid()
+//             // user.defaultMap = 'dfdfd'
+//             const newmap = await dbMap.create({ id: newid, author: userdb._id, admins: [userdb._id] })
+//             userdb.maps.push(newmap._id)
+//             userdb.defaultMapId = newmap._id
+//             userdb.save()
+//         }
+
+//         res.json({valid: true, defaultMap: userdb.id }).send()
+
+//     } else {
+
+//         let guestid = ''
+//         console.log("Mail don't exist")
+//         if (!req.cookies.guest_tkn) {
+//             console.log('No guest cookie')
+//             const new_guest = await uuid()
+//             const newmap =  await dbMap.create({ id: uuid() })
+//             await dbGuest.create({ id: new_guest, defaultMapId: newmap._id })
+//             res.cookie('guest_tkn', jwt.sign({id: new_guest}, 'kawabunga'), {expiresIn: '30d', 
+//                 secure: false, httpOnly: false, sameSite: 'lax'})
+//         } else {
+//             console.log('guest cookie ', req.cookies.guest_tkn)
+//             const dectkn = jwt.verify(req.cookies.guest_tkn, 'kawabunga');
+//             guestid = await dbGuest.findOne({ id: dectkn.id }) 
+//             console.log('guest cookie', dectkn)
+//             if (guestid) {
+//                 res.cookie('guest_tkn', jwt.sign({id: guestid.id}, 'kawabunga'), {expiresIn: '30d'})
+//             }
+
+//         }
+
+         
+//         res.json({valid: false, defaultMap: guestid.defaultMapId}).send()
+//     }
+    
+// })
 
 app.post('/signup', async (req, res) => {
    
@@ -196,26 +223,23 @@ app.get('/activate', async (req, res) => {
 
 app.get('/testmail', () =>  sendActivationMail())
 
-app.post('/upload', fileparser.single('file'), createNewPhoto)
+// app.post('/upload', fileparser.single('file'), createNewPhoto)
 
-app.get('/photos', (req, res) => {
-getAllPhotos(req, res)
+// app.get('/photos', (req, res) => {
+// getAllPhotos(req, res)
 
- })
+//  })
 
- app.get('/photo/*', (req, res) => {  
- 
-  
-     try {
-        const file = fs.readFileSync(__dirname + '/uploads/'+req.params[0])
-        res.sendFile(__dirname + '/uploads/'+req.params[0])
+//  app.get('/photo/*', (req, res) => {  
+//      try {
+//         const file = fs.readFileSync(__dirname + '/uploads/'+req.params[0])
+//         res.sendFile(__dirname + '/uploads/'+req.params[0])
         
-     } catch (error) {
-        res.status(404).send()
-     } 
-    // console.log(file)
-
- })
+//      } catch (error) {
+//         res.status(404).send()
+//      } 
+//     // console.log(file)
+//  })
 
 console.log(path.extname(fileURLToPath(import.meta.url))) 
 

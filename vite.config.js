@@ -9,15 +9,6 @@ import tailwind from 'tailwindcss'
 
 // https://vite.dev/config/
 export default defineConfig({
-  // server: {
-  //   proxy: {
-  //     '/api': {
-  //       target: 'http://localhost:3000', // Backend API URL
-  //       changeOrigin: true,
-  //       secure: false,
-  //     }
-  //   }
-  // },
   css: {
     postcss: {
       plugins: [tailwind(), autoprefixer()],

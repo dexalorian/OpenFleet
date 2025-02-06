@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input'
 import { FormMessage, FormControl, Form, FormLabel, FormField, FormItem } from '@/components/ui/form'
 import { ErrorMessage, useForm } from 'vee-validate';
 import { useRoute, useRouter } from 'vue-router'
-import { useMyPhotos, useUser } from './main';
+import { useUser} from './main';
 import { inject } from 'vue';
 
 const userObj = useUser()
@@ -32,7 +32,7 @@ const form = useForm()
 const Submit = form.handleSubmit( 
   async (val) => {
 
-  res.value = await fetch(import.meta.env.VITE_BASE_URL + '/login', { headers: {'Content-Type': 'application/json'},
+  res.value = await fetch(import.meta.env.VITE_BASE_VEHICLE_URL + '/login', { headers: {'Content-Type': 'application/json'},
   method: 'POST', credentials: 'include', body: JSON.stringify(val)})
 
   if (res.value.status === 401) {
@@ -50,7 +50,8 @@ const Submit = form.handleSubmit(
     console.log(val)
     router.push('/')
 
-  } else {useMyPhotos().fetchPhotos()}
+  } 
+  // else {useVehicles().fetchVehicles()}
 
 } 
 
