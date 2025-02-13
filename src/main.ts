@@ -1,5 +1,4 @@
 import './assets/main.css'
-// import '@types/w3c-web-usb';
 
 import { createApp, ref, watch, reactive, computed } from 'vue'
 import { createPinia, defineStore } from 'pinia'
@@ -11,6 +10,10 @@ import AppHeader from './components/AppHeader.vue'
 import DriverPage from './DriverApp/Index.vue'
 import SignUp from './VehicleApp/SignUp.vue'
 import Login from './VehicleApp/Login.vue'
+import Trade from './TradePage.vue'
+import VehicleMain from './VehicleApp/Main.vue'
+import VehicleEnter from './VehicleApp/Enter.vue'
+
 
 import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
@@ -57,14 +60,16 @@ const routes = [
     components: {
       default: VehicleIndex,
     }, 
-    // children: [{
-    //   path: 'signup',
-    //   component: SignUp },
-    //   { path: 'login',
-    //     component: Login,
-    //   },
-    //   // { path: '', component: VehicleIndex }
-    // ]
+    children: [{
+      path: 'main',
+      name: 'main',
+      component: VehicleMain },
+      {
+        path: 'enter',
+        name: 'vehicle_enter',
+        component: VehicleEnter
+      }
+    ]
   },
   {
     path: '/driverapp',
@@ -72,6 +77,11 @@ const routes = [
     components: {
       default: DriverPage
     }
+  },
+  {
+    path: '/trade',
+    name: '',
+    component: Trade
   }
 ]
 
@@ -126,31 +136,7 @@ export const usePtrLineCoords = defineStore('ptrLineCoords', () => {
     
 }) 
 
-// export const useVehicles = defineStore('Vehicles', 
-//    () => {
 
-//     const vehicles = ref([])
-    
-//     async function fetchVehicles() {
-//       const resp = await fetch( import.meta.env.VITE_BASE_VEHICLE_URL + '/vehicles',  
-//         {method: 'GET'});
-//       if (resp.status === 404  || resp.status === 401 ) {
-//         vehicles.value = []
-//         // usePtrLineCoords().visible = false
-//       } else {
-//         vehicles.value = await resp.json()
-//       }
-    
-//     }
-
-//     return { vehicles, fetchVehicles, useVehicles }
-//    }
-// )
-
-// const userObj = useUser()
-// const VehiclesStore = useVehicles()
-
-// watch( () => userObj.email, () => VehiclesStore.fetchVehicles() )
 
 
 app.mount('#app')

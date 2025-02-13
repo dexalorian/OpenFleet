@@ -9,9 +9,6 @@ const rideSchema = new mongoose.Schema(
         endPoint: [],
         state: String,
         creationDate: {type: Date},
-        startDate:  {type: Date},
-        endDate:  {type: Date},
-        creator:  {type: String},
         vehicle: {type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle'}
     }
 )
@@ -48,6 +45,33 @@ const supervisorSchema = new mongoose.Schema(
     }
 )
 
+const taskSchema = mongoose.Schema(
+    {
+        ride: { type: mongoose.Schema.Types.ObjectId, ref: 'Ride' },
+        cargo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Cargo' }],
+        loadDate: [{type: Date}],
+        startDate:  [{type: Date}],
+        endDate:  [{type: Date}],
+        creator:  { type: mongoose.Schema.Types.ObjectId, ref: 'Manager' } || { type: mongoose.Schema.Types.ObjectId, ref: 'Supervisor' },
+        сontractor: { type: mongoose.Schema.Types.ObjectId, ref: 'Manager' } || { type: mongoose.Schema.Types.ObjectId, ref: 'Driver' },
+
+    }
+)
+
+const cargoSchema = new mongoose.Schema(
+    { 
+        id: {type: String, require: true},
+        width: Number, //in cm
+        height:  Number, 
+        depth: Number,
+        weight: Number, //in gramms
+        short_desc: String,
+        description: String,
+
+    }
+)
+
+
 const driverSchema = new mongoose.Schema(
     {
         ... userSchema.obj,
@@ -55,7 +79,8 @@ const driverSchema = new mongoose.Schema(
         lng: {type: Number},
         defaultVehicle: {type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle'},
         vehicles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle'}],
-        rideHistory: {type: mongoose.Schema.Types.ObjectId, ref: 'Ride'}
+        rideHistory: {type: mongoose.Schema.Types.ObjectId, ref: 'Ride'},
+        wsTkn: String
     }
 )
 
@@ -64,7 +89,8 @@ const managerSchema = new mongoose.Schema(
     {
         ...userSchema.obj,
         vehicles: [{type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle'}],
-        drivers: [{type: mongoose.Schema.Types.ObjectId, ref: 'Driver'}]
+        drivers: [{type: mongoose.Schema.Types.ObjectId, ref: 'Driver'}],
+        wsTkn: String,
     }
 )
 
@@ -84,17 +110,18 @@ const vehicleSchema  = new mongoose.Schema(
             { type: mongoose.Schema.Types.ObjectId, ref: 'Supervisor' }
         ],
         carModel: {type: mongoose.Schema.Types.ObjectId, ref: 'CarModel'},   
-        currentRide: {type: mongoose.Schema.Types.ObjectId, ref: 'Ride'},
-        rideHistory: [{type: mongoose.Schema.Types.ObjectId, ref: 'Ride'}]
+        activeRide: {type: mongoose.Schema.Types.ObjectId, ref: 'Ride'},
+        nextRides: [{type: mongoose.Schema.Types.ObjectId, ref: 'Ride'}],
+        rideHistory: [{type: mongoose.Schema.Types.ObjectId, ref: 'Ride'}],
+        wsTkn: String
     }
 )
 
-// export const dbPhoto = mongoose.model('Photo', photoSchema)
-// export const dbUser = mongoose.model('User', userSchema)
+
 export const vehicle = mongoose.model('Vehicle', vehicleSchema)
 export const manager = mongoose.model('Manager', managerSchema)
 export const ride = mongoose.model('Ride', rideSchema) 
 export const driver = mongoose.model('Driver', driverSchema )
 export const supervisoк = mongoose.model('Supervisor', supervisorSchema)
 export const carModel = mongoose.model('carModel', carModelSchema)
-// export const dbGuest = mongoose.model('Guest', guestSchena)
+export const cargo = mongoose.model('Cargo', cargoSchema)

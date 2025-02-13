@@ -1,5 +1,5 @@
 <template>
-    <Tabs default-value="login" class="flex flex-col border">
+    <Tabs default-value="login" class="flex flex-col border w-full">
             <TabsList class="w-full">
                 <TabsTrigger value="login" class="w-full">Login</TabsTrigger>
                 <TabsTrigger value="pwd" class="w-full">SignUp</TabsTrigger>

@@ -11,7 +11,11 @@ import Enter from './Enter.vue';
 
 <template>
 
+
+<div class="max-w-96"> 
     <Enter />
+</div>
+   
 
     
 

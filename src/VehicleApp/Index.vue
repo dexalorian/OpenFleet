@@ -10,40 +10,15 @@ import TabsContent from '@/components/ui/tabs/TabsContent.vue';
 import TabsTrigger from '@/components/ui/tabs/TabsTrigger.vue';
 import Login from './Login.vue';
 import SignUp from './SignUp.vue'
+import { onMounted } from 'vue';
 
-let BASE_VEHICLE_URL = import.meta.env.VITE_BASE_VEHICLE_URL+'/vehicle'
 
 
 const router = useRouter()
 
-
-const useVehicleAuth = defineStore('Vehicle', () => {
-    const auth = ref(false);
-    const user = ref({})
-    async function Login( login: String , pwd: String ) {
-       const res =  await fetch( BASE_VEHICLE_URL+'/login', {method: 'POST', body: JSON.stringify({ login, pwd })})
-    }
-    async function CheckAuth() {
-        auth.value =  await fetch(BASE_VEHICLE_URL+'/auth', {method: 'POST'})
-    }
-    async function SignUp(login: String, pwd: String, email: String, phoneNums: String[]) {
-       await fetch(BASE_VEHICLE_URL+'/signup', {method: 'POST', body: { login , pwd, email, phoneNums } }) 
-    }
-
-    async function Logout() {
-        auth.value =  await fetch(BASE_VEHICLE_URL+'/logout', {method: 'POST'})
-    }
-    
-    return { auth, user, Login, CheckAuth, SignUp }
-}) 
- 
 let inSdp;
 let anw;
 const locdes = ref(null)
-
-const ws = new WebSocket('http://localhost:8484')
-ws.onopen = e => console.log('ws open', e)
-ws.onmessage =  e => console.log('msg from serv: ', e)
 
 const SelfLocation = ref(null)
 
@@ -71,6 +46,13 @@ async function myDevices() {
 
 // })
 
+onMounted( () => {
+
+    const Vehicle = useVehicleAuth()
+    // Vehicle.auth ? router.push('main') : null
+    router.push({ name: 'vehicle_enter'})
+} )
+
 async function createSDPanswer() {
     let peer = new RTCPeerConnection({
   iceServers: [{ urls: "stun:stun.l.google.com:19302" }], // Google's STUN server
@@ -95,35 +77,47 @@ async function createSDPanswer() {
 </script>
 
 
+<script lang="ts">
+
+// let BASE_VEHICLE_URL = import.meta.env.VITE_CLI_BASE+'/vehicleapp'
+let BASE_SRV_URL = import.meta.env.VITE_SRV_URL
+
+export const useVehicleAuth = defineStore('Vehicle', () => {
+    const auth = ref(false);
+    const vehicle = ref({})
+    async function Login( login: String , pwd: String ) {
+       const res =  await fetch( BASE_SRV_URL+'/vehicle/login', {body: JSON.stringify({login, pwd}), 
+        headers: { "Content-Type": "application/json" }, credentials: 'include', method: 'POST'})
+
+        if (res.status === 200) {
+         console.log('200');
+         let resp = await res.json()
+         console.log(resp.id);
+         vehicle.value.id = resp.id
+         
+        }
+       
+    }
+    async function CheckAuth() {
+        auth.value =  await fetch(BASE_SRV_URL +'/vehicle/auth', {method: 'POST'})
+    }
+    async function SignUp(login: String, pwd: String, email: String, phoneNums: String[]) {
+       await fetch(BASE_SRV_URL+'/vehicle/signup', {method: 'POST', body: { login , pwd, email, phoneNums } }) 
+    }
+
+    async function Logout() {
+        auth.value =  await fetch(BASE_SRV_URL+'/vehicle/logout', {method: 'POST'})
+    }
+    
+    return { auth, vehicle, Login, CheckAuth, SignUp }
+}) 
+
+</script>
+
+
 <template>
 
-    <div class="flex flex-col justify-center items-center border">
-        <h1>Vehicle App</h1>
-        <Tabs default-value="login" class="w-full">
-        <TabsList class="w-full">
-            <TabsTrigger value="login" class="w-full">
-                Login
-            </TabsTrigger>
-            <TabsTrigger value="signup" class="w-full">
-                Sign Up
-            </TabsTrigger>
-
-        </TabsList>
-
-        <TabsContent value="login">
-            <Login />
-        </TabsContent>
-        
-        <TabsContent value="signup">
-            <SignUp />
-        </TabsContent>
-    </Tabs>
-
-    </div>
-
-
-
-
+    <RouterView class="flex w-full border w-72"/>
     <!-- <div class="flex flex-col gap-2">
         Vehicle App
         <div class="flex gap-1">

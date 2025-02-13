@@ -101,10 +101,6 @@ onMounted(() => {
   iconSize: [32, 32], // Adjust size as needed
     
    })
-
-
-   
-
    
   let layer = leaflet.marker({ lat: '34.23', lng: '44.33' }, {icon: carIcon, draggable: true}  ).addTo(map)
   
@@ -199,11 +195,10 @@ function updGeoSelector(lat: Number, lng: Number, visible: true) {
 
 <template>
 
- <div style="display: flex; width: 100vw; height: 100vh;">
   
   <!-- <LineFrame class="z-20" :lines="lines" /> -->
-  <div ref="mapRef" class="flex w-full h-full z-0" id="map"></div>
- </div> 
+  <div ref="mapRef" class="flex w-full h-screen z-0" id="map"></div>
+
 
 
 </template>
