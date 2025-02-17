@@ -8,7 +8,6 @@ import mongoose from "mongoose";
 import multer from "multer";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import WebSocket, {WebSocketServer} from "ws";
 // import { dbUser, dbMap, dbGuest } from "./schemas.js";
 const fileparser  =  multer({ dest:  'uploads/'  })
 import fs from 'fs'
@@ -16,7 +15,8 @@ import { v4 as uuid, validate } from "uuid"
 
 import { createNewPhoto, getAllPhotos, sendActivationMail } from "./service.ts";
 import cookieParser from "cookie-parser";
-import { vehicle } from "./schemas.ts";
+import { manager, vehicle } from "./schemas.ts";
+import { startSignalingServ } from "./wsserv.ts";
 const app = express()
 mongoose.connect('mongodb://localhost:27017/').then(
     () => console.log('Mongoose connected'),
@@ -25,58 +25,35 @@ mongoose.connect('mongodb://localhost:27017/').then(
 
 let __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-const wsserv = new WebSocketServer({port: 8484})
-
-let wscons: Array<WebSocket> = []
-
-wsserv.on('connection', (conn: WebSocket) => {
-    let in_id;
-    
-    conn.onmessage = e => { 
-        
-        let msg = JSON.parse(e.data)
-        console.log('mess id: ', msg.id);
-
-        // console.log('received ws: ', e)
-        wscons.push({ id: msg.id , ws: conn })
-        console.log('all cons: ', wscons.length);
-        
-      } ;
-    conn.on("close", e => {console.log("Connection closed");
-        wscons.forEach( e => {console.log(e.id); 
-            if (e.ws.readyState === WebSocket.CLOSED) {
-                console.log( ' closed: ', e.id )
-            }
-        })
-
-    })
-
-    console.log('All ws: ',  wscons)
-
-}
-  
-    
-)
+startSignalingServ();
 
 
 app.use(cookieParser())
 app.use(cors({ origin: 'http://localhost:5173', credentials: true}))
 app.use(express.json())
 
-// app.use(async (req, res, next) => {
-//     if (req.cookies.access_tkn) {
-//         req.jwt = await jwt.verify(req.cookies.access_tkn, 'kawabunga')
-//         next()
-//     } else if (req.originalUrl === '/login' || req.originalUrl === '/auth' || req.originalUrl === '/signup') {
-//         next()
-//     } else {
-//         res.status(401).send()
-//     }
+app.use( '/manager', async (req, res, next) => {
+    console.log(req.baseUrl, ' ', req.url, ' ', req.originalUrl);
+    
+    if (req.cookies.mng_access_tkn) {
+        req.jwt = await jwt.verify(req.cookies.mng_access_tkn, process.env.SCRT)
+        if (req.jwt.id !== null) {
+            next()
+        } else { res.status(401).send() }
+       
+    } else if (req.url === '/login' || req.url === '/auth' || req.url === '/signup' ) {
+        next()
+    } else {
+        res.status(401).send()
+    }
 
-//         }
+        }
 
-//     // next()
-//        )
+    // next()
+       )
+
+
+
 
     app.post('/login', async (req, res) => {
         console.log('Login triggered')
@@ -143,29 +120,79 @@ app.post('/vehicle/signup', async (req ,res) => {
     console.log('New vehicle rec ', newVehicle)
     
 })
-
 // app.post('/vehicle/auth', async (req, res) => {
 
 // })
+
+app.post('/manager/signup', async (req ,res) => {
+    console.log('signup req',  req.body)
+    let hashed =  await bcrypt.hash( req.body.pwd , 8)
+    let newManager =  await manager.create( { ... req.body, pwd: hashed, id: uuid(), 
+        activated: false  } )
+    console.log('New manager rec ', newManager)
+    
+})
+
+
+app.post('/manager/login', async (req, res) => { 
+    console.log('mng login body ', req.body)
+    let managerObj =  await manager.findOne({login: req.body.login})
+    if  (bcrypt.compare( req.body.login, managerObj.login )) {
+        let jwt_enc = jwt.sign({id: managerObj.id, role: 'manager'}, process.env.SCRT)
+        managerObj.save()
+        res.cookie( 'mng_access_tkn', jwt_enc, {
+            secure: false, // Make sure you're using HTTPS in production
+            httpOnly: true,
+            maxAge: 30 * 24 * 60 * 60 * 1000 // Set cookie expiration to match JWT expiration
+          } )
+         res.json( { id: managerObj.id, role: 'manager'} ).status(200)
+        
+        console.log('login req ', req.body)
+    } else {
+        res.status(401)
+    } } )
+
+
+app.post('/manager/auth', async (req, res) => {
+        let user = req.cookies.mng_access_tkn ? jwt.verify(req.cookies?.mng_access_tkn, process.env.SCRT) : null
+       console.log('Auth jwt: ', user)
+       if (user?.id) {
+           const managerdb = await manager.findOne( {id: user.id})
+           res.json({valid: true, manager: {id: managerdb.id, role: 'manager'}}).status(200).send()
+       } else { res.json({valid: false }).send() } })
+
+
+app.get('/manager/logout', async (req, res) => {
+    console.log('logoout triggered')
+    res.cookie( 'mng_access_tkn', null, {
+        secure: false,
+        httpOnly: true,
+        maxAge: 0,
+        path: '/'
+    }  )
+    res.status(200).send('Logged out')
+})
+
+
+app.get( '/manager/vehicles', async (req, res) => {
+    console.log('manager auth ',  req.cookies);
+    
+    // manager.findOne( {  } )
+} )
+
+
 app.post('/driver/signup', (req ,res) => {})
 app.post('/driver/login', (req, res) => {} )
-
-
 
 app.post('/vehicle/login', async (req, res) => { 
     console.log('body ', req.body)
     let vehicleObj =  await vehicle.findOne({login: req.body.login})
     if  (bcrypt.compare( req.body.login, vehicleObj.login )) {
-        let jwt_enc = jwt.sign({id: vehicleObj.id}, process.env.SCRT)
-        vehicleObj.wsTkn =  await bcrypt.hash( vehicleObj.id , 9 )
+        let jwt_enc = jwt.sign({id: vehicleObj.id, role: 'vehicle'}, process.env.SCRT)
         vehicleObj.save()
-        res.cookie( 'access_vhcl_tkn', jwt_enc, {
+        res.cookie( 'access_tkn', jwt_enc, {
             secure: false, // Make sure you're using HTTPS in production
             httpOnly: true,
-            maxAge: 30 * 24 * 60 * 60 * 1000 // Set cookie expiration to match JWT expiration
-          } )
-          res.cookie( 'ws_vhcl_tkn', vehicleObj.wsTkn, {
-            secure: false, // Make sure you're using HTTPS in production
             maxAge: 30 * 24 * 60 * 60 * 1000 // Set cookie expiration to match JWT expiration
           } )
          res.json( { id: vehicleObj.id} ).status(200)
@@ -177,7 +204,7 @@ app.post('/vehicle/login', async (req, res) => {
     
 
 app.post('/vehicle/auth', async (req, res) => {
-     let user = req.cookies.access_vhcl_tkn ? jwt.verify(req.cookies?.access_vhcl_tkn, process.env.SCRT) : null
+     let user = req.cookies.access_tkn ? jwt.verify(req.cookies?.accessl_tkn, process.env.SCRT) : null
     console.log('Auth jwt: ', user)
     if (user?.id) {
         const vehicledb = await vehicle.findOne( {id: user.id})

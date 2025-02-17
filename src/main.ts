@@ -1,19 +1,12 @@
 import './assets/main.css'
 
+window.BASE_SRV_URL = import.meta.env.VITE_SRV_URL;
+
 import { createApp, ref, watch, reactive, computed } from 'vue'
 import { createPinia, defineStore } from 'pinia'
 
 import App from './App.vue'
-import Map from './MapPage.vue'
-import VehicleIndex  from './VehicleApp/Index.vue'
-import AppHeader from './components/AppHeader.vue'
-import DriverPage from './DriverApp/Index.vue'
-import SignUp from './VehicleApp/SignUp.vue'
-import Login from './VehicleApp/Login.vue'
-import Trade from './TradePage.vue'
-import VehicleMain from './VehicleApp/Main.vue'
-import VehicleEnter from './VehicleApp/Enter.vue'
-
+import { routes } from './routes'
 
 import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
@@ -21,75 +14,16 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 
 import { createRouter, createWebHistory } from 'vue-router';
 
-const routes = [
-  {
-    path: '/',
-    name: 'App',
-    components: {
-      default: Map
-      // header: AppHeader
-    }
-  },
-  {
-    path: '/login',
-    name: 'LoginModal',
-    components: {
-      default: Map,
-      header: AppHeader
-    }
-  },
-  {
-    path: '/signup',
-    name: 'SignUpModal',
-    components: {
-      default: Map,
-      header: AppHeader
-    }
-  },
-  {
-    path: '/logout',
-    name: 'LogoutModal',
-    components: {
-      default: Map,
-      header: AppHeader
-    }
-  },
-  {
-    path: '/vehicleapp',
-    name: 'VehicleApp',
-    components: {
-      default: VehicleIndex,
-    }, 
-    children: [{
-      path: 'main',
-      name: 'main',
-      component: VehicleMain },
-      {
-        path: 'enter',
-        name: 'vehicle_enter',
-        component: VehicleEnter
-      }
-    ]
-  },
-  {
-    path: '/driverapp',
-    name: 'DriverApp',
-    components: {
-      default: DriverPage
-    }
-  },
-  {
-    path: '/trade',
-    name: '',
-    component: Trade
-  }
-]
+
 
 const router = createRouter({history: createWebHistory(), routes});
 const pinia = createPinia()
 const app = createApp(App)
 app.use(pinia)
 app.use(router)
+
+
+
 
 export const useVideoConnections = defineStore('videoConnections', () => {
   const connections = ref({})

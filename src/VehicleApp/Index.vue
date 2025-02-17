@@ -12,8 +12,6 @@ import Login from './Login.vue';
 import SignUp from './SignUp.vue'
 import { onMounted } from 'vue';
 
-
-
 const router = useRouter()
 
 let inSdp;
@@ -21,7 +19,6 @@ let anw;
 const locdes = ref(null)
 
 const SelfLocation = ref(null)
-
 let track;
 
 
@@ -71,7 +68,6 @@ async function createSDPanswer() {
             console.log("ice gathering complete")
            } 
         }
-       
     }
 
 </script>
@@ -116,7 +112,7 @@ export const useVehicleAuth = defineStore('Vehicle', () => {
 
 
 <template>
-
+OpenFleet. Manager App
     <RouterView class="flex w-full border w-72"/>
     <!-- <div class="flex flex-col gap-2">
         Vehicle App

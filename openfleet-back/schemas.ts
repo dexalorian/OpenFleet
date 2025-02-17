@@ -80,7 +80,7 @@ const driverSchema = new mongoose.Schema(
         defaultVehicle: {type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle'},
         vehicles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle'}],
         rideHistory: {type: mongoose.Schema.Types.ObjectId, ref: 'Ride'},
-        wsTkn: String
+
     }
 )
 
@@ -90,7 +90,7 @@ const managerSchema = new mongoose.Schema(
         ...userSchema.obj,
         vehicles: [{type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle'}],
         drivers: [{type: mongoose.Schema.Types.ObjectId, ref: 'Driver'}],
-        wsTkn: String,
+   
     }
 )
 
@@ -113,7 +113,7 @@ const vehicleSchema  = new mongoose.Schema(
         activeRide: {type: mongoose.Schema.Types.ObjectId, ref: 'Ride'},
         nextRides: [{type: mongoose.Schema.Types.ObjectId, ref: 'Ride'}],
         rideHistory: [{type: mongoose.Schema.Types.ObjectId, ref: 'Ride'}],
-        wsTkn: String
+
     }
 )
 

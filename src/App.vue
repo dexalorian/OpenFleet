@@ -4,7 +4,7 @@ import { watch, ref, onMounted, provide, reactive } from 'vue';
 import { useRoute } from 'vue-router'
 import LoginDialog from './LoginDialog.vue';
 import SignUpDialog from './SignUpDialog.vue';
-import {  usePtrLineCoords, useUser } from './main';
+import { usePtrLineCoords, useUser } from './main';
 import LogoutDialog from './LogoutDialog.vue';
 
 const userObj = useUser()
@@ -14,7 +14,6 @@ const showSignup = ref(false)
 const showLogout = ref(false)
 const SharedMapId = ref({})
 
-provide('sharedmapID', SharedMapId)
 
 onMounted(
 async () => {
@@ -33,7 +32,6 @@ async () => {
   //       // await fetch('  ')
   //       console.log('no default map, error ', res)
   //     }
-
   // } 
         
 })
@@ -57,31 +55,6 @@ watch( () => userObj.isAuth, async  () => {
       // useVehicles().fetchVehicles()
 })
 
-watch( () => route.path, e => {
-console.log('path changed to ',route.path)
-  if (e === '/signup') {
-    console.log('path changed to signup')
-    showLogout.value = false;
-      showSignup.value = true
-      showLogin.value = false
-  } else if (e === '/login') {
-    console.log('path changed to login')
-    showLogin.value = true
-    showLogout.value = false;
-    showSignup.value = false
-  } else if (e === '/') {
-    showLogin.value = false;
-    showLogout.value = false;
-    showSignup.value = false;
-  } else if ( e === '/logout') {
-    showLogout.value = true;
-    showLogin.value = false;
-    showSignup.value = false;
-  }
- 
-}
-
-)
 
 </script>
 
@@ -90,5 +63,6 @@ console.log('path changed to ',route.path)
   <LoginDialog v-model="showLogin"/>
   <SignUpDialog :show="showSignup" />
   <router-view name="header"/> -->
+  <!-- <RouterView class="flex w-full"/> -->
   <router-view class="flex w-full"/>
 </template>
