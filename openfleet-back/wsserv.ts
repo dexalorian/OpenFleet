@@ -12,7 +12,6 @@ let wsActiveSockets = new Map();
     let mng = await manager.findOne({ id: id }).select('vehicles').populate('vehicles', 'id -_id')
     
     if (mng.vehicles.length > 0) {
-        console.log('received mng', mng?.vehicles)
         mng.vehicles?.forEach( e => { 
             if (wsRooms.has(e.id)) {
                 wsRooms.get(e.id)?.subscribers?.includes(id) ? null : wsRooms.get(e.id).subscribers?.push(id) 
@@ -23,7 +22,7 @@ let wsActiveSockets = new Map();
          }
         )      
     }
-    console.log('Rooms: ', wsRooms)
+    
 }
 
 export function startSignalingServ(srv) {
@@ -33,6 +32,7 @@ export function startSignalingServ(srv) {
     srv.on("upgrade", (request, socket, head) => {
         console.log("Received upgrade request:", request.url);
         if (request.url === "/ws") {
+            console.log('trying to connect to /ws')
           wss.handleUpgrade(request, socket, head, (ws) => {
             wss.emit("connection", ws, request);
           });
@@ -44,10 +44,14 @@ export function startSignalingServ(srv) {
       });
     
     wss.on('connection', (socket, req) => { 
-
             //if that an vehicle - 1) find vID in wsRooms 2) Get of wsRooms vID all subscribers 3) search all subscribers in wsActiveSockets 4) get sockets of those connections 5) call .send on each obtained socket
+            console.log('WS headers',  req.headers.cookie)
+            // console.log('WS headers',  req.headers.cookie?.split(`${req.headers['sec-websocket-protocol']}_access_tkn=`)[1].split('; ')[0])
 
-        const accessTkn = req.headers.cookie?.split(`${req.headers['sec-websocket-protocol']}_access_tkn=`)[1].split('; ')[0]
+                const accessTkn = req.headers.cookie?.split(`${req.headers['sec-websocket-protocol']}_access_tkn=`)[1].split('; ')[0]
+        
+
+        
         if (accessTkn?.length > 0 ) {
             const user = jwt.verify( accessTkn, process.env.SCRT)
             switch (user.role) {
@@ -56,14 +60,16 @@ export function startSignalingServ(srv) {
                         console.log('vhc message triggered', e.data)
                         wsRooms.get(user.id)?.subscribers?.forEach( 
                             (s) => wsActiveSockets.get(s)?.forEach( 
-                                // x => x.send('KEK')
-                                console.log('vhc send triggered')
+                                x => {
+                                    console.log(x, 'vhc send triggered')
+                                    x.send(e.data)
+                                } 
+                               
                             )
                         )
                     }
-                    console.log('vhc id ',user.id, user.role)
-                    wsActiveSockets.has(user.id) ? wsActiveSockets.get(user.id).push( {socket: socket}) : 
-                        wsActiveSockets.set(user.id, [ {socket: socket}])
+                    wsActiveSockets.has(user.id) ? wsActiveSockets.get(user.id).push(socket) : 
+                        wsActiveSockets.set(user.id, [socket])
                     wsRooms.has(user.id) ?  null : wsRooms.set(user.id, [])
                      //vehicle-room creation
                     // console.log('Rooms: ', wsRooms)
@@ -76,8 +82,8 @@ export function startSignalingServ(srv) {
   
                         if (json.type === 'broadcast') {
                             const allVhc =  await manager.findOne({ id: user.id }).select('vehicles').populate('vehicles', 'id');
-                            // console.log('obtained db vehicles: ', allVhc?.vehicles)
-                            allVhc?.vehicles.forEach( e => wsActiveSockets.get(e.id)?.forEach( x => x?.socket.send('keeek'))  )
+                            console.log('active sockets: ', wsActiveSockets)
+                            allVhc?.vehicles.forEach( e => wsActiveSockets.get(e.id)?.forEach( x => x.send('keeek'))  )
                             // allVhc?.vehicles.forEach( e =>  console.log('socket bucket ',  wsActiveSockets.get(e.id)?.at(0).socket.readyState)  )
                         } else if (json.type === 'direct') {
 
@@ -89,8 +95,8 @@ export function startSignalingServ(srv) {
                     }
                     console.log('mngr id ',user.id, user.role)
                     const newConnection = {role: user.role, socket: socket}
-                    wsActiveSockets.has(user.id) ? wsActiveSockets.get(user.id).push( {socket: socket}) : 
-                        wsActiveSockets.set(user.id, [ {socket: socket}])
+                    wsActiveSockets.has(user.id) ? wsActiveSockets.get(user.id).push( socket) : 
+                        wsActiveSockets.set(user.id, [socket])
                     subscribe(user.id)
                     break;
                 case 'super':

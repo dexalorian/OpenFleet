@@ -2,6 +2,7 @@
         <div class="w-full border h-full flex flex-col">
             {{ 'ID: '+ JSON.stringify(vehicle) }}
             <Button @click="() => ws.send('Hello from vehicle!')">Hello to WS</Button>
+
             <div class="flex grow-1 justify-center content-center items-center">
                 <div class="absolute text-slate-300 flex flex-col justify-center items-center gap-2 ">Video
                     <Button @click="() => console.log('kekkek')">Start translation</Button>
@@ -24,10 +25,10 @@ const videoCnv = ref<HTMLVideoElement>()
 const router = useRouter()
 const vehicle = useVehicleStore()
 
-StartWS('vhc')
+
 
 onMounted( async () => {
-
+    StartWS('vhc')
     vehicle.getManagers()
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
     const peer =  new RTCPeerConnection( { iceServers: [ {urls: 'stun:stun.l.google.com:19302' }] })

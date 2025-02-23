@@ -11,14 +11,16 @@ import { manager, vehicle, driver } from "./schemas.ts";
 
 import { regVehicle, newVehicle } from "./services.ts";  
 
-const api = express.Router()
+const api = express.Router({ mergeParams: true })
 
 export default api
   
 api.use( ['/manager', '/vehicle', '/driver'], async (req, res, next) => {
- 
+
     let role = (() => {
+        console.log('cookies',  JSON.stringify(req.cookies))
         switch (  req.baseUrl.split('/').at(-1)) {
+               
             case 'manager': 
             return 'mng'
             case 'vehicle': 
@@ -29,11 +31,14 @@ api.use( ['/manager', '/vehicle', '/driver'], async (req, res, next) => {
     })()
 
     if (req.cookies[role+'_access_tkn']?.length > 0) {
+        console.log('REQ AUTH URL', req.url)
         req.jwt = await jwt.verify(req.cookies[role+'_access_tkn'], process.env.SCRT)
         console.log('jwt id auth ', req.jwt.id)
         if (req.jwt.id.length > 0) {
             next()
         } else { res.status(401).send() }
+
+        
        
     } else if (req.url === '/login' || req.url === '/auth' || req.url === '/signup' ) {
         next()
@@ -96,8 +101,9 @@ api.post('/manager/login', async (req, res) => {
         let jwt_enc = jwt.sign({id: managerObj.id, role: 'mng'}, process.env.SCRT)
         managerObj.save()
         res.cookie( 'mng_access_tkn', jwt_enc, {
-            secure: false, // Make sure you're using HTTPS in production
+            secure: true, // Make sure you're using HTTPS in production
             httpOnly: true,
+            sameSite: 'none',
             maxAge: 30 * 24 * 60 * 60 * 1000 // Set cookie expiration to match JWT expiration
           } )
          res.json( { id: managerObj.id, role: 'mng'} ).status(200)
@@ -154,8 +160,9 @@ api.post('/vehicle/login', async (req, res) => {
             let jwt_enc = jwt.sign({id: vehicleObj.id, role: 'vhc'}, process.env.SCRT)
             vehicleObj.save()
             res.cookie( 'vhc_access_tkn', jwt_enc, {
-                secure: false, // Make sure you're using HTTPS in production
+                secure: true, // Make sure you're using HTTPS in production
                 httpOnly: true,
+                sameSite: 'none',
                 maxAge: 30 * 24 * 60 * 60 * 1000 // Set cookie expiration to match JWT expiration
               } )
              res.json( { id: vehicleObj.id, role: 'vhc' } ).status(200)

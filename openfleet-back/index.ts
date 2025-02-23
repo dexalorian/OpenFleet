@@ -28,13 +28,14 @@ let __dirname = path.dirname(fileURLToPath(import.meta.url))
 startSignalingServ(srv);
 
 app.use(cookieParser())
-app.use(cors({ origin: 'http://localhost:5173', credentials: true}))
+app.use(cors({ origin: ['http://localhost:3000', 'https://3074-45-9-72-39.ngrok-free.app'], credentials: true}))
 app.use(express.json());
 app.use('/api', api )
   
   // Логирование тела запроса после применения express.json()
   app.use((req, res, next) => {
-    console.log('Request body after JSON parsing:', req.body);
+    
+    console.log('Request body after JSON parsing:', req.baseUrl);
     next();
   });
 
