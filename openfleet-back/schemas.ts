@@ -23,8 +23,7 @@ const carModelSchema = new mongoose.Schema(
 )
 
 const userSchema = new mongoose.Schema(
-    {
-        id: {type: String, require: true},
+    {  id: {type: String, require: true},
        firstname: String,
        surname: String,
        originTown: String,
@@ -32,7 +31,7 @@ const userSchema = new mongoose.Schema(
        email: String,
        phoneNums: [String],
        activation_token: String,
-       login: {type: String, require: true, unique: true },
+       login: {type: String},
        pwd: {type: String, require: true},
        RTCOffers: [{type: String}]
     }
@@ -104,7 +103,7 @@ const vehicleSchema  = new mongoose.Schema(
         regNum: {type: String},
         currentActiveDriver: {type: mongoose.Schema.Types.ObjectId, ref: 'Driver'},
         drivers: [{type: mongoose.Schema.Types.ObjectId, ref: 'Driver'}],
-        managers: [{type: mongoose.Schema.Types.ObjectId, ref: 'Manager'}],
+        managers: [{ manager: {type: mongoose.Schema.Types.ObjectId, ref: 'Manager'}, active: Boolean}],
         owners: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Driver' },
             { type: mongoose.Schema.Types.ObjectId, ref: 'Manager' },
             { type: mongoose.Schema.Types.ObjectId, ref: 'Supervisor' }

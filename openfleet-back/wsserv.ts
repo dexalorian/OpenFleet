@@ -1,88 +1,117 @@
+
 import  WebSocket, { WebSocketServer } from "ws";
-import bcrypt from "bcrypt"
+
 import jwt from "jsonwebtoken"
 import { manager, vehicle } from "./schemas.ts";
-import { subscribe } from "diagnostics_channel";
 
-let rooms = [];
-
-class Subscriber {
-    id = ''
-    role = ''
-
-    constructor(id, role) {
-        this.id = id
-        this.role = role
-    }
-}
-
-
-let wscons = []; // connections array
-let wsSubscribers  = new Map(); // general subscribers pool 
 let wsRooms = new Map();
+let wsActiveSockets = new Map();
 
+ async function subscribe( id ) {
 
-function initManagersSubscriptions( id ) {
+    let mng = await manager.findOne({ id: id }).select('vehicles').populate('vehicles', 'id -_id')
+    
+    if (mng.vehicles.length > 0) {
+        console.log('received mng', mng?.vehicles)
+        mng.vehicles?.forEach( e => { 
+            if (wsRooms.has(e.id)) {
+                wsRooms.get(e.id)?.subscribers?.includes(id) ? null : wsRooms.get(e.id).subscribers?.push(id) 
 
-    let mngr =  manager.findOne({ id: id })
-    mngr.vehicles.forEach( e => { 
-        if (wsRooms.has(e)) {
-        wsRooms.get(e).subscribers.push(mngr.id)
-    } else {
-        wsRooms.set( e,  {subscribers: mngr.id  }  )
+        } else {
+             wsRooms.set( e.id,  {subscribers: [id] }  )
+        }
+         }
+        )      
     }
-
-     }
-    ) 
-
+    console.log('Rooms: ', wsRooms)
 }
 
+export function startSignalingServ(srv) {
 
+    const wss: WebSocketServer = new WebSocketServer({noServer: true})
 
-export function startSignalingServ() {
-
+    srv.on("upgrade", (request, socket, head) => {
+        console.log("Received upgrade request:", request.url);
+        if (request.url === "/ws") {
+          wss.handleUpgrade(request, socket, head, (ws) => {
+            wss.emit("connection", ws, request);
+          });
+        } else {
+            console.log('ws Socket destroyed');
+          socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
+          socket.destroy();
+        }
+      });
     
+    wss.on('connection', (socket, req) => { 
 
-    const wss: WebSocketServer = new WebSocketServer({ port: process.env.WSPORT })
-    wss.on('connection', (s, req) => { 
-        const accessTkn = req.headers.cookie?.split('access_tkn=')[1].split('; ')[0]
+            //if that an vehicle - 1) find vID in wsRooms 2) Get of wsRooms vID all subscribers 3) search all subscribers in wsActiveSockets 4) get sockets of those connections 5) call .send on each obtained socket
 
-        let decTkn;
-        try {
-            decTkn = jwt.verify( accessTkn, process.env.SCRT)
-            } catch(e) { 
+        const accessTkn = req.headers.cookie?.split(`${req.headers['sec-websocket-protocol']}_access_tkn=`)[1].split('; ')[0]
+        if (accessTkn?.length > 0 ) {
+            const user = jwt.verify( accessTkn, process.env.SCRT)
+            switch (user.role) {
+                case 'vhc':
+                    socket.onmessage = ( e ) => {
+                        console.log('vhc message triggered', e.data)
+                        wsRooms.get(user.id)?.subscribers?.forEach( 
+                            (s) => wsActiveSockets.get(s)?.forEach( 
+                                // x => x.send('KEK')
+                                console.log('vhc send triggered')
+                            )
+                        )
+                    }
+                    console.log('vhc id ',user.id, user.role)
+                    wsActiveSockets.has(user.id) ? wsActiveSockets.get(user.id).push( {socket: socket}) : 
+                        wsActiveSockets.set(user.id, [ {socket: socket}])
+                    wsRooms.has(user.id) ?  null : wsRooms.set(user.id, [])
+                     //vehicle-room creation
+                    // console.log('Rooms: ', wsRooms)
+                    break;
+                case 'mng':
+                    socket.onmessage = async ( msg ) => {
+                        console.log(' mng message triggered ', JSON.parse(msg.data))
 
-                console.log('access_token invalid')
+                        let json =  JSON.parse(msg.data)
+  
+                        if (json.type === 'broadcast') {
+                            const allVhc =  await manager.findOne({ id: user.id }).select('vehicles').populate('vehicles', 'id');
+                            // console.log('obtained db vehicles: ', allVhc?.vehicles)
+                            allVhc?.vehicles.forEach( e => wsActiveSockets.get(e.id)?.forEach( x => x?.socket.send('keeek'))  )
+                            // allVhc?.vehicles.forEach( e =>  console.log('socket bucket ',  wsActiveSockets.get(e.id)?.at(0).socket.readyState)  )
+                        } else if (json.type === 'direct') {
+
+                            wsActiveSockets.get(json.id).forEach( e => e.send ( JSON.stringify({ sender: user.id , content: json.text })  ) )
+                            
+        
+                        }
+                  
+                    }
+                    console.log('mngr id ',user.id, user.role)
+                    const newConnection = {role: user.role, socket: socket}
+                    wsActiveSockets.has(user.id) ? wsActiveSockets.get(user.id).push( {socket: socket}) : 
+                        wsActiveSockets.set(user.id, [ {socket: socket}])
+                    subscribe(user.id)
+                    break;
+                case 'super':
+                    console.log('drv')
+                    break;
+
+                    // get all binded vehicles
             } 
-
-        console.log(wscons.size)
-
-        switch (decTkn.role) {
-            case 'vehicle':
-                wsRooms.set(decTkn.id, { vID: decTkn.id }) //room creation
-            case 'manager':
-                     initManagersSubscriptions(decTkn.id)
-            case 'supervisor':
-                    
-                // get all binded vehicles
-        } 
+        
+        } else {
+            socket.close()
+        }
         
         // console.log('ws req', decodedTkn)
         
     
-        } )
-        
-
-
-    
-
+        }
+     )
 
 
 }
-
-
-
-
 
 // wsserv.on('connection', (conn: WebSocket) => {
 //     let in_id;
