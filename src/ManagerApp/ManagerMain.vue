@@ -13,7 +13,7 @@
                 <div class="flex flex-col py-2 gap-1">
                     <DialogAddVehicle />
                     <Button @click="() => ws.send('Hello')">Send some to WS</Button>
-                    <Button @click="() => ws.send( JSON.stringify( { type: 'broadcast', text: 'cheburek' }) )"> Cheburek to all my vehicles </Button>
+                    <Button @click="() => ws.send( JSON.stringify( { type: 'broadcast', text: 'cheburek' }) )"> Cheburek jjj sto all my vehicles </Button>
                 </div>
                 <div class="text-xs font-bold">Vehicle list</div>
                 <ul class="text-xs">

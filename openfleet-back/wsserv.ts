@@ -31,13 +31,13 @@ export function startSignalingServ(srv) {
 
     srv.on("upgrade", (request, socket, head) => {
         console.log("Received upgrade request:", request.url);
-        if (request.url === "/ws") {
-            console.log('trying to connect to /ws')
+        if (request.url === "/io") {
+            console.log('trying to connect to /io')
           wss.handleUpgrade(request, socket, head, (ws) => {
             wss.emit("connection", ws, request);
           });
         } else {
-            console.log('ws Socket destroyed');
+        //     console.log('ws Socket destroyed');
           socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
           socket.destroy();
         }
@@ -50,18 +50,16 @@ export function startSignalingServ(srv) {
 
                 const accessTkn = req.headers.cookie?.split(`${req.headers['sec-websocket-protocol']}_access_tkn=`)[1].split('; ')[0]
         
-
-        
         if (accessTkn?.length > 0 ) {
             const user = jwt.verify( accessTkn, process.env.SCRT)
             switch (user.role) {
                 case 'vhc':
                     socket.onmessage = ( e ) => {
-                        console.log('vhc message triggered', e.data)
+                
                         wsRooms.get(user.id)?.subscribers?.forEach( 
                             (s) => wsActiveSockets.get(s)?.forEach( 
                                 x => {
-                                    console.log(x, 'vhc send triggered')
+                                    
                                     x.send(e.data)
                                 } 
                                
@@ -76,20 +74,19 @@ export function startSignalingServ(srv) {
                     break;
                 case 'mng':
                     socket.onmessage = async ( msg ) => {
-                        console.log(' mng message triggered ', JSON.parse(msg.data))
 
+                        console.log('msg ', msg )
+       
                         let json =  JSON.parse(msg.data)
   
                         if (json.type === 'broadcast') {
                             const allVhc =  await manager.findOne({ id: user.id }).select('vehicles').populate('vehicles', 'id');
-                            console.log('active sockets: ', wsActiveSockets)
+                            // console.log('active sockets: ', wsActiveSockets)
                             allVhc?.vehicles.forEach( e => wsActiveSockets.get(e.id)?.forEach( x => x.send('keeek'))  )
                             // allVhc?.vehicles.forEach( e =>  console.log('socket bucket ',  wsActiveSockets.get(e.id)?.at(0).socket.readyState)  )
                         } else if (json.type === 'direct') {
 
                             wsActiveSockets.get(json.id).forEach( e => e.send ( JSON.stringify({ sender: user.id , content: json.text })  ) )
-                            
-        
                         }
                   
                     }

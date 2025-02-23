@@ -18,7 +18,7 @@ export default api
 api.use( ['/manager', '/vehicle', '/driver'], async (req, res, next) => {
 
     let role = (() => {
-        console.log('cookies',  JSON.stringify(req.cookies))
+ 
         switch (  req.baseUrl.split('/').at(-1)) {
                
             case 'manager': 
@@ -31,9 +31,9 @@ api.use( ['/manager', '/vehicle', '/driver'], async (req, res, next) => {
     })()
 
     if (req.cookies[role+'_access_tkn']?.length > 0) {
-        console.log('REQ AUTH URL', req.url)
+ 
         req.jwt = await jwt.verify(req.cookies[role+'_access_tkn'], process.env.SCRT)
-        console.log('jwt id auth ', req.jwt.id)
+
         if (req.jwt.id.length > 0) {
             next()
         } else { res.status(401).send() }
@@ -49,8 +49,6 @@ api.use( ['/manager', '/vehicle', '/driver'], async (req, res, next) => {
         }
 
        )
-
-
 
 async function bindVehicle(req, res) {
     try {
@@ -68,10 +66,6 @@ async function bindVehicle(req, res) {
         console.log('Vehicle not found', err);
         
     }
-
-    
-
-
 }
 
 api.post( '/manager/bindvehicle', bindVehicle )
@@ -153,11 +147,12 @@ api.post('/driver/signup', (req ,res) => {})
 api.post('/driver/login', (req, res) => {} )
 
 api.post('/vehicle/login', async (req, res) => { 
-  console.log('login triggered')
+  console.log('login triggered' )
+  let jwt_enc = jwt.sign({id: vehicleObj.id, role: 'vhc'}, process.env.SCRT)
     try { 
         let vehicleObj =  await vehicle.findOne({login: req.body.login}) 
         if  (bcrypt.compare( req.body.login, vehicleObj.login )) {
-            let jwt_enc = jwt.sign({id: vehicleObj.id, role: 'vhc'}, process.env.SCRT)
+            jwt_enc = jwt.sign({id: vehicleObj.id, role: 'vhc'}, process.env.SCRT)
             vehicleObj.save()
             res.cookie( 'vhc_access_tkn', jwt_enc, {
                 secure: true, // Make sure you're using HTTPS in production

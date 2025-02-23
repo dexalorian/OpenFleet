@@ -2,6 +2,7 @@
         <div class="w-full border h-full flex flex-col">
             {{ 'ID: '+ JSON.stringify(vehicle) }}
             <Button @click="() => ws.send('Hello from vehicle!')">Hello to WS</Button>
+            <!-- <Button @click="() =>  navigator.geolocation.getCurrentPosition()"></Button> -->
 
             <div class="flex grow-1 justify-center content-center items-center">
                 <div class="absolute text-slate-300 flex flex-col justify-center items-center gap-2 ">Video
@@ -43,7 +44,7 @@ onMounted( async () => {
     peer.onicecandidate = e => console.log('candidate ', e)
     peer.onicegatheringstatechange = (e) =>    console.log('sdr offer: ', e)
     
-    // setInterval( () =>  navigator.geolocation.getCurrentPosition((e) => ws.send( JSON.stringify( { lat: e.coords.latitude, lng: e.coords.longitude }))), 6000 )
+    setInterval( () =>  navigator.geolocation.getCurrentPosition((e) => ws.send( JSON.stringify( { lat: e.coords.latitude, lng: e.coords.longitude }))), 5000 )
    
 
 } )

@@ -11,7 +11,7 @@ import tailwind from 'tailwindcss'
 export default defineConfig({
   server: {
     hmr: {
-      port: 5155,
+      // port: 5155,
       // clientPort: 5150
     }
 

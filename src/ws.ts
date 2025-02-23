@@ -3,9 +3,10 @@ let ws: WebSocket;
 
 
 function StartWS(role: 'mng' | 'vhc' | 'drv'): WebSocket {
-
+    let wsUrl =  'wss://'+window.location.origin.split('://')[1] +'/io' 
+    console.log('WS URLS', wsUrl)
     roleBkp = role
-    ws = new WebSocket(import.meta.env.VITE_SRV_WS , [role] )
+    ws = new WebSocket(wsUrl, [role] )
     
     console.log('ws started', role);
     ws.onmessage = (e) => { console.log('ws income mess: ', e) }
