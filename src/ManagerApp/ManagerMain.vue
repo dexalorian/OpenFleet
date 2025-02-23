@@ -1,41 +1,31 @@
 <template>
-    <div>
+    <div v-if="manager.isAuth" class="flex h-full w-full">
         
-        <div class="flex flex-col border p-2 h-full justify-between">
+        <div class="flex flex-col border p-2 justify-between">
            
             <div class="flex flex-col">
                 <p class="font-bold">OpenFleet</p>
                 <div class="text-xs text-slate-400">Manager</div>
-                <div class="text-xs text-slate-400">{{ manager }}</div>
-                
-                <div class="py-2">
-                    <Dialog>
-                        <DialogTrigger as-child>
-                            <Button>Add vehicle</Button>
-                        </DialogTrigger>
-                
-                        <DialogContent>
-                            <DialogTitle>Connect to vehicle</DialogTitle>
-                
-                            <label>New vehicle ID</label>
-                            <Input placeholder="ID"></Input>
-                            <div class="flex flex-row gap-2">
-                                <Button @click="() => fetchBindedVehicles()"> Send request </Button>
-                                <Button variant="outline"> Cancel </Button>
-                            </div>
-                        </DialogContent>
-                    </Dialog>
+                <div class="text-xs text-slate-400">{{ manager.manager.id }} 
+                    
                 </div>
-                <div class="text-xs">Vehicle list</div>
+                
+                <div class="flex flex-col py-2 gap-1">
+                    <DialogAddVehicle />
+                    <Button @click="() => ws.send('Hello')">Send some to WS</Button>
+                    <Button @click="() => ws.send( JSON.stringify( { type: 'broadcast', text: 'cheburek' }) )"> Cheburek to all my vehicles </Button>
+                </div>
+                <div class="text-xs font-bold">Vehicle list</div>
+                <ul class="text-xs">
+                    <!-- {{ manager.vehicles.value }} -->
+                    <li v-for="v in manager.vehicles.value">
+                        <p class="font-bold">{{ v?.login }} </p>
+                        {{ v.id }} 
+                    </li>
+                </ul>
             </div>
-
-
             <Button variant="link" @click="manager.Logout()">Logout</Button>
-
         </div>
-
-
-
         <Map />
 
     </div>
@@ -47,17 +37,21 @@
     import Button from '@/components/ui/button/Button.vue';
     import { Dialog, DialogTrigger, DialogContent, DialogTitle } from '@/components/ui/dialog';
     import { Input } from '@/components/ui/input';
-import { useManagerStore } from './ManagerPage.vue';
-    
-    const manager = useManagerStore()
+    import { useManagerStore } from './ManagerPage.vue';
+    import { onMounted } from 'vue';
+    import { fetchBindedVehicles, newVehicle } from '../services'
+    import DialogAddVehicle from './DialogAddVehicle.vue';
+import { StartWS, ws } from '@/ws';
+
+const manager = useManagerStore()
+
+StartWS('mng');
+
+onMounted( async () => {
+   manager.vehicles.value =  await fetchBindedVehicles("manager")
+} )
 
 
-
-    
-
-    async function fetchBindedVehicles() {
-         await fetch( BASE_SRV_URL + '/manager/vehicles' , { method: 'GET', credentials: 'include' }) 
-    }
 
 
 </script>

@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@heroicons/vue": "^2.2.0",
     "@vee-validate/zod": "^4.15.0",
     "@vue/tsconfig": "^0.7.0",
     "@vueuse/core": "^12.5.0",

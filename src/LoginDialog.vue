@@ -32,7 +32,7 @@ const form = useForm()
 const Submit = form.handleSubmit( 
   async (val) => {
 
-  res.value = await fetch(import.meta.env.VITE_BASE_VEHICLE_URL + '/login', { headers: {'Content-Type': 'application/json'},
+  res.value = await fetch('/login', { headers: {'Content-Type': 'application/json'},
   method: 'POST', credentials: 'include', body: JSON.stringify(val)})
 
   if (res.value.status === 401) {

@@ -17,31 +17,15 @@ const SharedMapId = ref({})
 
 onMounted(
 async () => {
-
   const mylocation = navigator.geolocation.getCurrentPosition(e => console.log('geolocation ', e))
 
-  // if (!userObj.isAuth) {
-  //  let e = await fetch(import.meta.env.VITE_BASE_VEHICLE_URL + '/auth', {method: 'POST', 
-  //  credentials: 'include', headers: {'Content-Type': 'application/json'}})
-  //  let res = await e.json()
-  //     res.valid ? userObj.isAuth = true : userObj.isAuth = false
-  //     if (res.defaultMap) {
-  //       console.log('def map', res.defaultMap) 
-  //       SharedMapId.value = res.defaultMap; 
-  //     } else {
-  //       // await fetch('  ')
-  //       console.log('no default map, error ', res)
-  //     }
-  // } 
         
 })
-
 
 watch( () => userObj.isAuth, async  () => {
 
    let e = await fetch(import.meta.env.VITE_BASE_VEHICLE_URL + '/auth', {method: 'POST', 
    credentials: 'include', headers: {'Content-Type': 'application/json'}})
- 
    let res = await e.json()
       res.valid ? userObj.isAuth = true : userObj.isAuth = false
 
@@ -59,10 +43,5 @@ watch( () => userObj.isAuth, async  () => {
 </script>
 
 <template>
-  <!-- <LogoutDialog :show="showLogout"/>
-  <LoginDialog v-model="showLogin"/>
-  <SignUpDialog :show="showSignup" />
-  <router-view name="header"/> -->
-  <!-- <RouterView class="flex w-full"/> -->
-  <router-view class="flex w-full"/>
+  <router-view />
 </template>

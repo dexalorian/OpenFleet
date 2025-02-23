@@ -8,9 +8,7 @@
                 <TabsTrigger value="signup" class="w-full">
                     Sign Up
                 </TabsTrigger>
-    
             </TabsList>
-    
             <TabsContent value="login">
                 <Login />
             </TabsContent>
@@ -18,7 +16,7 @@
             <TabsContent value="signup">
                 <SignUp />
             </TabsContent>
-        </Tabs>
+    </Tabs>
     
     </template>
     

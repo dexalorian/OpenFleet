@@ -67,11 +67,11 @@ export const routes = [
     }, 
     children: [{
       path: 'main',
-      name: 'main',
+      name: 'vehicle-main',
       component: VehicleMain },
       {
         path: 'enter',
-        name: 'vehicle_enter',
+        name: 'vehicle-enter',
         component: VehicleEnter
       }
     ]

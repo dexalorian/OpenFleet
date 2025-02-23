@@ -6,29 +6,9 @@ import { watchEffect, watch } from 'vue';
 import { useSlots, ref, nextTick } from 'vue';
 import { useRoute } from 'vue-router'
 import { onBeforeMount } from 'vue';
-
-
 let map: leaflet.Map ;
 
-// const props = defineProps({
-//   vehicles: {type: Array},
-//   thumbs: {type: Array<any>}
-// })
-
-// let pointsBuffer = ref(null)
-
-// watchEffect( () => pointsBuffer.value = props.points )
-
-
-// let pinicon_active = leaflet.divIcon({html: '<div class="pinicon_active"/>', iconSize: [0, 0]})
-// const selectedGeoPnt = useSelGeoPnt()
-// const ptrLineCoords = usePtrLineCoords()
-// let GeoSelector: leaflet.Marker = ref(null);
-// let line = {};
-// let lines = ref([])
-
 const BASE_MANAGER_URL = import.meta.env.VITE_BASE_URL
-
 
 function putPhotosOnMap(mapcluster) {
   pointsBuffer.value.forEach(
@@ -66,12 +46,6 @@ function ThumbsPointsMerge( points: Array, thumbs: Array ): Array<any> {
   return map
 }
 
-
-// watch( () => props.thumbs , () => {
-//   lines.value = ThumbsPointsMerge( fetchAllPointsXY(pointsBuffer.value), props.thumbs ) 
-// })
-
-
 function fetchAllThumbsXY(): Array<Point> {
    let pointXY: Array<Point>  = props.thumbs
     console.log('Passed props ', props.thumbs)
@@ -104,50 +78,9 @@ onMounted(() => {
    
   let layer = leaflet.marker({ lat: '34.23', lng: '44.33' }, {icon: carIcon, draggable: true}  ).addTo(map)
   
-    // map.addLayer( layer )
 
-  // map.on('click', () => {
-  //  clusters.removeLayer(GeoSelector)
-  //  ptrLineCoords.visible = false })
-  // map.on('contextmenu', (e) => { ptrLineCoords.visible = true; selectedGeoPnt.visible = true;  selectedGeoPnt.lat = e.latlng.lat; selectedGeoPnt.lng = e.latlng.lng; } )
   map.on('zoomend', e => localStorage.setItem('zoom', map.getZoom()))
-  // map.on('move', (e) => { 
-  //   line = map.latLngToContainerPoint( { lat: selectedGeoPnt.lat, lng: selectedGeoPnt.lng } ); 
-  //   ptrLineCoords.to = [line.x, line.y]; 
-  //   lines.value = ThumbsPointsMerge(fetchAllPointsXY(pointsBuffer.value), props.thumbs ) 
-  // })
-
   map.on('moveend', e => localStorage.setItem('mapframecoords', map.getCenter().lat+'+'+map.getCenter().lng))
-  // map.on('zoom', (e) =>  {line = map.latLngToContainerPoint( { lat: selectedGeoPnt.lat, lng: selectedGeoPnt.lng  } ); ptrLineCoords.to = [line.x, line.y]; })
-  // map.on('zoomstart', (e) =>  {ptrLineCoords.to = [0, 0]})
-  
-  // map.on('resize', (e) =>  {line = map.latLngToContainerPoint( { lat: selectedGeoPnt.lat, 
-  //   lng: selectedGeoPnt.lng  } ); ptrLineCoords.to = [line.x, line.y]} )
-
-    // lines.value = ThumbsPointsMerge( fetchAllPointsXY(pointsBuffer.value), props.thumbs ) 
-    // const clusters = leaflet.markerClusterGroup({maxClusterRadius: 50, 
-    //   disableClusteringAtZoom: 15, animate: false})
-      
-
-      
-    // map.addLayer(clusters)
-    
-    // map.eachLayer(e => console.log('map layer ', e))
-   
-    // L.featureGroup([marker1, marker2, polyline])
-    // .bindPopup('Hello world!')
-    // .on('click', function() { alert('Clicked on a member of the group!'); })
-    // .addTo(map);
-    // watch(pointsBuffer, () => {
-      
-    //   clusters.clearLayers()
-    //     // console.log('map points watcher', pointsBuffer)
-    //   putPhotosOnMap(clusters)
-    //   // map.eachLayer(e => console.log('map layer ', e))
-    //   addGeoSelector()
-      
-    //     } )
-  
 
 function addGeoSelector(): Leaflet.marker {
 
@@ -177,11 +110,6 @@ function addGeoSelector(): Leaflet.marker {
 }
 })
 
-// watch( selectedGeoPnt , () => {  GeoSelector.setLatLng( { lat: selectedGeoPnt.lat, lng: selectedGeoPnt.lng});
-// line = map.latLngToContainerPoint( { lat: selectedGeoPnt.lat, lng: selectedGeoPnt.lng  } ); ptrLineCoords.to = [line.x, line.y]; 
-      
-// } )
-
 function updGeoSelector(lat: Number, lng: Number, visible: true) {
     ptrLineCoords.visible = true; 
     selectedGeoPnt.visible = true; 
@@ -194,12 +122,9 @@ function updGeoSelector(lat: Number, lng: Number, visible: true) {
 </script>
 
 <template>
-
   
   <!-- <LineFrame class="z-20" :lines="lines" /> -->
-  <div ref="mapRef" class="flex w-full h-screen z-0" id="map"></div>
-
-
+  <div ref="mapRef" class="flex w-full h-full z-0" id="map"></div>
 
 </template>
 

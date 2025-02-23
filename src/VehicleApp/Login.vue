@@ -1,6 +1,9 @@
 <template>
     Vehicle app Login
+
+        <div v-if="generalError.length > 0" class="bg-red-200"> Error {{  generalError  }}</div>
     <form @submit="onSubmit">
+
         <FormField name="login" v-slot="{ componentField }">
             <FormLabel>Login or e-mail</FormLabel>
             <FormItem>
@@ -26,19 +29,19 @@ import Input from '@/components/ui/input/Input.vue';
 import Button from '@/components/ui/button/Button.vue';
 import FormLabel from '@/components/ui/form/FormLabel.vue';
 import { useRouter } from 'vue-router';
-import { useVehicleAuth } from './Index.vue';
+import { useVehicleStore } from './Index.vue';
+import { ref } from 'vue'
 
+const generalError = ref('')
 const form = useForm()
-
 const router = useRouter()
-
-const auth = useVehicleAuth()
+const auth = useVehicleStore()
 
 const onSubmit = form.handleSubmit( async (e) => {
     console.log(' form data ', e)
-    auth.Login( e.login , e.pwd )
 
-   router.push({ name: 'main'})
+    let err = await auth.Login( e.login , e.pwd )
+    generalError.value = err
    
 }
 )

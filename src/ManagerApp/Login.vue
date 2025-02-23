@@ -1,5 +1,6 @@
 <template>
     Manager app Login
+    
     <form @submit="onSubmit">
         <FormField name="login" v-slot="{ componentField }">
             <FormLabel>Login or e-mail</FormLabel>
@@ -34,13 +35,14 @@ const router = useRouter()
 
 const manager = useManagerStore()
 
+
+
 const onSubmit = form.handleSubmit( async (e) => {
     console.log(' form data ', e)
 
 
     manager.Login(e.login, e.pwd)
 
-   router.push({ name: 'manager-main'})
    
 }
 )

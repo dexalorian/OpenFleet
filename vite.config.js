@@ -9,6 +9,13 @@ import tailwind from 'tailwindcss'
 
 // https://vite.dev/config/
 export default defineConfig({
+  server: {
+    hmr: {
+      port: 5155,
+      // clientPort: 5150
+    }
+
+  },
   css: {
     postcss: {
       plugins: [tailwind(), autoprefixer()],
