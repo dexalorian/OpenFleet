@@ -4,6 +4,12 @@ import { defineStore } from 'pinia';
 import { RouterView } from 'vue-router';
 import { useRouter } from 'vue-router';
 import { onMounted } from 'vue';
+import { Tabs, TabsList }  from '@/components/ui/tabs';
+import TabsTrigger from '@/components/ui/tabs/TabsTrigger.vue';
+import TabsContent from '@/components/ui/tabs/TabsContent.vue';
+import Main from './Main.vue'
+import Settings from './Settings.vue';
+// import type TabsList from '@/components/ui/tabs/TabsList.vue';
 
 const router = useRouter()
 
@@ -15,9 +21,11 @@ const SelfLocation = ref(null)
 let track;
 const vehicle = useVehicleStore()
 
+window.addEventListener('resize', (e) => console.log('resized', e))
+
 watch(() => vehicle.isAuth, () => 
     vehicle.isAuth ? 
-        router.push({ name: 'vehicle-main'}) : router.push({ name: 'vehicle-enter'}) )
+        null : router.push({ name: 'vehicle-enter'}) )
 
 async function myDevices() {
     let devs =  await navigator.usb.requestDevice({ filters: [] })
@@ -29,7 +37,7 @@ onMounted(async () => {
         await vehicle.CheckAuth()
         console.log( 'isAuth? ', vehicle.isAuth );
        if (vehicle.isAuth) {
-           router.push({ name: 'vehicle-main' })
+        //    router.push({ name: 'vehicle-main' })
        } else { router.push( { name: 'vehicle-enter' }) }
    })
 
@@ -53,20 +61,28 @@ async function createSDPanswer() {
         }
     }
 
+const vhc = useVehicleStore()
+
+// const router = useRouter()
+
 </script>
 
 <script lang="ts">
+    import { addOfflineLogout } from '@/services'
 
-export const useVehicleStore = defineStore('VehicleStore', () => {
+    export const useVehicleStore = defineStore('VehicleStore', () => {
     const isAuth = ref(false);
     const vehicle = ref({})
     const managers = ref([])
     const owners = ref([])
+    const currentGeo = ref({})
+    const geoHistory = ref([])
 
     async function getManagers() {
         const res = await fetch( import.meta.env.VITE_SRV_URL + '/vehicle/managers', {method: 'GET', credentials: 'include'} )
         const resp = await res.json()
         managers.value = resp.mngrs;
+        return resp.mngrs
     }
 
     async function getOwners() {
@@ -77,26 +93,28 @@ export const useVehicleStore = defineStore('VehicleStore', () => {
 
     async function Login( login: String , pwd: String ): String {
         try {
-            const res =  await fetch( import.meta.env.VITE_SRV_URL +'/vehicle/login', {body: JSON.stringify({login, pwd}), credentials: 'include', method: 'POST'})
-            let resp = await res.json()
-        if (res.status === 200) {
+            const res =  await fetch( import.meta.env.VITE_SRV_URL +'/vehicle/login', {body: JSON.stringify({login, pwd}), headers: { "Content-Type" : 'application/json' } , 
+            credentials: 'include', method: 'POST'})
+            const resp = await res.json()
+        if (resp.valid) {
          console.log('200');
         
-        //  console.log(resp.id);
-         vehicle.id = resp.id
-         console.log(vehicle.id);
+         console.log(resp);
          isAuth.value = true
+         vehicle.value = resp.vehicle
+
+         console.log(vehicle.id);
+         
         }
         } catch {
             console.log('login error')
             return  'Login error' 
         }
-   
     }
 
     async function CheckAuth() {
         try {
-            const res = await fetch( import.meta.env.VITE_SRV_URL + '/vehicle/auth', {method: 'POST', credentials: 'include'} )
+        const res = await fetch( import.meta.env.VITE_SRV_URL + '/vehicle/auth', {method: 'POST', credentials: 'include'} )
       const resp = await res.json()
       console.log('Checking auth')
       if (resp.valid) {
@@ -112,26 +130,60 @@ export const useVehicleStore = defineStore('VehicleStore', () => {
                 vehicle.value = null
             }
         }
-      
     }
+
     async function SignUp(login: String, pwd: String, email: String, phoneNums: String[]) {
        await fetch(import.meta.env.VITE_SRV_URL+'/vehicle/signup', {method: 'POST', body: { login , pwd, email, phoneNums } }) 
     }
 
     async function Logout() {
-        isAuth.value =  await fetch(import.meta.env.VITE_SRV_URL+'/vehicle/logout', {method: 'POST'})
-    }
+        const resp = await fetch(import.meta.env.VITE_SRV_URL+'/vehicle/logout', {method: 'GET', credentials: 'include'});
 
+        if (resp.status !== 200) {
+            addOfflineLogout('vhc')
+        } 
+        isAuth.value = false;
+        vehicle.value = null;
+    }
     
-    return { isAuth, vehicle, Login, CheckAuth, SignUp, getManagers, getOwners }
+    return { isAuth, 
+            vehicle, 
+            geoHistory, 
+            currentGeo, 
+            managers,
+            Login, 
+            Logout, 
+            CheckAuth, 
+            SignUp, 
+            getManagers, 
+            getOwners }
 }) 
 
 </script>
 
 
 <template>
-    OpenFleet. Vehicle app
-    <RouterView class="flex w-full border w-72"/>
+    <div class=" h-full flex flex-col w-full min-w-80 max-w-lg">
+        <div class="text-xs flex gap-2 py-1">OpenFleet. Car app
+            <div class="text-[8px] ">{{ vehicle?.vehicle?.id }}</div>
+        </div>
+        <RouterView  v-if="!vhc.isAuth" class="flex flex-col h-full w-full border bg-green-600"/>
+        <div v-if="vhc.isAuth" class="flex h-full w-full">
+       
+            <Tabs class="w-full h-full flex flex-col" default-value="map-page">
+                <TabsContent force-mount class="data-[state=inactive]:hidden flex flex-col h-full mt-0" value="map-page">
+                        <Main />
+                </TabsContent>
+                <TabsContent force-mount class="data-[state=inactive]:hidden flex flex-col h-full mt-0" value="profile-page">
+                    <Settings />
+                </TabsContent>
+                  <TabsList class="w-full *:w-full  flex *:h-12 group-">
+                    <TabsTrigger   value="map-page">Map</TabsTrigger>
+                    <TabsTrigger  value="profile-page">Settings</TabsTrigger>
+                 </TabsList>
+            </Tabs>
+        </div>
+    </div>
 
 </template>
 

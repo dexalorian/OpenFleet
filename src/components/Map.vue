@@ -1,130 +1,81 @@
-<script setup lang="ts">
-import { inject, onMounted, defineModel, toRaw } from 'vue';
-import leaflet, { icon, latLng, Point, type LeafletEvent } from "leaflet"
-import { useSelGeoPnt, usePtrLineCoords} from '@/main'
-import { watchEffect, watch } from 'vue';
-import { useSlots, ref, nextTick } from 'vue';
-import { useRoute } from 'vue-router'
-import { onBeforeMount } from 'vue';
+<script lang="ts">
+import leaflet, { Circle, icon, LatLng, latLng, Point, type LeafletEvent } from "leaflet"
+// import { useSelGeoPnt, usePtrLineCoords} from '@/main'
 let map: leaflet.Map ;
 
-const BASE_MANAGER_URL = import.meta.env.VITE_BASE_URL
-
-function putPhotosOnMap(mapcluster) {
-  pointsBuffer.value.forEach(
-    e => { 
-      let newBuffer;
-      if (e.lat) {
-      const marker: leaflet.Marker = leaflet.marker( { lat: e.lat, lng: e.lng}, {draggable: true} ); 
-      marker.on('click', (e) => { e.id='fdfdf'; console.log(e) })
-      marker.on('drag', e => {
-        newBuffer =  pointsBuffer.value.map( k => k.id === e.target.id ? k = { ... k, ... e.latlng, cha: 'yes'} : {... k} )
-        console.log(' newBuffer ', newBuffer)
-        // pointsBuffer.value = newBuffer
-        lines.value = ThumbsPointsMerge( fetchAllPointsXY(newBuffer), props.thumbs )  
-
-      })
-      marker.on('dragend', () => pointsBuffer.value = newBuffer )
-      marker.id = e.id
-      mapcluster.addLayer(marker)
-      } })}
-
-function fetchAllPointsXY(geopoints: Array<any>): any {
-  // let kek = geopoints.map( (e) => { map.latLngToContainerPoint({lat: e.lat, lng: e.lng}) })
-  let pointsXY = geopoints.map( (e) => { 
-    let cords = map.latLngToContainerPoint(e); let obj = { id: e.id, ... cords  }; return obj })
-  return pointsXY
-}
-
-function ThumbsPointsMerge( points: Array, thumbs: Array ): Array<any> {
-  // console.log(' merge ', thumbs.v)
-  let map = points.map( (e) => (
-    { id: e.id , from: [e.x, e.y],  to: (() => { let tmp = thumbs.filter( k => k.props.photoID === e.id )[0]; 
-      return [tmp.screenXY.x, tmp.screenXY.y ] 
-    } )(), point_visible: true, line_visible: true }  ) )
-  
-  return map
-}
-
-function fetchAllThumbsXY(): Array<Point> {
-   let pointXY: Array<Point>  = props.thumbs
-    console.log('Passed props ', props.thumbs)
-   return pointXY
-}
-
-onMounted(() => {
-  map = leaflet.map('map',{
-    center: [0, 0], // Initial center
-    zoom: 2,
-    minZoom: 2,        // Initial zoom
-    worldCopyJump: false, // Prevents map duplication when panning
-    maxBounds: [
-        [-85, -180], // Southwest corner
-        [85, 180]    // Northeast corner
-    ],
-    maxBoundsViscosity: 1.0  // Strictly enforces bounds
-})  
-  localStorage.getItem('mapframecoords') ? map.setView(localStorage.getItem('mapframecoords').split('+'), 
-  localStorage.getItem('zoom')) : map.setView({lat: 52.104326, lng: 23.707570}, 15);
-  leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19,
-    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);
-  map.zoomControl.setPosition('bottomright');
+export function createMapMarker(LatLng: LatLng, type: 'car' | 'gasstation' | 'base'): leaflet.Marker {
 
   let carIcon = leaflet.divIcon({ html: '<div class="caricon"></div>', iconSize: [24, 24], 
-  className: 'dummy',
-  iconSize: [32, 32], // Adjust size as needed
-    
-   })
-   
-  let layer = leaflet.marker({ lat: '34.23', lng: '44.33' }, {icon: carIcon, draggable: true}  ).addTo(map)
+      className: 'dummy',
+      iconSize: [32, 32], // Adjust size as needed
+        })
+      let newMarker = leaflet.marker(LatLng, {icon: carIcon, draggable: true} );
+        newMarker.DisabledIcon =  leaflet.divIcon({ html: '<div class="caricon_disabled"></div>', iconSize: [24, 24], 
+      className: 'dummy',
+      iconSize: [32, 32], // Adjust size as needed
+        })
+
+      newMarker.addTo(map);
+      return newMarker
+
+}
+
+export async function createMapTrail(pointArray: LatLng[]): leaflet.Polyline {
+  console.log('new tail', pointArray)
+  let newTrail = new leaflet.Polyline( pointArray, {
+    color: 'red',
+    weight: 3,
+    opacity: 0.5,
+    smoothFactor: 1,
+    lineJoin: 'round'
+  } )
   
 
-  map.on('zoomend', e => localStorage.setItem('zoom', map.getZoom()))
-  map.on('moveend', e => localStorage.setItem('mapframecoords', map.getCenter().lat+'+'+map.getCenter().lng))
+  const originalAddLatLng = newTrail.addLatLng;
+newTrail.addLatLng = function (latlng) {
+  this.fire('pointadded', { latlng });
+  return originalAddLatLng.call(this, latlng);
+};
 
-function addGeoSelector(): Leaflet.marker {
+newTrail.addTo(map)
 
-  if (GeoSelector.value) {
-    console.log('selector not added')
-    return
-  }
-    // if (selectedGeoPnt.visible) {
-      ptrLineCoords.visible = true; 
-      selectedGeoPnt.visible = true; 
-      let marker: leaflet.Marker = leaflet.marker( { lat: selectedGeoPnt.lat, lng: selectedGeoPnt.lng}, 
-    {icon: pinicon_active, draggable: true} )
-    // marker.on('drag', (e) => { selectedGeoPnt.lat = e.latlng.lat; selectedGeoPnt.lng = e.latlng.lng;  ptrLineCoords.visible = true; selectedGeoPnt.visible = true;})
-    // marker.on('drag', (e) => { ptrLineCoords.visible = true; selectedGeoPnt.visible = true; selectedGeoPnt.lat = e.latlng.lat; selectedGeoPnt.lng = e.latlng.lng;  })
-   
-    line = map.latLngToContainerPoint( { lat: selectedGeoPnt.lat, lng: selectedGeoPnt.lng } )
-      ptrLineCoords.to = [line.x, line.y]
-       marker.on('drag', (e) => { updGeoSelector( e.latlng.lat, e.latlng.lng, true ) })
-      
-     clusters.addLayer(marker)
-     GeoSelector = marker
-     console.log('selector added')
-    
-     return marker
-
-    // }
+  return newTrail
 }
-})
+</script>
 
-function updGeoSelector(lat: Number, lng: Number, visible: true) {
-    ptrLineCoords.visible = true; 
-    selectedGeoPnt.visible = true; 
-    selectedGeoPnt.lat = lat;
-    selectedGeoPnt.lng = lng; 
-    line = map.latLngToContainerPoint( { lat: selectedGeoPnt.lat, lng: selectedGeoPnt.lng } ); 
-    ptrLineCoords.to = [line.x, line.y]; 
-}
+<script lang="ts" setup>
 
+import { onMounted } from 'vue'
+
+
+
+      onMounted(() => { map = leaflet.map('map', {
+        center: [0, 0], // Initial center
+        zoom: 2,
+        minZoom: 2,        // Initial zoom
+        worldCopyJump: false, // Prevents map duplication when panning
+        maxBounds: [
+            [-85, -180], // Southwest corner
+            [85, 180]    // Northeast corner
+        ],
+        maxBoundsViscosity: 1.0  // Strictly enforces bounds
+      })  
+      localStorage.getItem('mapframecoords') ? map.setView(localStorage.getItem('mapframecoords').split('+'), 
+      localStorage.getItem('zoom')) : map.setView({lat: 52.104326, lng: 23.707570}, 15);
+      leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);
+      map.zoomControl.setPosition('bottomright');
+      map.on('zoomend', e => localStorage.setItem('zoom', map.getZoom()));
+      map.on('moveend', e => localStorage.setItem('mapframecoords', map.getCenter().lat+'+'+map.getCenter().lng));
+
+
+    })
 </script>
 
 <template>
   
   <!-- <LineFrame class="z-20" :lines="lines" /> -->
-  <div ref="mapRef" class="flex w-full h-full z-0" id="map"></div>
+  <div class="flex w-full h-full z-0" id="map"></div>
 
 </template>
 
@@ -146,6 +97,27 @@ function updGeoSelector(lat: Number, lng: Number, visible: true) {
     background-repeat: no-repeat;
 
     filter: 
+        drop-shadow( 1px  0px 0px rgb(12, 16, 44)) 
+        drop-shadow(-1px  0px 0px rgb(12, 16, 44))
+        drop-shadow( 0px  1px 0px rgb(12, 16, 44)) 
+        drop-shadow( 0px -1px 0px rgb(12, 16, 44))
+        drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.5));
+    width: 24px;
+    height: 36px;
+    display: flex;
+}
+
+.caricon_disabled {
+    background-image: url('/src/assets/caricon_yellow.png');
+    position: absolute;
+    /* border: 1px black solid; */
+    transform: rotate(158deg);
+    background-position: 0% 20%;
+    background-size: 14px;
+    background-repeat: no-repeat;
+
+    filter: 
+        saturate(0%)
         drop-shadow( 1px  0px 0px rgb(12, 16, 44)) 
         drop-shadow(-1px  0px 0px rgb(12, 16, 44))
         drop-shadow( 0px  1px 0px rgb(12, 16, 44)) 

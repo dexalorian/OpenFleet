@@ -20,6 +20,8 @@ export const useVideoConnections = defineStore('videoConnections', () => {
   return { connections }
 } )
 
+
+
 export const useUser = defineStore('userParams', 
    () => {
       const accessTkn = ref('')

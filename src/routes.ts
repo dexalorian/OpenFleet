@@ -1,4 +1,4 @@
-import Map from './MapPage.vue'
+
 import VehicleIndex  from './VehicleApp/Index.vue'
 import AppHeader from './components/AppHeader.vue'
 import DriverPage from './DriverApp/Index.vue'
@@ -27,53 +27,20 @@ export const routes = [
        }
     ] 
   },
-  {
-    path: '/',
-    name: 'App',
-    components: {
-      default: Map
-      // header: AppHeader
-    }
-  },
-  {
-    path: '/login',
-    name: 'LoginModal',
-    components: {
-      default: Map,
-      header: AppHeader
-    }
-  },
-  {
-    path: '/signup',
-    name: 'SignUpModal',
-    components: {
-      default: Map,
-      header: AppHeader
-    }
-  },
-  {
-    path: '/logout',
-    name: 'LogoutModal',
-    components: {
-      default: Map,
-      header: AppHeader
-    }
-  },
+
   {
     path: '/vehicleapp',
     name: 'VehicleApp',
     components: {
       default: VehicleIndex,
     }, 
-    children: [{
-      path: 'main',
-      name: 'vehicle-main',
-      component: VehicleMain },
+    children: [
       {
         path: 'enter',
         name: 'vehicle-enter',
         component: VehicleEnter
-      }
+      },
+      
     ]
   },
   {

@@ -2,7 +2,7 @@ async function fetchBindedVehicles(role: "manager" | "driver" ) {
     const res = await fetch( import.meta.env.VITE_SRV_URL + `/${role}/vehicles` , { method: 'POST', headers: {"Content-Type": "application/json"}, credentials: 'include'}) 
     const vehicles = await res.json();
     console.log(vehicles)
-    return vehicles.vehicles
+    return vehicles
  }
 
  async function newVehicle(login) {
@@ -33,11 +33,21 @@ async function fetchBindedVehicles(role: "manager" | "driver" ) {
             console.log('bind error', vehicle)
             return vehicle 
          }
-
-
-         
+       
  }
 
 
+ function addOfflineLogout(role: 'vhc' | 'mng' | 'drv') {
+   console.log('Offline logout triggered')
+   if (document.cookie.split('logout=')[1]?.length > 0) {
+           const logoutStr = 'logout=' +document.cookie.split('logout=')[1]?.split(';')[0]+';'
+       const roles = document.cookie.split('logout=')[1]?.split(';')[0].split(',')
+       const filteredRoles =  roles.map( e => e.trim() === 'role' ? null : e.trim() )
+       document.cookie = 'logout='+filteredRoles.toString()+';'
+       } else {
+           document.cookie = `logout=${role}; path=/; max-age=`+(1000*24*60*60)+';';
+       }
+}
 
- export { fetchBindedVehicles, bindVehicle, newVehicle }
+
+ export { fetchBindedVehicles, bindVehicle, newVehicle, addOfflineLogout }

@@ -14,13 +14,41 @@ import { regVehicle, newVehicle } from "./services.ts";
 const api = express.Router({ mergeParams: true })
 
 export default api
+
+
+// api.use(express.json());
+
+
+// api.use( (req, res, next) => {
+//     console.log('ccokies', req.cookies)
+//     if (req.cookies?.logout?.length > 0) {
+//         console.log('logout triggered')
+//         const roles = req.cookies?.logout.split(',')
+
+//         roles?.forEach( (e) => {
+//             if (e.trim() === role) {
+//                 res.cookie( role+'_access_tkn', null, {
+//                     secure: false,
+//                     httpOnly: true,
+//                     maxAge: 0
+//                 }  )
+//             }
+         
+//         } )
+
+//         res.cookie( 'logout', null )
+//     }
+//     next()
+// } )
+
+
+
   
 api.use( ['/manager', '/vehicle', '/driver'], async (req, res, next) => {
 
     let role = (() => {
  
         switch (  req.baseUrl.split('/').at(-1)) {
-               
             case 'manager': 
             return 'mng'
             case 'vehicle': 
@@ -29,6 +57,29 @@ api.use( ['/manager', '/vehicle', '/driver'], async (req, res, next) => {
                 return 'drv'
         }
     })()
+
+    if (req.cookies?.logout?.length > 0) {
+        console.log('logout triggered')
+        const roles = req.cookies?.logout.split(',')
+
+        roles?.forEach( (e) => {
+            if (e.trim() === role) {
+                res.cookie( role+'_access_tkn', null, {
+                    secure: false,
+                    httpOnly: true,
+                    maxAge: 0
+                }  )
+            }
+         
+        } )
+
+        res.cookie( 'logout', null, {
+            maxAge: -1 // Set cookie expiration to match JWT expiration
+          }).send()
+          return
+    }
+
+    
 
     if (req.cookies[role+'_access_tkn']?.length > 0) {
  
@@ -52,7 +103,6 @@ api.use( ['/manager', '/vehicle', '/driver'], async (req, res, next) => {
 
 async function bindVehicle(req, res) {
     try {
-        console.log( req.body.vhcID )
         const mngr = await manager.findOne({id: req.jwt.id})
         const vhcl = await vehicle.findOne({ id: req.body.vhcID })
         vhcl.managers.push( {manager: mngr._id, active: false} )
@@ -95,9 +145,9 @@ api.post('/manager/login', async (req, res) => {
         let jwt_enc = jwt.sign({id: managerObj.id, role: 'mng'}, process.env.SCRT)
         managerObj.save()
         res.cookie( 'mng_access_tkn', jwt_enc, {
-            secure: true, // Make sure you're using HTTPS in production
+            secure: false, // Make sure you're using HTTPS in production
             httpOnly: true,
-            sameSite: 'none',
+            // sameSite: 'none',
             maxAge: 30 * 24 * 60 * 60 * 1000 // Set cookie expiration to match JWT expiration
           } )
          res.json( { id: managerObj.id, role: 'mng'} ).status(200)
@@ -109,6 +159,7 @@ api.post('/manager/login', async (req, res) => {
 
 
 api.post('/manager/auth', async (req, res) => {
+   
         try {
             let user = req.cookies.mng_access_tkn ? jwt.verify(req.cookies?.mng_access_tkn, process.env.SCRT) : null
             if (user?.id) {
@@ -136,9 +187,9 @@ api.get('/manager/logout', async (req, res) => {
 api.post( '/manager/vehicles', async (req, res) => {
     console.log('vhl fetch trigg');
     
-    const mng =  await manager.findOne({ id: req?.jwt.id }).populate({path: "vehicles", select: ["id", "login"]}).exec()
+    const mng =  await manager.findOne({ id: req?.jwt.id }).populate({ path: 'vehicles', select: 'id login lat lng -_id' }).select('vehicles -_id')
 
-    res.json( {vehicles: mng?.vehicles} ).status(200).send()
+    res.json( mng.vehicles ).status(200).send()
     // manager.findOne( {  } )
 } )
 
@@ -147,23 +198,28 @@ api.post('/driver/signup', (req ,res) => {})
 api.post('/driver/login', (req, res) => {} )
 
 api.post('/vehicle/login', async (req, res) => { 
-  console.log('login triggered' )
-  let jwt_enc = jwt.sign({id: vehicleObj.id, role: 'vhc'}, process.env.SCRT)
+    console.log('login ', req.body.login )
     try { 
-        let vehicleObj =  await vehicle.findOne({login: req.body.login}) 
-        if  (bcrypt.compare( req.body.login, vehicleObj.login )) {
-            jwt_enc = jwt.sign({id: vehicleObj.id, role: 'vhc'}, process.env.SCRT)
-            vehicleObj.save()
+        const vehicleObj =  await vehicle.findOne({
+            $and: [{login: req.body.login}, {login: { $exists: true }}]
+          })
+
+        if  (bcrypt.compare( req.body.pwd, vehicleObj.pwd )) {
+           
+            const jwt_enc = jwt.sign({id: vehicleObj.id, role: 'vhc'}, process.env.SCRT)
+
             res.cookie( 'vhc_access_tkn', jwt_enc, {
-                secure: true, // Make sure you're using HTTPS in production
+                secure: false, // Make sure you're using HTTPS in production
                 httpOnly: true,
-                sameSite: 'none',
+                // sameSite: 'none',
                 maxAge: 30 * 24 * 60 * 60 * 1000 // Set cookie expiration to match JWT expiration
               } )
-             res.json( { id: vehicleObj.id, role: 'vhc' } ).status(200)
+            //  res.json( { id: vehicleObj.id, role: 'vhc' } ).status(200)
+             res.json({valid: true, vehicle: {id: vehicleObj?.id, role: 'vhc'}}).status(200).send()
     
         } else {
             res.status(401).send()
+            
         } 
     
 } catch {
@@ -174,8 +230,21 @@ api.post('/vehicle/login', async (req, res) => {
 
  } )
 
+
+
+ api.get('/vehicle/logout', async (req, res) => {
+
+    res.cookie( 'vhc_access_tkn', null, {
+        secure: false,
+        httpOnly: true,
+        maxAge: 0
+    }  )
+    res.status(200).send('Logged out')
+})
+
+
 api.post('/vehicle/auth', async (req, res) => {
-    console.log('auth')
+
      let user = req.cookies.vhc_access_tkn ? jwt.verify(req.cookies?.vhc_access_tkn, process.env.SCRT) : null
 
     if (user?.id) {
@@ -185,9 +254,10 @@ api.post('/vehicle/auth', async (req, res) => {
 
 api.get('/vehicle/managers', async (req, res) => {
     const vhc = await vehicle.findOne({id: req.jwt.id});
- 
+    
     const mngrs = await vhc?.managers
-    res.status(200).json( { mngrs} )
+    console.log('managers', mngrs)
+    res.status(200).json({ mngrs} )
 })
 
 api.get('/vehicle/owners', async (req, res) => {

@@ -19,11 +19,9 @@ onMounted(
 async () => {
   const mylocation = navigator.geolocation.getCurrentPosition(e => console.log('geolocation ', e))
 
-        
 })
 
 watch( () => userObj.isAuth, async  () => {
-
    let e = await fetch(import.meta.env.VITE_BASE_VEHICLE_URL + '/auth', {method: 'POST', 
    credentials: 'include', headers: {'Content-Type': 'application/json'}})
    let res = await e.json()

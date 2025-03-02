@@ -1,8 +1,7 @@
 <template>
-    Vehicle app Login
-
-        <div v-if="generalError.length > 0" class="bg-red-200"> Error {{  generalError  }}</div>
-    <form @submit="onSubmit">
+    <div class=" flex flex-col justify-center h-full w-full">
+    <div v-if="generalError.length > 0"> Error {{  generalError  }}</div>
+    <form @submit="onSubmit" class="flex flex-col gap-2 w-full">
 
         <FormField name="login" v-slot="{ componentField }">
             <FormLabel>Login or e-mail</FormLabel>
@@ -16,8 +15,11 @@
                 <Input placeholder="Password" v-bind="componentField" />
             </FormItem>
         </FormField>
+
         <Button type="submit">Login</Button>
     </form>
+    </div>
+     
 
 </template>
 

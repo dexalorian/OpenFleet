@@ -1,7 +1,6 @@
 <template>
 
-    <div>
-        Sign up page
+    <div class="flex flex-col justify-center h-full">
         <form @submit="onSubmit" class="flex flex-col gap-2">
             <FormField v-slot="{ componentField }" name="login">
                 <FormLabel>Login</FormLabel>

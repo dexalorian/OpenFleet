@@ -1,6 +1,6 @@
 <template>
 
-<Tabs default-value="login" class="w-full flex flex-col max-w-96">
+<Tabs default-value="login"  class="  flex flex-col w-full px-4 content-center justify-center">
         <TabsList class="w-full">
             <TabsTrigger value="login" class="w-full">
                 Login
@@ -11,11 +11,11 @@
 
         </TabsList>
 
-        <TabsContent value="login">
+        <TabsContent value="login" class="flex flex-col">
             <Login />
         </TabsContent>
         
-        <TabsContent value="signup">
+        <TabsContent value="signup" class=" flex flex-col">
             <SignUp />
         </TabsContent>
     </Tabs>

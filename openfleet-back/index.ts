@@ -16,7 +16,7 @@ import api from './api.ts'
 
 const app = express()
 
-let srv = http.createServer(app)
+
 
 mongoose.connect('mongodb://localhost:27017/').then(
     () => console.log('Mongoose connected'),
@@ -25,10 +25,8 @@ mongoose.connect('mongodb://localhost:27017/').then(
 
 let __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-startSignalingServ(srv);
-
 app.use(cookieParser())
-app.use(cors({ origin: ['http://localhost:3000', 'lazy-flies-shake.loca.lt'], credentials: true}))
+app.use(cors({ origin: ['http://localhost:3000', 'http://localhost:8484', 'http://localhost:5173','https://45.9.72.39' , 'https://openfleet.serveo.net'], credentials: true}))
 app.use(express.json());
 app.use('/api', api )
   
@@ -39,7 +37,9 @@ app.use('/api', api )
     next();
   });
 
-
+  let srv = http.createServer(app)
 
 
 srv.listen(8484, () => console.log("WebSocket server running on port 8484"));
+
+startSignalingServ(srv);

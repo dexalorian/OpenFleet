@@ -1,5 +1,5 @@
 import { fileURLToPath, URL } from 'node:url'
-
+import path from 'node:path'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
@@ -9,11 +9,28 @@ import tailwind from 'tailwindcss'
 
 // https://vite.dev/config/
 export default defineConfig({
+  optimizeDeps: {
+    exclude: ['trading-vue-js', 'vue-echarts']
+  },
   server: {
+
     hmr: {
-      // port: 5155,
-      // clientPort: 5150
+      protocol: "wss",
+      // host: "45.9.72.39",
+      clientPort: 443,
+      port: 5929, 
+      path: "/vite_hmr",
     }
+
+    //  hmr: {
+    //   // protocol: "ws",
+    //   // host: "45.9.72.39",
+    //   // clientPort: 5929,
+    //   // overlay: false,
+    //   // port: 5929, 
+    //   // path: "/vite_hmr",
+    // }
+
 
   },
   css: {
@@ -24,7 +41,7 @@ export default defineConfig({
   plugins: [
     vue(),
     vueJsx(),
-    vueDevTools(),
+    // vueDevTools(),
   ],
   resolve: {
     alias: {
