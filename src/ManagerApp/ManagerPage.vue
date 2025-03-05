@@ -37,7 +37,7 @@ export const useManagerStore = defineStore('ManagerStore', () => {
 
     const isAuth = ref(false);
     const manager = ref({}) 
-    const vehicles = ref({})
+    const vehicles = ref([])
 
     async function checkAuth() {
         console.log('Checking auth')

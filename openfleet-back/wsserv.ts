@@ -6,7 +6,6 @@ import { manager, vehicle } from "./schemas.ts";
 let wsRooms = new Map();
 let wsActiveSockets = new Map();
 let telemetry = new Map();
-// 'vhcid' => { coords, speed, direction,  }
 
  async function subscribe( id ) {
     let mng = await manager.findOne({ id: id }).select('vehicles').populate('vehicles', 'id -_id')
@@ -14,13 +13,22 @@ let telemetry = new Map();
         mng.vehicles?.forEach( e => { 
             if (wsRooms.has(e.id)) {
                 wsRooms.get(e.id)?.includes(id) ? null : wsRooms.get(e.id).push(id) 
-
         } else {
              wsRooms.set( e.id,   [id]   )
         }
          }
         )      
-    }}
+    }
+
+    return () => {
+        console.log('Unsubscribed')
+        mng.vehicles?.forEach( e => { 
+            if (wsRooms.has(e.id)) {
+                let filtered = wsRooms.get(e.id).filter( e => { e !== id } )
+                wsRooms.get(e.id)?.includes(id) ?  wsRooms.set( e.id, filtered ) : null }
+         })
+    }
+}
 
 export function startSignalingServ(srv) {
 
@@ -45,7 +53,7 @@ export function startSignalingServ(srv) {
       });
 
     
-    wss.on('connection', (socket, req) => { 
+    wss.on('connection', async (socket, req) => { 
     //         //if that an vehicle - 1) find vID in wsRooms 2) Get of wsRooms vID all subscribers 3) search all subscribers in wsActiveSockets 4) get sockets of those connections 5) call .send on each obtained socket
     //         // console.log('WS headers',  req.headers.cookie?.split(`${req.headers['sec-websocket-protocol']}_access_tkn=`)[1].split('; ')[0])
         try{
@@ -58,13 +66,22 @@ export function startSignalingServ(srv) {
                     case 'vhc':
                         socket.onmessage = async ( e ) => {
                             console.log('vhc msg', e.data)
+                            console.log(wsActiveSockets.keys())
                             let json = JSON.parse(e.data)
                             json.vhcid = user.id;
                             if (json.type === 'telemetry') {
                                 telemetry.set(user.id, json.data)
-                                console.log('telemetry', telemetry)
+                                
                             }
 
+                            if (json.type === 'sdp_offer' ) {
+                                console.log('sdp_offer', json.data)
+                            }
+
+                            if (json.type === 'sdp_answer' ) {
+
+                            }
+                        // Seand to all vehicle subscribers
                             wsRooms.get(user.id)?.forEach( 
                                 (s) => wsActiveSockets.get(s)?.forEach( 
                                     x => { 
@@ -87,6 +104,9 @@ export function startSignalingServ(srv) {
                             vhc.lat = vhc_tel.lat 
                             vhc.lng = vhc_tel.lng
                             vhc.save()
+            
+                            wsActiveSockets.delete(user.id)
+                            
 
                         }
                         wsActiveSockets.has(user.id) ? wsActiveSockets.get(user.id).push(socket) : 
@@ -97,6 +117,7 @@ export function startSignalingServ(srv) {
                         console.log('Rooms: ', wsRooms)
                         break;
                     case 'mng':
+                        let mng_unsub = await subscribe(user.id)
                         socket.onmessage = async ( msg ) => {
                             console.log('msg ', msg.data )
                             let json =  JSON.parse(msg.data)
@@ -111,11 +132,17 @@ export function startSignalingServ(srv) {
                             }
                     //   
                         }
+                        socket.onclose = async () => {
+                            wsActiveSockets.delete(user.id)
+                            console.log(wsActiveSockets.keys())
+                            mng_unsub()
+                        }
+
                         console.log('mngr id ',user.id, user.role)
                         const newConnection = {role: user.role, socket: socket}
                         wsActiveSockets.has(user.id) ? wsActiveSockets.get(user.id).push( socket) : 
                             wsActiveSockets.set(user.id, [socket])
-                        subscribe(user.id)
+                        
                         break;
                     case 'drv':
                         console.log('drv')

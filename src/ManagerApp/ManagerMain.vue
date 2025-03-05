@@ -1,6 +1,8 @@
 <template>
     <div v-if="manager.isAuth" class="flex h-full w-full">
         
+        <div id="probe_flash" class="bg-slate-500 w-2 h-2 animate-ping"></div>
+
         <div class="flex flex-col border p-2 justify-between">
            
             <div class="flex flex-col">
@@ -18,7 +20,7 @@
                 <div class="text-xs font-bold">Vehicle list</div>
                 <ul class="text-xs">
                     <!-- {{ manager.vehicles.value }} -->
-                    <li v-for="v in manager.vehicles.value">
+                    <li v-for="v in manager.vehicles">
                         <p class="font-bold">{{ v?.login }} </p>
                         {{ v.id }} 
                     </li>
@@ -33,7 +35,7 @@
 
 <script setup lang="ts">
 
-    import MapBox, { createMapMarker } from '@/components/Map.vue';
+    import MapBox, { createMapMarker, createMapTrail } from '@/components/Map.vue';
     import Button from '@/components/ui/button/Button.vue';
     import { Dialog, DialogTrigger, DialogContent, DialogTitle } from '@/components/ui/dialog';
     import { Input } from '@/components/ui/input';
@@ -43,33 +45,47 @@
     import DialogAddVehicle from './DialogAddVehicle.vue';
 import { StartWS, ws } from '@/ws';
 import { Marker, marker, type LeafletEvent } from 'leaflet';
+import { Aperture } from 'lucide-vue-next';
 
 let vehicleMarkers = new Map();
+let vehicleTrails = new Map();
 
 const manager = useManagerStore()
 
 StartWS('mng');
 
 onMounted( async () => {
-   manager.vehicles.value =  await fetchBindedVehicles("manager")
-
-   manager.vehicles.value.forEach( (e) => {
-
-        vehicleMarkers.set(e.id, { coords: [e.lat, e.lng], marker: createMapMarker( { lat: e?.lat | 0, lng: e?.lng | 0 }, "car") });
+   manager.vehicles = await fetchBindedVehicles("manager")
+   console.log(manager.vehicles)
+   manager.vehicles?.forEach( (e) => {
+        if (e?.lat & e?.lng) {
+            let newmarker = createMapMarker( { lat: e?.lat, lng: e?.lng }, "car");
+            newmarker.on('dragend', () => console.log('drag end'))
+            vehicleMarkers.set(e.id, { coords: [e?.lat, e?.lng], marker: newmarker })
+        } else {
+            // let newmarker = createMapMarker( { lat: 0, lng: 0 }, "car");
+            // newmarker.on('dragend', () => console.log('drag end'));
+            // vehicleMarkers.set(e.id, { coords: [e?.lat, e?.lng], marker: newmarker })
+        }
    } )
 
-   
-
-
-   ws.onmessage = (e) => {
+   ws.onmessage = async (e) => {
         const obj = JSON.parse(e.data)
         console.log('income', obj)
         switch (obj.type) {
             case "telemetry":
+                vehicleMarkers.get(obj.vhcid).marker.setIcon(vehicleMarkers.get(obj.vhcid).marker.ActiveIcon)
                 if (!vehicleMarkers.has(obj.vhcid)) {
                     vehicleMarkers.set(obj.vhcid, { coords: [obj.data.lat, obj.data.lng], marker: createMapMarker( { lat: obj.data.lat, lng: obj.data.lng }, "car") });
-                      
-                } else {vehicleMarkers.get(obj.vhcid).coords = [obj.data.lat, obj.data.lng]; vehicleMarkers.get(obj.vhcid).marker.setLatLng({ lat: obj.data.lat, lng: obj.data.lng  })}
+                    vehicleTrails.set( obj.vhcid, { trail: createMapTrail({ lat: obj.data.lat, lng: obj.data.lng }) } )
+                    // console.log('trails', vehicleTrails)
+                } else {
+            
+                    vehicleMarkers.get(obj.vhcid).coords = [obj.data.lat, obj.data.lng]; 
+                    vehicleMarkers.get(obj.vhcid).marker.setLatLng({ lat: obj.data.lat, lng: obj.data.lng  });
+                    vehicleTrails.has(obj.vhcid) ? vehicleTrails.get(obj.vhcid).trail.addLatLng({ lat: obj.data.lat, lng: obj.data.lng }) : vehicleTrails.set(obj.vhcid, { trail: createMapTrail({ lat: obj.data.lat, lng: obj.data.lng }) })
+                    console.log(' trails ', vehicleTrails.get(obj.vhcid).trail.getLatLngs())
+                    }
                 break;
             case "status": 
                 if (obj.status === "offline") {
@@ -87,3 +103,16 @@ onMounted( async () => {
 
 
 </script>
+
+
+<style>
+/* 
+    .probe_flash {
+        flex: auto;
+
+        width: 100px;
+        height: 100px;
+        background-color: aqua;
+    } */
+
+</style>

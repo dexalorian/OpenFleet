@@ -121,9 +121,6 @@ async function bindVehicle(req, res) {
 api.post( '/manager/bindvehicle', bindVehicle )
 
 api.post('/vehicle/signup', regVehicle )
-// api.post('/vehicle/auth', async (req, res) => {
-
-// })
 
 api.post('/manager/newvehicle', newVehicle )
 
@@ -185,12 +182,8 @@ api.get('/manager/logout', async (req, res) => {
 
 
 api.post( '/manager/vehicles', async (req, res) => {
-    console.log('vhl fetch trigg');
-    
     const mng =  await manager.findOne({ id: req?.jwt.id }).populate({ path: 'vehicles', select: 'id login lat lng -_id' }).select('vehicles -_id')
-
-    res.json( mng.vehicles ).status(200).send()
-    // manager.findOne( {  } )
+    res.status(200).json( mng.vehicles ).send()
 } )
 
 
@@ -265,5 +258,27 @@ api.get('/vehicle/owners', async (req, res) => {
     const mngrs = vehicle.findOne({id: req.jwt.id}).then( e => e.owners );
     res.status(200).json( { owns } )
 })
+
+api.get('/vehicle/getgeo', async (req, res) => {
+
+       const veh =  await vehicle.findOne( { $and: [{ id: req.jwt.id }, { lat: { $exists: true}  } ] } )
+    
+            res.status(200).json({ lat: veh?.lat, lng: veh?.lng }).send()
+            console.log('coords ', veh?.lat, veh?.lng)
+       
+
+      } ) 
+
+api.post('/vehicle/setgeo', async (req, res) => {
+    console.log('BEfore close set geo')
+        const veh = await vehicle.findOne( { id: req.jwt.id } )
+        veh.lat = req.body.lat;
+        veh.lng = req.body.lng;
+        veh.save();
+        res.status(200).send()
+
+     } )       
+
+
 
 

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, watch } from 'vue';
+import { ref, watch, reactive } from 'vue';
 import { defineStore } from 'pinia';
 import { RouterView } from 'vue-router';
 import { useRouter } from 'vue-router';
@@ -21,6 +21,9 @@ const SelfLocation = ref(null)
 let track;
 const vehicle = useVehicleStore()
 
+
+// window.onbeforeunload = (e) => {e.preventDefault; prompt('sure?')}
+
 window.addEventListener('resize', (e) => console.log('resized', e))
 
 watch(() => vehicle.isAuth, () => 
@@ -35,6 +38,8 @@ async function myDevices() {
 
 onMounted(async () => {
         await vehicle.CheckAuth()
+       localStorage.getItem('settings')?.length > 0 ?  options.common = JSON.parse(localStorage.getItem('settings')) : null
+
         console.log( 'isAuth? ', vehicle.isAuth );
        if (vehicle.isAuth) {
         //    router.push({ name: 'vehicle-main' })
@@ -62,6 +67,11 @@ async function createSDPanswer() {
     }
 
 const vhc = useVehicleStore()
+const options = useOptionsStore()
+
+// watch( options.common,  (e) => localStorage.setItem('settings', JSON.stringify(e)))
+
+watch( options,  (e) => localStorage.setItem('settings', JSON.stringify(e.common)))
 
 // const router = useRouter()
 
@@ -69,13 +79,14 @@ const vhc = useVehicleStore()
 
 <script lang="ts">
     import { addOfflineLogout } from '@/services'
+import type { LatLng } from 'leaflet';
 
     export const useVehicleStore = defineStore('VehicleStore', () => {
-    const isAuth = ref(false);
+    const isAuth = ref(false)
     const vehicle = ref({})
     const managers = ref([])
     const owners = ref([])
-    const currentGeo = ref({})
+    const currentGeo = ref({lat: 0, lng: 0})
     const geoHistory = ref([])
 
     async function getManagers() {
@@ -132,6 +143,22 @@ const vhc = useVehicleStore()
         }
     }
 
+    async function fetchOwnGeo(): LatLng {
+       let resp = await fetch(import.meta.env.VITE_SRV_URL + '/vehicle/getgeo', { method: 'GET', credentials: 'include', headers: { "Content-type": "application/json"}})
+
+       if (resp.status === 200) {
+        let e = await resp.json()
+          console.log('from own fetch 200', e)
+           return e
+       }
+       console.log('from own fetch 404', resp)
+      
+    }
+
+    async function saveOwnGeo(lat, lng) {
+        await fetch(import.meta.env.VITE_SRV_URL + '/vehicle/setgeo', { body: JSON.stringify({ lat: lat, lng: lng }), method: 'POST', credentials: 'include', headers: { "Content-Type": "application/json" }})
+    }
+
     async function SignUp(login: String, pwd: String, email: String, phoneNums: String[]) {
        await fetch(import.meta.env.VITE_SRV_URL+'/vehicle/signup', {method: 'POST', body: { login , pwd, email, phoneNums } }) 
     }
@@ -156,8 +183,18 @@ const vhc = useVehicleStore()
             CheckAuth, 
             SignUp, 
             getManagers, 
-            getOwners }
+            getOwners,
+            fetchOwnGeo,
+            saveOwnGeo }
 }) 
+
+export const useOptionsStore = defineStore('Options', () => {
+    const common = ref({debug_geo: false, debug_geo_drag: false})
+
+    return { common }
+})
+
+
 
 </script>
 
