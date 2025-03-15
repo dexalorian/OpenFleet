@@ -4,6 +4,7 @@ import path from "path"
 import { fileURLToPath } from "url";
 // import { dbUser } from "./schemas.js";
 import nodemailer from 'nodemailer'
+import { AccessToken } from 'livekit-server-sdk'
 
 let __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -37,13 +38,7 @@ mail.sendMail({from: 'MS_It5ww6@trial-pr9084zqd9j4w63d.mlsender.net',
   text: 'http://localhost:3000/activate?act_tkn='+token}, e => { console.log(e)})
 }
 
-export async function getAllPhotos(req, res) {
-  const user = await dbUser.findOne({id: req.jwt?.id}).populate('photos').exec()
-    // dbPhoto.find().then(e => res.json(e))
-  res.json(user.photos)
 
-    // res.json( await dbPhoto.find())
-}
 
 export async function regVehicle(req, res) {
     let hashed =  await bcrypt.hash( req.body.pwd , 8)

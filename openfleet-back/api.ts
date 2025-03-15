@@ -8,16 +8,15 @@ const fileparser  =  multer({ dest:  'uploads/' })
 import { v4 as uuid, validate } from "uuid"
 
 import { manager, vehicle, driver } from "./schemas.ts";
-
 import { regVehicle, newVehicle } from "./services.ts";  
+import { AccessToken } from "livekit-server-sdk";
+import { runInNewContext } from "vm";
 
 const api = express.Router({ mergeParams: true })
 
 export default api
 
-
 // api.use(express.json());
-
 
 // api.use( (req, res, next) => {
 //     console.log('ccokies', req.cookies)
@@ -33,21 +32,16 @@ export default api
 //                     maxAge: 0
 //                 }  )
 //             }
-         
 //         } )
 
 //         res.cookie( 'logout', null )
 //     }
 //     next()
 // } )
-
-
-
   
 api.use( ['/manager', '/vehicle', '/driver'], async (req, res, next) => {
 
     let role = (() => {
- 
         switch (  req.baseUrl.split('/').at(-1)) {
             case 'manager': 
             return 'mng'
@@ -70,9 +64,7 @@ api.use( ['/manager', '/vehicle', '/driver'], async (req, res, next) => {
                     maxAge: 0
                 }  )
             }
-         
         } )
-
         res.cookie( 'logout', null, {
             maxAge: -1 // Set cookie expiration to match JWT expiration
           }).send()
@@ -88,8 +80,6 @@ api.use( ['/manager', '/vehicle', '/driver'], async (req, res, next) => {
         if (req.jwt.id.length > 0) {
             next()
         } else { res.status(401).send() }
-
-        
        
     } else if (req.url === '/login' || req.url === '/auth' || req.url === '/signup' ) {
         next()
@@ -118,11 +108,47 @@ async function bindVehicle(req, res) {
     }
 }
 
+api.get('/vehicle/mediatoken', async (req, res) => {
+    try {       
+        const tkn = new AccessToken(  'kekcheburek', 'kekcheburek_kekcheburek_kekcheburek', { identity: req.jwt.id } )
+        tkn.addGrant( { canSubscribe: true, canPublish: true, roomJoin: true, room: req.jwt?.id, roomCreate: true })
+        res.json({ token: await tkn.toJwt()}).status(200).send()
+        console.log('mdeia token', await tkn.toJwt())
+        
+    } catch (e) {
+        res.status(503)
+        console.error(e)
+    }
+
+
+})
+
+api.post('/manager/mediatoken', async (req, res) => {
+
+    // const mng =  await manager.findOne({ id: req?.jwt.id }).populate({ path: 'vehicles', select: 'id login lat lng -_id' }).select('vehicles -_id')
+    // res.status(200).json( mng.vehicles ).send()
+
+    try {
+        const tkn = new AccessToken( 'kekcheburek', 'kekcheburek_kekcheburek_kekcheburek', { identity: req.jwt.id } )
+        tkn.addGrant( {canSubscribe: true, canPublish: false, roomList: req.body?.vehicles, roomCreate: false})
+        res.status(200).json({ token: await tkn.toJwt() }).send()
+      
+    } catch (e) {
+        res.status(503)
+        console.error(e)
+    }
+    
+
+})
+
+
 api.post( '/manager/bindvehicle', bindVehicle )
 
 api.post('/vehicle/signup', regVehicle )
 
 api.post('/manager/newvehicle', newVehicle )
+
+
 
 
 api.post('/manager/signup', async (req ,res) => {
@@ -262,10 +288,8 @@ api.get('/vehicle/owners', async (req, res) => {
 api.get('/vehicle/getgeo', async (req, res) => {
 
        const veh =  await vehicle.findOne( { $and: [{ id: req.jwt.id }, { lat: { $exists: true}  } ] } )
-    
-            res.status(200).json({ lat: veh?.lat, lng: veh?.lng }).send()
+            res.status(200).json({ lat: veh?.lat, lng: veh?.lng })
             console.log('coords ', veh?.lat, veh?.lng)
-       
 
       } ) 
 

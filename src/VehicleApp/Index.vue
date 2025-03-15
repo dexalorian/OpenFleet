@@ -10,6 +10,7 @@ import TabsContent from '@/components/ui/tabs/TabsContent.vue';
 import Main from './Main.vue'
 import Settings from './Settings.vue';
 // import type TabsList from '@/components/ui/tabs/TabsList.vue';
+// import livekit from 'livekit-client'
 
 const router = useRouter()
 
@@ -20,11 +21,6 @@ const locdes = ref(null)
 const SelfLocation = ref(null)
 let track;
 const vehicle = useVehicleStore()
-
-
-// window.onbeforeunload = (e) => {e.preventDefault; prompt('sure?')}
-
-window.addEventListener('resize', (e) => console.log('resized', e))
 
 watch(() => vehicle.isAuth, () => 
     vehicle.isAuth ? 
@@ -40,31 +36,30 @@ onMounted(async () => {
         await vehicle.CheckAuth()
        localStorage.getItem('settings')?.length > 0 ?  options.common = JSON.parse(localStorage.getItem('settings')) : null
 
-        console.log( 'isAuth? ', vehicle.isAuth );
        if (vehicle.isAuth) {
         //    router.push({ name: 'vehicle-main' })
        } else { router.push( { name: 'vehicle-enter' }) }
    })
 
-async function createSDPanswer() {
-    let peer = new RTCPeerConnection({
-  iceServers: [{ urls: "stun:stun.l.google.com:19302" }], // Google's STUN server
-})
-    console.log(inSdp)
-    peer.setRemoteDescription( JSON.parse(inSdp))
-    peer.addTrack(track)
-    anw = await peer.createAnswer()
-    peer.setLocalDescription(anw)
-    console.log('loc des', anw)
-    peer.onconnectionstatechange = e => console.log('conn state: ', e)
-    peer.onicegatheringstatechange = e => {
+// async function createSDPanswer() {
+//     let peer = new RTCPeerConnection({
+//   iceServers: [{ urls: "stun:stun.l.google.com:19302" }], // Google's STUN server
+// })
+//     console.log(inSdp)
+//     peer.setRemoteDescription( JSON.parse(inSdp))
+//     peer.addTrack(track)
+//     anw = await peer.createAnswer()
+//     peer.setLocalDescription(anw)
+//     console.log('loc des', anw)
+//     peer.onconnectionstatechange = e => console.log('conn state: ', e)
+//     peer.onicegatheringstatechange = e => {
 
-        if (peer.iceGatheringState === "complete") {
-            locdes.value = JSON.stringify(peer.localDescription)
-            console.log("ice gathering complete")
-           } 
-        }
-    }
+//         if (peer.iceGatheringState === "complete") {
+//             locdes.value = JSON.stringify(peer.localDescription)
+//             console.log("ice gathering complete")
+//            } 
+//         }
+//     }
 
 const vhc = useVehicleStore()
 const options = useOptionsStore()
@@ -88,6 +83,7 @@ import type { LatLng } from 'leaflet';
     const owners = ref([])
     const currentGeo = ref({lat: 0, lng: 0})
     const geoHistory = ref([])
+    const mediatoken = ref('')
 
     async function getManagers() {
         const res = await fetch( import.meta.env.VITE_SRV_URL + '/vehicle/managers', {method: 'GET', credentials: 'include'} )
@@ -108,14 +104,9 @@ import type { LatLng } from 'leaflet';
             credentials: 'include', method: 'POST'})
             const resp = await res.json()
         if (resp.valid) {
-         console.log('200');
-        
-         console.log(resp);
          isAuth.value = true
          vehicle.value = resp.vehicle
 
-         console.log(vehicle.id);
-         
         }
         } catch {
             console.log('login error')
@@ -123,11 +114,17 @@ import type { LatLng } from 'leaflet';
         }
     }
 
+    async function getMediaToken() {
+        const resp = await fetch(import.meta.env.VITE_SRV_URL+'/vehicle/mediatoken', 
+            { method: 'GET', credentials: 'include'})
+     
+        return await resp.json().then( e => e.token )
+    }
+
     async function CheckAuth() {
         try {
         const res = await fetch( import.meta.env.VITE_SRV_URL + '/vehicle/auth', {method: 'POST', credentials: 'include'} )
       const resp = await res.json()
-      console.log('Checking auth')
       if (resp.valid) {
         isAuth.value = true;
         vehicle.value = resp.vehicle
@@ -148,7 +145,7 @@ import type { LatLng } from 'leaflet';
 
        if (resp.status === 200) {
         let e = await resp.json()
-          console.log('from own fetch 200', e)
+
            return e
        }
        console.log('from own fetch 404', resp)
@@ -185,7 +182,9 @@ import type { LatLng } from 'leaflet';
             getManagers, 
             getOwners,
             fetchOwnGeo,
-            saveOwnGeo }
+            saveOwnGeo,
+            getMediaToken,
+            mediatoken }
 }) 
 
 export const useOptionsStore = defineStore('Options', () => {

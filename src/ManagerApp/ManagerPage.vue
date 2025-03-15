@@ -38,6 +38,7 @@ export const useManagerStore = defineStore('ManagerStore', () => {
     const isAuth = ref(false);
     const manager = ref({}) 
     const vehicles = ref([])
+    const mediatoken = ref('')
 
     async function checkAuth() {
         console.log('Checking auth')
@@ -55,6 +56,12 @@ export const useManagerStore = defineStore('ManagerStore', () => {
         } catch { 
         }
 
+    }
+
+    async function GetMediaToken (vehicles) {
+        const resp = await fetch( import.meta.env.VITE_SRV_URL+'/manager/mediatoken', { method: 'POST', credentials: 'include', body: JSON.stringify({vehicles}), headers: {"Content-type": "application/json"}} )
+        mediatoken.value = await resp.json().then( e => e.token)
+        console.log('Received mediatoken', mediatoken.value)
     }
 
     async function SignUp(login: String, pwd: String, email: String, phoneNums: String[]) {
@@ -88,7 +95,7 @@ export const useManagerStore = defineStore('ManagerStore', () => {
         // await fetch(window.BASE_SRV_URL+'/manager/login', { method: 'POST', body: JSON.stringify({ login: login, pwd: pwd })})
     }
 
-    return {manager, isAuth, Logout, SignUp, checkAuth, Login, vehicles}
+    return {manager, isAuth, Logout, SignUp, checkAuth, Login, vehicles, GetMediaToken}
  } )
 
 

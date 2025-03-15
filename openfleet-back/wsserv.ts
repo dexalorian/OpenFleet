@@ -47,9 +47,6 @@ export function startSignalingServ(srv) {
                 console.log('Update on', req.url)
                 socket.destroy()
           } 
-        
-        
-    
       });
 
     
@@ -70,8 +67,8 @@ export function startSignalingServ(srv) {
                             let json = JSON.parse(e.data)
                             json.vhcid = user.id;
                             if (json.type === 'telemetry') {
+                                console.log('telemetry trig', json.data)
                                 telemetry.set(user.id, json.data)
-                                
                             }
 
                             if (json.type === 'sdp_offer' ) {
@@ -113,22 +110,21 @@ export function startSignalingServ(srv) {
                             wsActiveSockets.set(user.id, [socket])
                         wsRooms.has(user.id) ?  null : wsRooms.set(user.id, [])
                         telemetry.has(user.id) ? null : telemetry.set(user.id, { lat: 0, lng: 0, speed: 0, direction: 0 })
-                         //vehicle-room creation
+                        
                         console.log('Rooms: ', wsRooms)
                         break;
                     case 'mng':
                         let mng_unsub = await subscribe(user.id)
                         socket.onmessage = async ( msg ) => {
-                            console.log('msg ', msg.data )
-                            let json =  JSON.parse(msg.data)
-                            if (json.type === 'broadcast') {
+                            console.log('msg ', msg.data.type )
+
+                            if (msg.data.type === 'broadcast') {
                                 const allVhc =  await manager.findOne({ id: user.id }).select('vehicles').populate('vehicles', 'id');
                                 // console.log('active sockets: ', wsActiveSockets)
-                                allVhc?.vehicles.forEach( e => wsActiveSockets.get(e.id)?.forEach( x => x.send('keeek'))  )
-                                // allVhc?.vehicles.forEach( e =>  console.log('socket bucket ',  wsActiveSockets.get(e.id)?.at(0).socket.readyState)  )
-                            } else if (json.type === 'direct') {
+                                allVhc?.vehicles.forEach( e => wsActiveSockets.get(e.id)?.forEach( x => x.send(msg.data.text)) )
+                            } else if (msg.data.type === 'direct') {
     
-                                wsActiveSockets.get(json.id).forEach( e => e.send ( JSON.stringify({ sender: user.id , content: json.text })  ) )
+                                wsActiveSockets.get(msg.data.id).forEach( e => e.send ( JSON.stringify({ sender: user.id , content: msg.data.text })  ) )
                             }
                     //   
                         }

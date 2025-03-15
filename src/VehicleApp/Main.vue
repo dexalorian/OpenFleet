@@ -6,7 +6,7 @@
                     <div class="absolute text-slate-300 flex flex-col justify-center
                     items-center gap-2 ">
                     <p class="text-xs">Video</p>
-                        <Button class="h-8 text-xs" @click="() => startRTCconn('temp')">Start translation</Button>
+                        <Button class="h-8 text-xs" @click="() => startMediaRoom()">Start translation</Button>
                     </div>
                     <video ref="videoCnv" autoplay class="object-fill
                     max-w-36 bg-slate-500 pointer-events-none rounded-md shadow-lg shadow-neutral-800" ></video>
@@ -24,8 +24,6 @@
 
 import { StartWS, ws } from '@/ws';
 
-
-
 </script>
 
 
@@ -38,7 +36,7 @@ import { useOptionsStore, useVehicleStore } from './Index.vue';
 import { StartWS, ws } from '@/ws';
 import { useRouter } from 'vue-router'
 import { Polyline, type polyline } from 'leaflet';
-import { nextTick } from 'vue';
+import { Room, LocalParticipant, RoomEvent, Track } from 'livekit-client'
 
 
 const router = useRouter()
@@ -47,54 +45,58 @@ const options = useOptionsStore()
 
 window.onbeforeunload = (e) => { vehicle.saveOwnGeo( vehicle.currentGeo.lat, vehicle.currentGeo.lng); e.preventDefault }
 
-
-
 const videoCnv = ref<HTMLVideoElement>()
 
-let RTCPeers: RTCPeerConnection[] = []
+// let RTCPeers: RTCPeerConnection[] = []
 
-async function startRTCconn(id: string) {
+// async function startRTCconn(id: string) {
 
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    const peer =  new RTCPeerConnection( { iceServers: [ {urls: 'stun:stun.l.google.com:19302' }] })
-    let track = await  stream.getTracks()[0];
-    const playstream = new MediaStream()
-    playstream.addTrack(track)
-    videoCnv.value.srcObject = playstream
-    videoCnv.value.onplaying = () => {  videoCnv.value?.requestPictureInPicture() }
-    peer.addTrack(track)
-    const offer =  await  peer.createOffer()
-    peer.setLocalDescription(offer)
-    peer.onicecandidate = e => console.log('candidate ', e)
-    peer.onicegatheringstatechange = (e) =>   { console.log('sdr offer: ', e); ws.send( JSON.stringify({ type: "sdp_offer", data: offer } ) ) }
-    RTCPeers.push((peer))
+//     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+//     const peer =  new RTCPeerConnection( { iceServers: [ {urls: 'stun:stun.l.google.com:19302' }] })
+//     let track = await  stream.getTracks()[0];
+//     const playstream = new MediaStream()
+//     playstream.addTrack(track)
+//     videoCnv.value.srcObject = playstream
+//     videoCnv.value.onplaying = () => {  videoCnv.value?.requestPictureInPicture() }
+//     peer.addTrack(track)
+//     const offer =  await  peer.createOffer()
+//     peer.setLocalDescription(offer)
+//     peer.onicecandidate = e => console.log('candidate ', e)
+//     peer.onicegatheringstatechange = (e) =>   { console.log('sdr offer: ', e); ws.send( JSON.stringify({ type: "sdp_offer", data: offer } ) ) }
+//     RTCPeers.push((peer))
 
+// }
+
+
+async function startMediaRoom() {
+    const mediaroom = new Room();
+    await mediaroom.prepareConnection('https://live.transtaxi.app', vehicle.mediatoken);
+    await mediaroom.connect( 'https://live.transtaxi.app',vehicle.mediatoken )
+    console.log('connected to room', mediaroom.name);
+    mediaroom.localParticipant.enableCameraAndMicrophone()
+    const devices = await Room.getLocalDevices('audioinput');
+    console.log('LK: devices', devices)
 }
-
-
 
 onMounted( async () => {
     StartWS('vhc')
     
     let managers = vehicle.getManagers()
-
     vehicle.currentGeo = await vehicle.fetchOwnGeo() 
     console.log('geo form db', vehicle.currentGeo)
+    vehicle.mediatoken = await vehicle.getMediaToken()
+
+
 
     let  marker = createMapMarker(vehicle.currentGeo, 'car')
 
     marker.on('dragend', (k) => { console.log('drag end', k.target.getLatLng(), options.common.debug_geo_drag ); 
-            options.common.debug_geo_drag ? ws.send( JSON.stringify( { type: 'telemetry' , data: { lat: k.target.getLatLng().lat, lng: k.target.getLatLng().lng }  } ) ) : null
+            true ? ws.send( JSON.stringify( { type: 'telemetry' , data: { lat: k.target.getLatLng().lat, lng: k.target.getLatLng().lng }  } ) ) : null
              })
 
-    console.log('managers', managers)
-    
     let OwnTail: Polyline;
-    console.log('ws open')
-
     ws.onopen = () => {
         ws.send( JSON.stringify( { type: 'telemetry' , data: { lat: vehicle.currentGeo.lat, lng: vehicle.currentGeo.lng }  } ) )
-            console.log('ws first geo sended')
     //     const Teltimer = () => {
     //         ws.send( JSON.stringify( { type: 'telemetry' , data: { lat: vehicle.currentGeo.value?.lat, lng: vehicle.currentGeo.value?.lng }  } ) )
     //         console.log('ws sended')

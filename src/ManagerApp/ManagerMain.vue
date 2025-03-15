@@ -1,8 +1,6 @@
 <template>
     <div v-if="manager.isAuth" class="flex h-full w-full">
         
-        <div id="probe_flash" class="bg-slate-500 w-2 h-2 animate-ping"></div>
-
         <div class="flex flex-col border p-2 justify-between">
            
             <div class="flex flex-col">
@@ -14,7 +12,6 @@
                 
                 <div class="flex flex-col py-2 gap-1">
                     <DialogAddVehicle />
-                    <Button @click="() => ws.send('Hello')">Send some to WS</Button>
                     <Button @click="() => ws.send( JSON.stringify( { type: 'broadcast', text: 'cheburek' }) )"> Cheburek to all vehicles </Button>
                 </div>
                 <div class="text-xs font-bold">Vehicle list</div>
@@ -56,7 +53,10 @@ StartWS('mng');
 
 onMounted( async () => {
    manager.vehicles = await fetchBindedVehicles("manager")
-   console.log(manager.vehicles)
+   // get mediatokens for each vehicle
+//    console.log(manager.vehicles)
+   manager.GetMediaToken(manager.vehicles)
+    
    manager.vehicles?.forEach( (e) => {
         if (e?.lat & e?.lng) {
             let newmarker = createMapMarker( { lat: e?.lat, lng: e?.lng }, "car");
