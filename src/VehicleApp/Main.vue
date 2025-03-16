@@ -1,15 +1,15 @@
 <template>
         <div class="max-w-2xl min-w-80 w-full h-full flex flex-col">
+            {{ showStartStreamBtn }}
             <div id="anchor_wrapper" class="w-0 h-0 flex flex-col relative self-end bg-orange-500">
                 <div class="flex grow-1 justify-center content-center items-center
                 absolute z-20 top-3 right-2">
-                    <div class="absolute text-slate-300 flex flex-col justify-center
-                    items-center gap-2 ">
-                    <p class="text-xs">Video</p>
-                        <Button class="h-8 text-xs" @click="() => startMediaRoom()">Start translation</Button>
+                    <div class="absolute text-slate-300 flex flex-col justify-center items-center gap-2" :class="showStartStreamBtn ?  '' : 'hidden' ">
+                         <p class="text-xs">Video</p>
+                        <Button  class='h-8 text-xs'  @click="() => startMediaRoom()">Start translation</Button>
                     </div>
-                    <video ref="videoCnv" autoplay class="object-fill
-                    max-w-36 bg-slate-500 pointer-events-none rounded-md shadow-lg shadow-neutral-800" ></video>
+                    <video ref="videoCnv" autoplay class="object-fill 
+                    max-w-xs bg-slate-500 pointer-events-none rounded-md shadow-lg shadow-neutral-800" ></video>
                 </div>
             </div>
             
@@ -23,9 +23,9 @@
 <script lang="ts">
 
 import { StartWS, ws } from '@/ws';
+import { computed } from 'vue';
 
 </script>
-
 
 <script lang="ts" setup>
 
@@ -39,43 +39,37 @@ import { Polyline, type polyline } from 'leaflet';
 import { Room, LocalParticipant, RoomEvent, Track } from 'livekit-client'
 
 
+
 const router = useRouter()
 const vehicle = useVehicleStore()
 const options = useOptionsStore()
 
+const showStartStreamBtn = ref(true)
 window.onbeforeunload = (e) => { vehicle.saveOwnGeo( vehicle.currentGeo.lat, vehicle.currentGeo.lng); e.preventDefault }
 
 const videoCnv = ref<HTMLVideoElement>()
-
-// let RTCPeers: RTCPeerConnection[] = []
-
-// async function startRTCconn(id: string) {
-
-//     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-//     const peer =  new RTCPeerConnection( { iceServers: [ {urls: 'stun:stun.l.google.com:19302' }] })
-//     let track = await  stream.getTracks()[0];
-//     const playstream = new MediaStream()
-//     playstream.addTrack(track)
-//     videoCnv.value.srcObject = playstream
-//     videoCnv.value.onplaying = () => {  videoCnv.value?.requestPictureInPicture() }
-//     peer.addTrack(track)
-//     const offer =  await  peer.createOffer()
-//     peer.setLocalDescription(offer)
-//     peer.onicecandidate = e => console.log('candidate ', e)
-//     peer.onicegatheringstatechange = (e) =>   { console.log('sdr offer: ', e); ws.send( JSON.stringify({ type: "sdp_offer", data: offer } ) ) }
-//     RTCPeers.push((peer))
-
-// }
-
+  
 
 async function startMediaRoom() {
     const mediaroom = new Room();
     await mediaroom.prepareConnection('https://live.transtaxi.app', vehicle.mediatoken);
     await mediaroom.connect( 'https://live.transtaxi.app',vehicle.mediatoken )
     console.log('connected to room', mediaroom.name);
-    mediaroom.localParticipant.enableCameraAndMicrophone()
+    mediaroom.localParticipant.setCameraEnabled(true)
+    mediaroom.localParticipant.setMicrophoneEnabled(false)
     const devices = await Room.getLocalDevices('audioinput');
     console.log('LK: devices', devices)
+
+    const localstream = new MediaStream()
+
+    mediaroom.on('localTrackPublished', (pub, participant) => {
+        localstream.addTrack(pub.track.mediaStreamTrack)
+        showStartStreamBtn.value = false
+    })
+
+    videoCnv.value.srcObject = localstream;
+    mediaroom.on('disconnected', () => showStartStreamBtn.value = true)
+
 }
 
 onMounted( async () => {
@@ -85,7 +79,7 @@ onMounted( async () => {
     vehicle.currentGeo = await vehicle.fetchOwnGeo() 
     console.log('geo form db', vehicle.currentGeo)
     vehicle.mediatoken = await vehicle.getMediaToken()
-
+    console.log('src obj', videoCnv.value?.srcObject)
 
 
     let  marker = createMapMarker(vehicle.currentGeo, 'car')

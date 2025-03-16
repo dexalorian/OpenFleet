@@ -95,7 +95,7 @@ export const useManagerStore = defineStore('ManagerStore', () => {
         // await fetch(window.BASE_SRV_URL+'/manager/login', { method: 'POST', body: JSON.stringify({ login: login, pwd: pwd })})
     }
 
-    return {manager, isAuth, Logout, SignUp, checkAuth, Login, vehicles, GetMediaToken}
+    return {manager, isAuth, Logout, SignUp, checkAuth, Login, vehicles, GetMediaToken, mediatoken}
  } )
 
 

@@ -129,8 +129,9 @@ api.post('/manager/mediatoken', async (req, res) => {
     // res.status(200).json( mng.vehicles ).send()
 
     try {
+        console.log('vhls', req.body.vehicles)
         const tkn = new AccessToken( 'kekcheburek', 'kekcheburek_kekcheburek_kekcheburek', { identity: req.jwt.id } )
-        tkn.addGrant( {canSubscribe: true, canPublish: false, roomList: req.body?.vehicles, roomCreate: false})
+        tkn.addGrant( {canSubscribe: true, canPublish: false, roomJoin: true, roomCreate: false, room: '6feabaaf-00d0-41dd-8ac8-11b53a8842ad'})
         res.status(200).json({ token: await tkn.toJwt() }).send()
       
     } catch (e) {

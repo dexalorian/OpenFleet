@@ -1,13 +1,15 @@
 async function fetchBindedVehicles(role: "manager" | "driver" ) {
-    const res = await fetch( import.meta.env.VITE_SRV_URL + `/${role}/vehicles` , { method: 'POST', headers: {"Content-Type": "application/json"}, credentials: 'include'}) 
+    const res = await fetch( import.meta.env.VITE_SRV_URL + `/${role}/vehicles`, 
+      { method: 'POST', headers: {"Content-Type": "application/json"}, credentials: 'include'}) 
     const vehicles = await res.json();
-    console.log('fetched vehicles ', vehicles)
+   //  console.log('fetched vehicles ', vehicles)
     return vehicles
  }
 
  async function newVehicle(login) {
-    const res = await fetch( import.meta.env.VITE_SRV_URL + '/manager/newvehicle' , 
-        { method: 'POST', headers: {"Content-Type": "application/json"}, body: JSON.stringify({ login: login }),  credentials: 'include'}) 
+    const res = await fetch( import.meta.env.VITE_SRV_URL + '/manager/newvehicle', 
+        { method: 'POST', headers: {"Content-Type": "application/json"}, 
+         body: JSON.stringify({ login: login }),  credentials: 'include'}) 
     const vehicle = await res.json();
 
     return vehicle
@@ -41,9 +43,9 @@ async function fetchBindedVehicles(role: "manager" | "driver" ) {
    console.log('Offline logout triggered')
    if (document.cookie.split('logout=')[1]?.length > 0) {
            const logoutStr = 'logout=' +document.cookie.split('logout=')[1]?.split(';')[0]+';'
-       const roles = document.cookie.split('logout=')[1]?.split(';')[0].split(',')
-       const filteredRoles =  roles.map( e => e.trim() === 'role' ? null : e.trim() )
-       document.cookie = 'logout='+filteredRoles.toString()+';'
+            const roles = document.cookie.split('logout=')[1]?.split(';')[0].split(',')
+            const filteredRoles =  roles.map( e => e.trim() === 'role' ? null : e.trim() )
+            document.cookie = 'logout='+filteredRoles.toString()+';'
        } else {
            document.cookie = `logout=${role}; path=/; max-age=`+(1000*24*60*60)+';';
        }

@@ -5,7 +5,7 @@ let map: leaflet.Map ;
 
 export function createMapMarker(LatLng: LatLng, type: 'car' | 'gasstation' | 'base'): leaflet.Marker {
 
-let icon_html = '<div class="car_wrapper"> <div class="caricon"></div>  <div class="probe_flash"></div> </div>';
+let icon_html = '<div class="car_wrapper"> <div class="caricon"></div><div class="probe_flash"></div> </div>';
 let icon_html_disabled = '<div class="car_wrapper"> <div class="caricon"></div> </div> </div>';
     
       let carIcon = leaflet.divIcon({ html: icon_html, iconSize: [24, 24], 
@@ -141,23 +141,21 @@ import { onMounted } from 'vue'
   @apply justify-center items-center content-center flex ;
 }
 
+
+@keyframes ping {
+  45%, 100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
 .probe_flash {
-    @apply flex bg-lime-600 rounded-full  z-0;
+    @apply flex bg-lime-600 rounded-full z-0;
     width: 24px;
     height: 24px;
 
   /* animation-delay: 5s; */
   animation: ping 3s cubic-bezier(0, 0, 0.2, 1) infinite;
-
-
-    @keyframes ping {
-  45%, 100% {
-    transform: scale(2);
-    opacity: 0;
-  }
-}
-
-    
     
 }
 
