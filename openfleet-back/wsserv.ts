@@ -107,7 +107,8 @@ export function startSignalingServ(srv) {
                         }
                         wsActiveSockets.has(user.id) ? wsActiveSockets.get(user.id).push(socket) : 
                             wsActiveSockets.set(user.id, [socket])
-                        wsRooms.has(user.id) ?  wsRooms.get(user.id).forEach( e => wsActiveSockets.get(e).forEach( k => k.send(JSON.stringify({ type: "status", vhcID: user.id,  status: "online" })) ) ) : wsRooms.set(user.id, [])
+                        wsRooms.has(user.id) ?  wsRooms.get(user.id).forEach( e => wsActiveSockets.get(e).forEach( 
+                            k => k.send(JSON.stringify({ type: "status", vhcID: user.id,  status: "online" })) ) ) : wsRooms.set(user.id, [])
                         telemetry.has(user.id) ? null : telemetry.set(user.id, { lat: 0, lng: 0, speed: 0, direction: 0 })
                         
                         console.log('Rooms: ', wsRooms)

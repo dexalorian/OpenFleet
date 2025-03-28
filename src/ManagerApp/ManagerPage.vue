@@ -55,11 +55,11 @@ export const useManagerStore = defineStore('ManagerStore', () => {
 
         } catch { 
         }
-
     }
 
-    async function GetMediaToken (vehicles) {
-        const resp = await fetch( import.meta.env.VITE_SRV_URL+'/manager/mediatoken', { method: 'POST', credentials: 'include', body: JSON.stringify({vehicles}), headers: {"Content-type": "application/json"}} )
+    async function GetMediaToken () {
+        const resp = await fetch( import.meta.env.VITE_SRV_URL+'/manager/mediatoken', 
+            { method: 'GET', credentials: 'include'} )
         mediatoken.value = await resp.json().then( e => e.token)
         console.log('Received mediatoken', mediatoken.value)
     }
@@ -79,7 +79,8 @@ export const useManagerStore = defineStore('ManagerStore', () => {
 
     async function Login( login: String, pwd: String ) {
         try {
-            const res =  await fetch(import.meta.env.VITE_SRV_URL + '/manager/login', {method: 'POST', body: JSON.stringify({login, pwd}), headers: { "Content-Type": "application/json" }, credentials: 'include' })
+            const res =  await fetch(import.meta.env.VITE_SRV_URL + '/manager/login', 
+                {method: 'POST', body: JSON.stringify({login, pwd}), headers: { "Content-Type": "application/json" }, credentials: 'include' })
             const resp = await res.json()
             if (res.status === 200) {
             console.log(resp.id);
@@ -90,8 +91,6 @@ export const useManagerStore = defineStore('ManagerStore', () => {
             isAuth.value = false;
             manager.value = {}
         }
-
-       
         // await fetch(window.BASE_SRV_URL+'/manager/login', { method: 'POST', body: JSON.stringify({ login: login, pwd: pwd })})
     }
 

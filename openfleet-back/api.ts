@@ -108,12 +108,13 @@ async function bindVehicle(req, res) {
     }
 }
 
-api.get('/vehicle/mediatoken', async (req, res) => {
+api.post('/vehicle/mediatoken', async (req, res) => {
     try {       
-        const tkn = new AccessToken(  'kekcheburek', 'kekcheburek_kekcheburek_kekcheburek', { identity: req.jwt.id } )
-        tkn.addGrant( { canSubscribe: true, canPublish: true, roomJoin: true, room: req.jwt?.id, roomCreate: true })
-        res.json({ token: await tkn.toJwt()}).status(200).send()
-        console.log('mdeia token', await tkn.toJwt())
+            const tkn = new AccessToken( 'kekcheburek', 'kekcheburek_kekcheburek_kekcheburek', { identity: req.jwt.id } )
+            tkn.addGrant( { canSubscribe: false, canPublish: true, roomJoin: true, room: 'general_room', roomCreate: true })
+            tkn.toJwt().then( e => console.log('tkn', e))
+       
+       res.status(200).json({ token: await tkn.toJwt() }).send()
         
     } catch (e) {
         res.status(503)
@@ -123,16 +124,20 @@ api.get('/vehicle/mediatoken', async (req, res) => {
 
 })
 
-api.post('/manager/mediatoken', async (req, res) => {
+api.get('/manager/mediatoken',  async (req, res) => {
 
     // const mng =  await manager.findOne({ id: req?.jwt.id }).populate({ path: 'vehicles', select: 'id login lat lng -_id' }).select('vehicles -_id')
     // res.status(200).json( mng.vehicles ).send()
 
     try {
-        console.log('vhls', req.body.vehicles)
-        const tkn = new AccessToken( 'kekcheburek', 'kekcheburek_kekcheburek_kekcheburek', { identity: req.jwt.id } )
-        tkn.addGrant( {canSubscribe: true, canPublish: false, roomJoin: true, roomCreate: false, room: '6feabaaf-00d0-41dd-8ac8-11b53a8842ad'})
+            let tkn: AccessToken = new AccessToken( 'kekcheburek', 
+                'kekcheburek_kekcheburek_kekcheburek', { identity: req.jwt.id } )
+            tkn.addGrant({canSubscribe: true, canPublish: false, roomJoin: true, roomCreate: true, room: 'general_room'})
+                tkn.toJwt().then( e => console.log('tkn', e))
+    
         res.status(200).json({ token: await tkn.toJwt() }).send()
+
+       
       
     } catch (e) {
         res.status(503)
@@ -153,7 +158,6 @@ api.post('/manager/newvehicle', newVehicle )
 
 
 api.post('/manager/signup', async (req ,res) => {
-
     let hashed =  await bcrypt.hash( req.body.pwd , 8)
     let newManager =  await manager.create( { ... req.body, pwd: hashed, id: uuid(), 
         activated: false  } )
@@ -273,7 +277,8 @@ api.post('/vehicle/auth', async (req, res) => {
     
 
 api.get('/vehicle/managers', async (req, res) => {
-    const vhc = await vehicle.findOne({id: req.jwt.id});
+    const vhc = await vehicle.findOne({id: req.jwt.id}).populate("managers");
+
     
     const mngrs = await vhc?.managers
     console.log('managers', mngrs)

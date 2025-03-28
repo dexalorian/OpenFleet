@@ -114,9 +114,9 @@ import type { LatLng } from 'leaflet';
         }
     }
 
-    async function getMediaToken() {
+    async function getMediaToken(room_ids: Array) {
         const resp = await fetch(import.meta.env.VITE_SRV_URL+'/vehicle/mediatoken', 
-            { method: 'GET', credentials: 'include'})
+            { method: 'POST', body: JSON.stringify({room_ids}) , credentials: 'include'})
      
         return await resp.json().then( e => e.token )
     }

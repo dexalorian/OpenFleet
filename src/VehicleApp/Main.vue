@@ -45,15 +45,15 @@ const vehicle = useVehicleStore()
 const options = useOptionsStore()
 
 const showStartStreamBtn = ref(true)
-window.onbeforeunload = (e) => { vehicle.saveOwnGeo( vehicle.currentGeo.lat, vehicle.currentGeo.lng); e.preventDefault }
+window.onbeforeunload = (e) => { vehicle.saveOwnGeo( vehicle.currentGeo.lat, 
+    vehicle.currentGeo.lng); e.preventDefault }
 
 const videoCnv = ref<HTMLVideoElement>()
   
-
 async function startMediaRoom() {
     const mediaroom = new Room();
     await mediaroom.prepareConnection('https://live.transtaxi.app', vehicle.mediatoken);
-    await mediaroom.connect( 'https://live.transtaxi.app',vehicle.mediatoken )
+    await mediaroom.connect( 'https://live.transtaxi.app', vehicle.mediatoken, {autoSubscribe: false})
     console.log('connected to room', mediaroom.name);
     mediaroom.localParticipant.setCameraEnabled(true)
     mediaroom.localParticipant.setMicrophoneEnabled(false)
@@ -67,6 +67,8 @@ async function startMediaRoom() {
         showStartStreamBtn.value = false
     })
 
+    mediaroom.on('participantConnected', e => e.trackPublications.forEach( k => {console.log('track pub', k); k.setSubscribed(true)} ))
+
     videoCnv.value.srcObject = localstream;
     mediaroom.on('disconnected', () => showStartStreamBtn.value = true)
 
@@ -74,23 +76,23 @@ async function startMediaRoom() {
 
 onMounted( async () => {
     StartWS('vhc')
-    
     let managers = vehicle.getManagers()
     vehicle.currentGeo = await vehicle.fetchOwnGeo() 
     console.log('geo form db', vehicle.currentGeo)
-    vehicle.mediatoken = await vehicle.getMediaToken()
+    vehicle.mediatoken = await vehicle.getMediaToken(managers)
     console.log('src obj', videoCnv.value?.srcObject)
-
 
     let  marker = createMapMarker(vehicle.currentGeo, 'car')
 
     marker.on('dragend', (k) => { console.log('drag end', k.target.getLatLng(), options.common.debug_geo_drag ); 
-            true ? ws.send( JSON.stringify( { type: 'telemetry' , data: { lat: k.target.getLatLng().lat, lng: k.target.getLatLng().lng }  } ) ) : null
+            true ? ws.send( JSON.stringify( { type: 'telemetry' , 
+            data: { lat: k.target.getLatLng().lat, lng: k.target.getLatLng().lng }  } ) ) : null
              })
 
     let OwnTail: Polyline;
     ws.onopen = () => {
-        ws.send( JSON.stringify( { type: 'telemetry' , data: { lat: vehicle.currentGeo.lat, lng: vehicle.currentGeo.lng }  } ) )
+        ws.send( JSON.stringify( { type: 'telemetry', 
+        data: { lat: vehicle.currentGeo.lat, lng: vehicle.currentGeo.lng }  } ) )
     //     const Teltimer = () => {
     //         ws.send( JSON.stringify( { type: 'telemetry' , data: { lat: vehicle.currentGeo.value?.lat, lng: vehicle.currentGeo.value?.lng }  } ) )
     //         console.log('ws sended')
@@ -113,8 +115,6 @@ onMounted( async () => {
     }, () =>  {console.log('get location error'); setGeoFetcher()}, {timeout: 10000} )
 
 
-
-
 function setGeoFetcher() {
 
     navigator.geolocation.watchPosition( k =>  {
@@ -135,9 +135,6 @@ function setGeoFetcher() {
 }
 
 let startPos = {};
-
-
-
 
 } )
 
