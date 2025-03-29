@@ -66,7 +66,7 @@ async function startMediaRoom() {
         localstream.addTrack(pub.track.mediaStreamTrack)
         showStartStreamBtn.value = false
     })
-
+2
     mediaroom.on('participantConnected', e => e.trackPublications.forEach( k => {console.log('track pub', k); k.setSubscribed(true)} ))
 
     videoCnv.value.srcObject = localstream;

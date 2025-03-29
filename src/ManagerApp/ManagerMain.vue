@@ -15,11 +15,9 @@
                     Cheburek to all vehicles </Button>
                     
                 </div>
-                <video class="w-44 bg-slate-600" autoplay ref="vidEl"></video>
                 <div class="text-xs font-bold">Vehicle list</div>
                 <ul class="text-xs">
-                    <!-- {{ manager.vehicles.value }} -->
-    
+                    <VhcSideItem v-for="v in manager.vehicles" :id="v.id" :status=1 ref="vidEls" />
                 </ul>
             </div>
             <Button variant="link" @click="manager.Logout()">Logout</Button>
@@ -38,12 +36,13 @@
     import { fetchBindedVehicles, newVehicle } from '../services'
     import DialogAddVehicle from './DialogAddVehicle.vue';
 import { StartWS, ws } from '@/ws';
+import VhcSideItem from "./components/VhcSideItem.vue"
 import { RemoteParticipant, RemoteTrackPublication, Room } from 'livekit-client';
 
 
 
 const PlayerEls = ref({})
-const vidEl = ref()
+const vidEls = ref([])
 
 const vehicleMarkers = reactive(new Map());
 let vehicleTrails = new Map();
@@ -57,15 +56,27 @@ function ViewVhcCam(id) {
     mediaroom.prepareConnection('https://live.transtaxi.app', manager.mediatoken)
     mediaroom.connect('https://live.transtaxi.app', manager.mediatoken, { autoSubscribe: false})
     console.log('prts', mediaroom)
-    // console.log('videl', PlayerEls.value[id])
 
-    mediaroom.on("trackPublished", (e) => {
-      
-        
+    // mediaroom.on("trackSubscribed", (e) => {
+    //     console.log('Track subscribet fired', e.kind)
+    //     vidEls.value[2].vidEl.srcObject =  new MediaStream([e.mediaStreamTrack])
+
+    // })
+
+    mediaroom.on("trackPublished", (e, participant) => {
         // e.setSubscribed(true)
         console.log("track published", e)
-    })
+        console.log("all active members", mediaroom.remoteParticipants)
+        manager.vehicles.find( k => k.id === participant.identity ) ? e.setSubscribed(true) : console.log('not subscrbed', participant.identity)
+        participant.on("trackSubscribed", track => {    
 
+            const elIdx = vidEls.value.findIndex( e => e.vidEl.id === participant.identity )
+            console.log(elIdx)
+            vidEls.value[elIdx].vidEl.srcObject = new MediaStream([track.mediaStreamTrack])
+
+        })
+       
+    })
 
     mediaroom.on("participantConnected", (e: RemoteParticipant) => {
         console.log('participant conn', e.identity)
@@ -76,7 +87,6 @@ function ViewVhcCam(id) {
         
     }
         )
-
   
     // mediaroom.on('trackSubscribed', (track, pub, participant) => {
     //     // track.attach(vidEl.value)
@@ -107,6 +117,8 @@ onMounted( async () => {
             // vehicleMarkers.set(e.id, { coords: [e?.lat, e?.lng], marker: newmarker })
         }
    } )
+
+  
 
    ws.onmessage = async (e) => {
         const obj = JSON.parse(e.data)
@@ -151,6 +163,8 @@ onMounted( async () => {
                 break;
         } 
    }
+
+   console.log("vidEls", vidEls)
 } )
 
 

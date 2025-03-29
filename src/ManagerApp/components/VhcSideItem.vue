@@ -1,34 +1,35 @@
 <template>
 
-<li v-for="v in manager.vehicles" class="flex border py-2 px-2">
+<li  class="flex border py-2 px-2">
     <div>
         <div class="font-bold flex gap-1">
 
-            <div v-if="vehicleMarkers.get(v.id)?.status === 'online'" 
-                class="bg-green-500 size-3.5 rounded-full" />
-            {{ v?.login }} 
-        
+            <div v-if="props.status == 1" class="bg-green-500 size-3.5 rounded-full" />
         </div>
-        {{ v.id }}
+        {{ id }}
     </div>
     <div class="flex items-center content-center justify-center text-slate-800 pointer-events-auto">
-        <div @click=" () => ViewVhcCam(v.id)" v-if="vehicleMarkers.get(v.id)?.status === 'online'" 
+        <!-- <div @click=" () => ViewVhcCam(props.id)" v-if="props.status == 1" 
             class="cursor-pointer bg-orange-700 absolute z-50 justify-center content-center items-center flex gap-1">
             <ion-icon name="videocam" class="size-4"></ion-icon>
-            Play</div>
+            Play</div> -->
     
-        <video autoplay :id="v.id" :ref="e =>  PlayerEls[v.id] = e " class="bg-slate-500 rounded-lg w-36"></video>
+        <video autoplay :id="props.id" ref="vidEl" class="bg-slate-500 rounded-lg w-36"></video>
     </div>
 
 </li>
-
 
 </template>
 
 <script lang="ts" setup>
 
-defineProps({ status: Number, id: String })
-defineEmits()
+import { ref } from 'vue'
+
+const vidEl = ref()
+
+defineExpose({ vidEl })
+const props = defineProps({ status: Number, id: String })
+// defineEmits()
 
 
 </script>
