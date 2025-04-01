@@ -49,7 +49,7 @@ app.use(
 app.use(
   '/',
   createProxyMiddleware({
-    target: 'http://localhost:5173',
+    target: 'http://localhost',
     changeOrigin: true,
     secure: false,
     // ws: true
