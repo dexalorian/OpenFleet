@@ -2,6 +2,8 @@ import fs from "fs"
 import { v4 as uuid } from "uuid"
 import path from "path"
 import { fileURLToPath } from "url";
+import bcrypt from "bcrypt"
+import { manager, vehicle, driver } from "./schemas.ts";
 // import { dbUser } from "./schemas.js";
 import nodemailer from 'nodemailer'
 import { AccessToken } from 'livekit-server-sdk'
@@ -55,7 +57,6 @@ export async function newVehicle(req, res) {
     let author;
     if (role === 'mng') {
         author = await manager.findOne({id: req.jwt.id})
-        
         let newVehicle =  await vehicle.create({login: req.body.login, pwd: 'temporary', id: uuid(), 
             activated: false, managers: [ author?._id ], owners: [ author?._id] } )
         author.vehicles.push( newVehicle._id)

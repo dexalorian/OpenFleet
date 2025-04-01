@@ -108,7 +108,7 @@ async function bindVehicle(req, res) {
     }
 }
 
-api.post('/vehicle/mediatoken', async (req, res) => {
+api.get('/vehicle/mediatoken', async (req, res) => {
     try {       
             const tkn = new AccessToken( 'kekcheburek', 'kekcheburek_kekcheburek_kekcheburek', { identity: req.jwt.id } )
             tkn.addGrant( { canSubscribe: false, canPublish: true, roomJoin: true, room: 'general_room', roomCreate: true })

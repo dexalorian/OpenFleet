@@ -1,20 +1,15 @@
 <template>
 
-<li  class="flex border py-2 px-2">
-    <div>
+<li  class="flex py-1 px-0 gap-2">
+    <div class="flex">
         <div class="font-bold flex gap-1">
 
-            <div v-if="props.status == 1" class="bg-green-500 size-3.5 rounded-full" />
+            <div v-if="props.status == 1" class="bg-green-500 size-2.5 rounded-full" />
         </div>
-        {{ id }}
+       <div class="text-[7pt] flex w-20">{{ id }}</div>  
     </div>
     <div class="flex items-center content-center justify-center text-slate-800 pointer-events-auto">
-        <!-- <div @click=" () => ViewVhcCam(props.id)" v-if="props.status == 1" 
-            class="cursor-pointer bg-orange-700 absolute z-50 justify-center content-center items-center flex gap-1">
-            <ion-icon name="videocam" class="size-4"></ion-icon>
-            Play</div> -->
-    
-        <video autoplay :id="props.id" ref="vidEl" class="bg-slate-500 rounded-lg w-36"></video>
+        <video autoplay :id="props.id" ref="vidEl" class="bg-slate-500 rounded-sm w-72"></video>
     </div>
 
 </li>

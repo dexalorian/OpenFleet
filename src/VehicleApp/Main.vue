@@ -24,6 +24,8 @@
 
 import { StartWS, ws } from '@/ws';
 import { computed } from 'vue';
+import { onBeforeMount } from 'vue';
+import { onBeforeUnmount } from 'vue';
 
 </script>
 
@@ -63,6 +65,7 @@ async function startMediaRoom() {
     const localstream = new MediaStream()
 
     mediaroom.on('localTrackPublished', (pub, participant) => {
+        console.log('local track published', pub)
         localstream.addTrack(pub.track.mediaStreamTrack)
         showStartStreamBtn.value = false
     })
@@ -74,6 +77,7 @@ async function startMediaRoom() {
 
 }
 
+
 onMounted( async () => {
     StartWS('vhc')
     let managers = vehicle.getManagers()
@@ -83,6 +87,7 @@ onMounted( async () => {
     console.log('src obj', videoCnv.value?.srcObject)
 
     let  marker = createMapMarker(vehicle.currentGeo, 'car')
+    marker.setIcon(marker.ActiveIcon)
 
     marker.on('dragend', (k) => { console.log('drag end', k.target.getLatLng(), options.common.debug_geo_drag ); 
             true ? ws.send( JSON.stringify( { type: 'telemetry' , 

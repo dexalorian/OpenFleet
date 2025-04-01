@@ -9,15 +9,15 @@
                 <div class="text-xs text-slate-400">{{ manager.manager.id }} 
                 </div>
                 
-                <div class="flex flex-col py-2 gap-1">
+                <div class="flex flex-col py-1 gap-1">
                     <DialogAddVehicle />
-                    <Button @click="() => ws.send( JSON.stringify( { type: 'broadcast', text: 'cheburek' }) )"> 
-                    Cheburek to all vehicles </Button>
+                    <Button @click="() =>  ViewVhcCam('<tmp>')">Connect to general room</Button>
+                    <Button @click="() => mediaroom.disconnect(true)">Leave room</Button>
                     
                 </div>
                 <div class="text-xs font-bold">Vehicle list</div>
                 <ul class="text-xs">
-                    <VhcSideItem v-for="v in manager.vehicles" :id="v.id" :status=1 ref="vidEls" />
+                    <VhcSideItem v-for="[k, v] in manager.vehicles" :id="v.id" :status="v.status" ref="vidEls" />
                 </ul>
             </div>
             <Button variant="link" @click="manager.Logout()">Logout</Button>
@@ -38,10 +38,9 @@
 import { StartWS, ws } from '@/ws';
 import VhcSideItem from "./components/VhcSideItem.vue"
 import { RemoteParticipant, RemoteTrackPublication, Room } from 'livekit-client';
+import { Table } from 'lucide-vue-next';
+import { watch } from 'vue';
 
-
-
-const PlayerEls = ref({})
 const vidEls = ref([])
 
 const vehicleMarkers = reactive(new Map());
@@ -51,39 +50,63 @@ const manager = useManagerStore()
 
 StartWS('mng');
 
+let mediaroom;
+
+
+
 function ViewVhcCam(id) {
-    const mediaroom =  new Room()
+    mediaroom =  new Room()
+
+    mediaroom.on('connectionStateChanged', e => console.log(" LiveKit conn state", e))
+    
     mediaroom.prepareConnection('https://live.transtaxi.app', manager.mediatoken)
     mediaroom.connect('https://live.transtaxi.app', manager.mediatoken, { autoSubscribe: false})
-    console.log('prts', mediaroom)
 
-    // mediaroom.on("trackSubscribed", (e) => {
-    //     console.log('Track subscribet fired', e.kind)
-    //     vidEls.value[2].vidEl.srcObject =  new MediaStream([e.mediaStreamTrack])
 
-    // })
+     mediaroom.on("connected", () => {  
+        mediaroom.remoteParticipants.forEach( e => {
+
+            e.trackPublications.forEach( pub => {
+                  if  ( (manager.vehicles.has(e.identity)) && !pub.isSubscribed) {
+                        pub.setSubscribed(true)
+                        e.on("trackSubscribed", (track) => {
+                            const tmpidx = vidEls.value.findIndex( x => x.vidEl.id === e.identity)
+                            vidEls.value[tmpidx].vidEl.srcObject = new MediaStream([track.mediaStreamTrack]);
+                        })
+                  } else {
+                    console.log('already subscribed to', pub)
+                    vidEls.value[elIdx].vidEl.srcObject = new MediaStream([pub.track?.mediaStreamTrack]);
+                  }
+            } )
+
+        } )
+
+     }  )
 
     mediaroom.on("trackPublished", (e, participant) => {
         // e.setSubscribed(true)
         console.log("track published", e)
         console.log("all active members", mediaroom.remoteParticipants)
-        manager.vehicles.find( k => k.id === participant.identity ) ? e.setSubscribed(true) : console.log('not subscrbed', participant.identity)
-        participant.on("trackSubscribed", track => {    
+        if  (manager.vehicles.has(participant.identity)) {
 
-            const elIdx = vidEls.value.findIndex( e => e.vidEl.id === participant.identity )
-            console.log(elIdx)
-            vidEls.value[elIdx].vidEl.srcObject = new MediaStream([track.mediaStreamTrack])
+            e.setSubscribed(true)
 
-        })
+            participant.on("trackSubscribed", (track) => {    
+                const elIdx = vidEls.value.findIndex( e => e.vidEl.id === participant.identity )
+                vidEls.value[elIdx].vidEl.srcObject = new MediaStream([track.mediaStreamTrack]);
+             })
+
+        } else {console.log('not subscrbed', participant.identity)}
+
        
     })
 
     mediaroom.on("participantConnected", (e: RemoteParticipant) => {
         console.log('participant conn', e.identity)
-        let vhcl = manager.vehicles.find( k => k.id === e.identity )
+        let vhcl = manager.vehicles.has( e.identity )
         console.log('tracks', e.trackPublications ) 
         vhcl ? console.log('participant is member', vhcl) : console.log('participant is outsider')
-        console.log(manager.vehicles)
+
         
     }
         )
@@ -96,26 +119,33 @@ function ViewVhcCam(id) {
 
 }
 
+
 onMounted( async () => {
-   manager.vehicles = await fetchBindedVehicles("manager")
+   const receivedVehs = await fetchBindedVehicles("manager")
+
+   receivedVehs.forEach( e => manager.vehicles.set(e.id, e))
+
+   
+   
    // get mediatokens for each vehicle
    console.log(manager.vehicles)
    await manager.GetMediaToken()
-//    console.log('refs', PlayerEls.value);
-   console.log('vid', PlayerEls.value)
-   await ViewVhcCam('<tmp>')
-   manager.vehicles.forEach( (e) => {
+
+
+   manager.vehicles.forEach( async (e) => {
         if (e?.lat & e?.lng) {
-            let newmarker = createMapMarker( { lat: e.lat, lng: e.lng }, "car");
+            let newmarker = await createMapMarker( { lat: e.lat, lng: e.lng }, "car");
             // newmarker.on('dragend', () => console.log('drag end'))
-            vehicleMarkers.set(e.id, { coords: [e.lat, e.lng], marker: newmarker, status: 'pending' })
+            vehicleMarkers.set(e.id, { coords: [e.lat, e.lng], marker: newmarker, status: 2 })
         } else {
-            let newmarker = createMapMarker( { lat: 0.0, lng: 0.0 }, "car");
-            vehicleMarkers.set(e.id, { coords: [0, 0], marker: newmarker, status: 'pending' })
+            let newmarker = await createMapMarker( { lat: 0.0, lng: 0.0 }, "car");
+            vehicleMarkers.set(e.id, { coords: [0, 0], marker: newmarker, status: 2 })
             // let newmarker = createMapMarker( { lat: 0, lng: 0 }, "car");
             // newmarker.on('dragend', () => console.log('drag end'));
             // vehicleMarkers.set(e.id, { coords: [e?.lat, e?.lng], marker: newmarker })
         }
+
+    console.log("map cars icons", vehicleMarkers)
    } )
 
   
@@ -125,35 +155,38 @@ onMounted( async () => {
         console.log('income', obj)
         switch (obj.type) {
             case "telemetry":
-                vehicleMarkers.get(obj.vhcid).marker.setIcon(vehicleMarkers.get(obj.vhcid).marker.ActiveIcon)
-                if (!vehicleMarkers.has(obj.vhcid)) {
-                    vehicleMarkers.set(obj.vhcid, { coords: [obj.data.lat, obj.data.lng], 
+                vehicleMarkers.get(obj.vhcID).marker.setIcon(vehicleMarkers.get(obj.vhcID).marker.ActiveIcon)
+                if (!vehicleMarkers.has(obj.vhcID)) {
+                    vehicleMarkers.set(obj.vhcID, { coords: [obj.data.lat, obj.data.lng], 
                         marker: createMapMarker( { lat: obj.data.lat, lng: obj.data.lng }, "car") });
-                    vehicleTrails.set( obj.vhcid, { trail: createMapTrail({ lat: obj.data.lat, lng: obj.data.lng }) } )
+                    vehicleTrails.set( obj.vhcID, { trail: createMapTrail({ lat: obj.data.lat, lng: obj.data.lng }) } )
                     // console.log('trails', vehicleTrails)
                 } else {
-                    vehicleMarkers.get(obj.vhcid).coords = [obj.data.lat, obj.data.lng]; 
-                    vehicleMarkers.get(obj.vhcid).marker.setLatLng({ lat: obj.data.lat, lng: obj.data.lng  });
-                    vehicleTrails.has(obj.vhcid) ? vehicleTrails.get(obj.vhcid).trail.addLatLng({ lat: obj.data.lat, lng: obj.data.lng }) : 
-                        vehicleTrails.set(obj.vhcid, { trail: createMapTrail({ lat: obj.data.lat, lng: obj.data.lng }) })
-                    console.log(' trails ', vehicleTrails.get(obj.vhcid).trail.getLatLngs())
+                    vehicleMarkers.get(obj.vhcID).coords = [obj.data.lat, obj.data.lng]; 
+                    vehicleMarkers.get(obj.vhcID).marker.setLatLng({ lat: obj.data.lat, lng: obj.data.lng  });
+                    vehicleTrails.has(obj.vhcID) ? vehicleTrails.get(obj.vhcid).trail.addLatLng({ lat: obj.data.lat, lng: obj.data.lng }) : 
+                        vehicleTrails.set(obj.vhcID, { trail: createMapTrail({ lat: obj.data.lat, lng: obj.data.lng }) })
+                    console.log(' trails ', vehicleTrails.get(obj.vhcID).trail.getLatLngs())
                     }
                 break;
             case "status": 
     
-                if (obj.status === "offline") {
-                    // vehicleMarkers.get(obj.vhcid).marker.setIcon(vehicleMarkers.get(obj.vhcid).marker.DisabledIcon)
+                if (obj.status === 0) {
+                    vehicleMarkers.get(obj.vhcID).marker.setIcon(vehicleMarkers.get(obj.vhcID).marker.DisabledIcon)
                     console.log( obj.vhcID, 'offline')
 
-                    console.log( 'all mrkrs', Array.from(vehicleMarkers.keys()))
-                    vehicleMarkers.get(obj.vhcID).status = 'offline'
+                    console.log( 'all mrkrs', vehicleMarkers)
+                    vehicleMarkers.get(obj.vhcID).status = 0
+                    manager.vehicles.get(obj.vhcID).status = 0
                   
-                } else if (obj.status === "online") {
-                    // vehicleMarkers.get(obj.vhcid).marker.setIcon(vehicleMarkers.get(obj.vhcid).marker.DisabledIcon)
+                } else if (obj.status === 1) {
+                    vehicleMarkers.get(obj.vhcID).marker.setIcon(vehicleMarkers.get(obj.vhcID).marker.ActiveIcon)
                     console.log( obj.vhcID, 'online')
   
-                    console.log( 'all mrkrs', Array.from(vehicleMarkers.keys()))
-                    vehicleMarkers.get(obj.vhcID).status = 'online'
+                    console.log( 'all mrkrs', vehicleMarkers)
+                    vehicleMarkers.get(obj.vhcID).status = 1
+                    manager.vehicles.get(obj.vhcID).status = 1
+        
                   
                 }
    

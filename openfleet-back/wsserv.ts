@@ -65,7 +65,7 @@ export function startSignalingServ(srv) {
                             console.log('vhc msg', e.data)
                             console.log(wsActiveSockets.keys())
                             let json = JSON.parse(e.data)
-                            json.vhcid = user.id;
+                            json.vhcID = user.id;
                             if (json.type === 'telemetry') {
                                 console.log('telemetry trig', json.data)
                                 telemetry.set(user.id, json.data)
@@ -86,12 +86,13 @@ export function startSignalingServ(srv) {
                                     } )
                             )
                         }
+                        socket.on('error', () => {console.log('WS kek discon')})
                         socket.onclose = async (e) => {
                             wsRooms.get(user.id)?.forEach( 
                                 (s) => wsActiveSockets.get(s)?.forEach( 
                                     x => {
-                                        let json = {type: "status", status: "offline" }
-                                        json.vhc = user.id
+                                        let json = {type: "status", status: 0 }
+                                        json.vhcID = user.id
                                         x.send(JSON.stringify(json))
                                     } )
                             )
@@ -108,7 +109,7 @@ export function startSignalingServ(srv) {
                         wsActiveSockets.has(user.id) ? wsActiveSockets.get(user.id).push(socket) : 
                             wsActiveSockets.set(user.id, [socket])
                         wsRooms.has(user.id) ?  wsRooms.get(user.id).forEach( e => wsActiveSockets.get(e).forEach( 
-                            k => k.send(JSON.stringify({ type: "status", vhcID: user.id,  status: "online" })) ) ) : wsRooms.set(user.id, [])
+                            k => k.send(JSON.stringify({ type: "status", vhcID: user.id,  status: 1 })) ) ) : wsRooms.set(user.id, [])
                         telemetry.has(user.id) ? null : telemetry.set(user.id, { lat: 0, lng: 0, speed: 0, direction: 0 })
                         
                         console.log('Rooms: ', wsRooms)

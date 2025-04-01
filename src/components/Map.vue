@@ -6,7 +6,7 @@ let map: leaflet.Map ;
 export function createMapMarker(LatLng: LatLng, type: 'car' | 'gasstation' | 'base'): leaflet.Marker {
 
 let icon_html = '<div class="car_wrapper"> <div class="caricon"></div><div class="probe_flash"></div> </div>';
-let icon_html_disabled = '<div class="car_wrapper"> <div class="caricon"></div> </div> </div>';
+let icon_html_disabled = '<div class="car_wrapper"> <div class="caricon_disabled"></div> </div> </div>';
     
       let carIcon = leaflet.divIcon({ html: icon_html, iconSize: [24, 24], 
       className: 'dummy',
@@ -24,6 +24,8 @@ let icon_html_disabled = '<div class="car_wrapper"> <div class="caricon"></div> 
       className: 'dummy',
       iconSize: [32, 32], // Adjust size as needed
         })
+
+        newMarker.setIcon(newMarker.DisabledIcon )
 
 
         
@@ -120,7 +122,7 @@ import { onMounted } from 'vue'
     background-image: url('/src/assets/caricon_yellow.png');
     position: absolute;
     /* border: 1px black solid; */
-    transform: rotate(158deg);
+    /* transform: rotate(158deg); */
     background-position: 0% 20%;
     background-size: 14px;
     background-repeat: no-repeat;

@@ -35,9 +35,9 @@ import { onMounted } from 'vue';
 
 export const useManagerStore = defineStore('ManagerStore', () => {
 
-    const isAuth = ref(false);
+    const isAuth = ref(false); 
     const manager = ref({}) 
-    const vehicles = ref([])
+    const vehicles = ref(new Map())
     const mediatoken = ref('')
 
     async function checkAuth() {

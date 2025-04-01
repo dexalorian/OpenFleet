@@ -100,7 +100,8 @@ import type { LatLng } from 'leaflet';
 
     async function Login( login: String , pwd: String ): String {
         try {
-            const res =  await fetch( import.meta.env.VITE_SRV_URL +'/vehicle/login', {body: JSON.stringify({login, pwd}), headers: { "Content-Type" : 'application/json' } , 
+            const res =  await fetch( import.meta.env.VITE_SRV_URL +'/vehicle/login', 
+                {body: JSON.stringify({login, pwd}), headers: { "Content-Type" : 'application/json' } , 
             credentials: 'include', method: 'POST'})
             const resp = await res.json()
         if (resp.valid) {
@@ -116,7 +117,7 @@ import type { LatLng } from 'leaflet';
 
     async function getMediaToken(room_ids: Array) {
         const resp = await fetch(import.meta.env.VITE_SRV_URL+'/vehicle/mediatoken', 
-            { method: 'POST', body: JSON.stringify({room_ids}) , credentials: 'include'})
+            { method: 'GET' , credentials: 'include'})
      
         return await resp.json().then( e => e.token )
     }
@@ -141,7 +142,8 @@ import type { LatLng } from 'leaflet';
     }
 
     async function fetchOwnGeo(): LatLng {
-       let resp = await fetch(import.meta.env.VITE_SRV_URL + '/vehicle/getgeo', { method: 'GET', credentials: 'include', headers: { "Content-type": "application/json"}})
+       let resp = await fetch(import.meta.env.VITE_SRV_URL + '/vehicle/getgeo', 
+       { method: 'GET', credentials: 'include', headers: { "Content-type": "application/json"}})
 
        if (resp.status === 200) {
         let e = await resp.json()
@@ -153,7 +155,9 @@ import type { LatLng } from 'leaflet';
     }
 
     async function saveOwnGeo(lat, lng) {
-        await fetch(import.meta.env.VITE_SRV_URL + '/vehicle/setgeo', { body: JSON.stringify({ lat: lat, lng: lng }), method: 'POST', credentials: 'include', headers: { "Content-Type": "application/json" }})
+        await fetch(import.meta.env.VITE_SRV_URL + '/vehicle/setgeo', 
+        { body: JSON.stringify({ lat: lat, lng: lng }), method: 'POST', credentials: 'include', 
+            headers: { "Content-Type": "application/json" }})
     }
 
     async function SignUp(login: String, pwd: String, email: String, phoneNums: String[]) {
