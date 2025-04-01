@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon --env-file=.env index.ts",
-    "dev": "nodemon --watch . -r dotenv/config -r ts-node/register index.ts"
+    "dev": "nodemon --watch . -r dotenv/config -r ts-node/register index.ts",
+    "proxy": "nodemon proxy.ts"
   },
   "author": "",
   "license": "ISC",
