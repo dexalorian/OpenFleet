@@ -2,7 +2,8 @@ import express from "express";
 import { createProxyMiddleware } from "http-proxy-middleware"
 import cors from "cors";
 const app = express();
-app.use(cors({origin: ['http://localhost:3000', 'https://45.9.72.39', 'http://localhost:5173','http://localhost:8484',  'https://transtaxi.app'], credentials: true, allowedHeaders: ['Content-Type']}));
+app.use(cors({origin: ['http://localhost:3000', 'https://45.9.72.39', 'http://localhost:5173',
+  'http://localhost:8484',  'https://transtaxi.app'], credentials: true, allowedHeaders: ['Content-Type']}));
 app.use( (req, res, next) => {console.log(new Date().toISOString().split('T')[1] + ` Proxy request: ${req.method} ${req.url}`);
 next();
 })
