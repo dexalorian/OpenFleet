@@ -1,10 +1,11 @@
 <template>
         <div class="max-w-2xl min-w-80 w-full h-full flex flex-col">
-            {{ showStartStreamBtn }}
+
             <div id="anchor_wrapper" class="w-0 h-0 flex flex-col relative self-end bg-orange-500">
                 <div class="flex grow-1 justify-center content-center items-center
                 absolute z-20 top-3 right-2">
-                    <div class="absolute text-slate-300 flex flex-col justify-center items-center gap-2" :class="showStartStreamBtn ?  '' : 'hidden' ">
+                    <div class="absolute text-slate-300 flex flex-col justify-center items-center gap-2" 
+                        :class="showStartStreamBtn ?  '' : 'hidden' ">
                          <p class="text-xs">Video</p>
                         <Button  class='h-8 text-xs'  @click="() => startMediaRoom()">Start translation</Button>
                     </div>
@@ -70,7 +71,8 @@ async function startMediaRoom() {
         showStartStreamBtn.value = false
     })
 2
-    mediaroom.on('participantConnected', e => e.trackPublications.forEach( k => {console.log('track pub', k); k.setSubscribed(true)} ))
+    mediaroom.on('participantConnected', e => e.trackPublications.forEach( k => 
+        {console.log('track pub', k); k.setSubscribed(true)} ))
 
     videoCnv.value.srcObject = localstream;
     mediaroom.on('disconnected', () => showStartStreamBtn.value = true)

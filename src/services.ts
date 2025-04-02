@@ -25,6 +25,24 @@ async function fetchBindedVehicles(role: "manager" | "driver" ) {
  }
 
 
+ async function bindManager(mngID: String): Object {
+   const resp = await fetch( import.meta.env.VITE_SRV_URL + '/vehicle/bindmanager', 
+      { method: 'POST', credentials: 'include', body: JSON.stringify({ mngID }), 
+      headers: { "Content-Type": "application/json" } } )
+   const mng = await resp.json();
+
+   if (resp.status === 200) {
+     
+      console.log('mng binded', mng )
+      return mng
+   } else {
+      console.log('mng bind err', mng )
+      return mng
+   }
+
+ }
+
+
  async function bindVehicle(vhcID: String): Object {
     const res = await fetch( import.meta.env.VITE_SRV_URL + `/manager/bindvehicle`, 
         { body: JSON.stringify({ vhcID }), method: 'POST', 
@@ -52,4 +70,4 @@ async function fetchBindedVehicles(role: "manager" | "driver" ) {
 }
 
 
- export { fetchBindedVehicles, bindVehicle, newVehicle, addOfflineLogout }
+ export { fetchBindedVehicles, bindVehicle, newVehicle, addOfflineLogout, bindManager }

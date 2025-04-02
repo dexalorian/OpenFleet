@@ -14,22 +14,20 @@ export default defineConfig({
   },
   server: {
 
-    hmr: {
-      protocol: "wss",
-      // host: "45.9.72.39",
-      clientPort: 443,
+    // hmr: {
+    //   protocol: "wss",
+    //   // host: "45.9.72.39",
+    //   clientPort: 443,
+    //   port: 5929, 
+    //   path: "/vite_hmr",
+    // }
+
+     hmr: {
+      protocol: "ws",
+      clientPort: 5929,
       port: 5929, 
       path: "/vite_hmr",
     }
-
-    //  hmr: {
-    //   // protocol: "ws",
-    //   // host: "45.9.72.39",
-    //   // clientPort: 5929,
-    //   // overlay: false,
-    //   // port: 5929, 
-    //   // path: "/vite_hmr",
-    // }
 
 
   },

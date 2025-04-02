@@ -125,10 +125,6 @@ onMounted( async () => {
 
    receivedVehs.forEach( e => manager.vehicles.set(e.id, e))
 
-   
-   
-   // get mediatokens for each vehicle
-   console.log(manager.vehicles)
    await manager.GetMediaToken()
 
 
@@ -144,8 +140,6 @@ onMounted( async () => {
             // newmarker.on('dragend', () => console.log('drag end'));
             // vehicleMarkers.set(e.id, { coords: [e?.lat, e?.lng], marker: newmarker })
         }
-
-    console.log("map cars icons", vehicleMarkers)
    } )
 
   
@@ -164,7 +158,8 @@ onMounted( async () => {
                 } else {
                     vehicleMarkers.get(obj.vhcID).coords = [obj.data.lat, obj.data.lng]; 
                     vehicleMarkers.get(obj.vhcID).marker.setLatLng({ lat: obj.data.lat, lng: obj.data.lng  });
-                    vehicleTrails.has(obj.vhcID) ? vehicleTrails.get(obj.vhcid).trail.addLatLng({ lat: obj.data.lat, lng: obj.data.lng }) : 
+                    vehicleTrails.has(obj.vhcID) ?
+                        vehicleTrails.get(obj.vhcID).trail.addLatLng({ lat: obj.data.lat, lng: obj.data.lng }) : 
                         vehicleTrails.set(obj.vhcID, { trail: createMapTrail({ lat: obj.data.lat, lng: obj.data.lng }) })
                     console.log(' trails ', vehicleTrails.get(obj.vhcID).trail.getLatLngs())
                     }
@@ -197,7 +192,6 @@ onMounted( async () => {
         } 
    }
 
-   console.log("vidEls", vidEls)
 } )
 
 

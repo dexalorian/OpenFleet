@@ -52,7 +52,7 @@
                 </div>
                             </TabsContent>
                 </Tabs>
-            </DialogContent>
+        </DialogContent>
     </Dialog>
 
 </template>

@@ -26,7 +26,7 @@
         </div>
 
         <div class="flex flex-col gap-3 w-full px-4">
-            <Button>Add manager</Button>
+            <DialogAddMngr />
             <Button @click="() => vehicle.Logout()" class="bg-red-600">Logout</Button>
            
         </div>
@@ -43,6 +43,7 @@ import Label from '@/components/ui/label/Label.vue';
 import Switch from '@/components/ui/switch/Switch.vue';
 
 import { onMounted } from 'vue';
+import DialogAddMngr from './DialogAddMngr.vue';
 
 const vehicle = useVehicleStore()
 const options = useOptionsStore()

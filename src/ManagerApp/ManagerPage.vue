@@ -41,7 +41,7 @@ export const useManagerStore = defineStore('ManagerStore', () => {
     const mediatoken = ref('')
 
     async function checkAuth() {
-        console.log('Checking auth')
+
         try {
             const res = await fetch( import.meta.env.VITE_SRV_URL + '/manager/auth', {method: 'POST', credentials: 'include'} )
             const resp = await res.json()

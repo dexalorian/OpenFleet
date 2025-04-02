@@ -108,6 +108,27 @@ async function bindVehicle(req, res) {
     }
 }
 
+
+api.post('/vehicle/bindmanager', async (req, res) => {
+
+    try {
+        const vhcl = await vehicle.findOne({ id: req.jwt.id })
+        console.log("mngrID", req.body.mngID)
+        const mngr = await manager.findOne({ id: req.body.mngID })
+        vhcl.managers.push( {manager: mngr._id, active: false} )
+        mngr.vehicles.push( vhcl._id )
+        mngr.save()
+        vhcl.save()
+        res.status(200).json({error: ''})
+
+    } catch (err) {
+
+        res.status(404).json({error: 'Manager not found'})
+        console.log('Manager not found', err);
+    }
+
+})
+
 api.get('/vehicle/mediatoken', async (req, res) => {
     try {       
             const tkn = new AccessToken( 'kekcheburek', 'kekcheburek_kekcheburek_kekcheburek', { identity: req.jwt.id } )

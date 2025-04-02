@@ -13,7 +13,7 @@ let icon_html_disabled = '<div class="car_wrapper"> <div class="caricon_disabled
       iconSize: [32, 32], // Adjust size as needed
         })
   
-      let newMarker = leaflet.marker(LatLng, {icon: carIcon, draggable: true} );
+      let newMarker = leaflet.marker(LatLng, {icon: carIcon, draggable: false} );
  
       newMarker.ActiveIcon =  leaflet.divIcon({ html: icon_html, iconSize: [24, 24], 
       className: 'dummy',
