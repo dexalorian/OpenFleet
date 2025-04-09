@@ -9,8 +9,7 @@ import TabsTrigger from '@/components/ui/tabs/TabsTrigger.vue';
 import TabsContent from '@/components/ui/tabs/TabsContent.vue';
 import Main from './Main.vue'
 import Settings from './Settings.vue';
-// import type TabsList from '@/components/ui/tabs/TabsList.vue';
-// import livekit from 'livekit-client'
+import Moves from './Moves.vue';
 
 const router = useRouter()
 
@@ -34,7 +33,7 @@ async function myDevices() {
 
 onMounted(async () => {
         await vehicle.CheckAuth()
-       localStorage.getItem('settings')?.length > 0 ?  options.common = JSON.parse(localStorage.getItem('settings')) : null
+
 
        if (vehicle.isAuth) {
         //    router.push({ name: 'vehicle-main' })
@@ -66,7 +65,9 @@ const options = useOptionsStore()
 
 // watch( options.common,  (e) => localStorage.setItem('settings', JSON.stringify(e)))
 
-watch( options,  (e) => localStorage.setItem('settings', JSON.stringify(e.common)))
+watch( options,  (e) => {
+    localStorage.setItem('settings', JSON.stringify(e.common))
+})
 
 // const router = useRouter()
 
@@ -75,6 +76,11 @@ watch( options,  (e) => localStorage.setItem('settings', JSON.stringify(e.common
 <script lang="ts">
     import { addOfflineLogout } from '@/services'
 import type { LatLng } from 'leaflet';
+
+    export const useOptionsStore = defineStore('Options', () => {
+        const common = ref({debug_geo: false, debug_geo_drag: false})
+        return { common }
+    })
 
     export const useVehicleStore = defineStore('VehicleStore', () => {
     const isAuth = ref(false)
@@ -105,8 +111,8 @@ import type { LatLng } from 'leaflet';
             credentials: 'include', method: 'POST'})
             const resp = await res.json()
         if (resp.valid) {
-         isAuth.value = true
-         vehicle.value = resp.vehicle
+         isAuth.value = true;
+         vehicle.value = resp.vehicle;
 
         }
         } catch {
@@ -191,11 +197,7 @@ import type { LatLng } from 'leaflet';
             mediatoken }
 }) 
 
-export const useOptionsStore = defineStore('Options', () => {
-    const common = ref({debug_geo: false, debug_geo_drag: false})
 
-    return { common }
-})
 
 
 
@@ -217,9 +219,13 @@ export const useOptionsStore = defineStore('Options', () => {
                 <TabsContent force-mount class="data-[state=inactive]:hidden flex flex-col h-full mt-0" value="profile-page">
                     <Settings />
                 </TabsContent>
+                <TabsContent force-mount class="data-[state=inactive]:hidden flex flex-col h-full mt-0" value="history-page">
+                    <Moves />
+                </TabsContent>
                   <TabsList class="w-full *:w-full  flex *:h-12 group-">
                     <TabsTrigger   value="map-page">Map</TabsTrigger>
                     <TabsTrigger  value="profile-page">Settings</TabsTrigger>
+                    <TabsTrigger  value="history-page">Moves</TabsTrigger>
                  </TabsList>
             </Tabs>
         </div>

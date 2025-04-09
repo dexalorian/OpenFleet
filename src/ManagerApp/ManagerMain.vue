@@ -1,7 +1,7 @@
 <template>
     <div v-if="manager.isAuth" class="flex h-full w-full">
         
-        <div id="sidebar_vhc" class="flex flex-col border p-2 justify-between overflow-scroll">
+        <div id="sidebar_vhc" class="flex flex-col border p-2 justify-between overflow-scroll w-96">
            
             <div class="flex flex-col">
                 <p class="font-bold">OpenFleet</p>
@@ -16,8 +16,10 @@
                     
                 </div>
                 <div class="text-xs font-bold">Vehicle list</div>
-                <ul class="text-xs">
-                    <VhcSideItem v-for="[k, v] in manager.vehicles" :id="v.id" :status="v.status" ref="vidEls" />
+                <ul class="text-xs flex flex-col">
+                    <VhcSideItem class="hover:bg-slate-200 cursor-pointer" @menuclick="(e) => {activeSideMenuId = e; ListenOutsideClick() }" 
+                        :showmenu="activeSideMenuId === v.id" v-for="[k, v] in manager.vehicles" 
+                        :id="v.id" :status="v.status" @click="() => { v.lat && v.lng ? setViewCenter(v.lat, v.lng) : toast({title: 'No coordinates yet', description: `Looks like vehicle doesn't have a cordinates`, variant: 'destructive'})} " :key="v.id" ref="vidEls" />
                 </ul>
             </div>
             <Button variant="link" @click="manager.Logout()">Logout</Button>
@@ -29,7 +31,8 @@
 
 <script setup lang="ts">
 
-    import MapBox, { createMapMarker, createMapTrail } from '@/components/Map.vue';
+
+    import MapBox, { createMapMarker, createMapTrail, setViewCenter } from '@/components/Map.vue';
     import Button from '@/components/ui/button/Button.vue';
     import { useManagerStore } from './ManagerPage.vue';
     import { onMounted, reactive, ref } from 'vue';
@@ -38,21 +41,41 @@
 import { StartWS, ws } from '@/ws';
 import VhcSideItem from "./components/VhcSideItem.vue"
 import { RemoteParticipant, RemoteTrackPublication, Room } from 'livekit-client';
-import { Table } from 'lucide-vue-next';
+import { Table } from 'lucide-vue-next';    
 import { watch } from 'vue';
+import { useToast } from '@/components/ui/toast';
 
 const vidEls = ref([])
 
+
+const { toast } = useToast()
+
+
+
+function ListenOutsideClick() {
+    document.addEventListener( "click", () => activeSideMenuId.value = '' )
+}
+
 const vehicleMarkers = reactive(new Map());
 let vehicleTrails = new Map();
+const activeSideMenuId = ref('')
 
 const manager = useManagerStore()
 
+
 StartWS('mng');
+
 
 let mediaroom;
 
-
+async function sidebarSort(vhcs: Map): Map  {
+    const newMap = new Map();
+    await vhcs.forEach( (v, k) => v.status === 1 ? newMap.set(k, v) : null );
+    await vhcs.forEach( (v, k) =>  (v.status === 0 || v.status === undefined) ? newMap.set(k, v) : null ); 
+   
+    console.log("sorted", newMap)
+    return newMap
+}
 
 function ViewVhcCam(id) {
     mediaroom =  new Room()
@@ -127,6 +150,8 @@ onMounted( async () => {
 
    await manager.GetMediaToken()
 
+   watch(manager.vehicles, async () => manager.vehicles = await sidebarSort(manager.vehicles))
+
 
    manager.vehicles.forEach( async (e) => {
         if (e?.lat & e?.lng) {
@@ -141,8 +166,6 @@ onMounted( async () => {
             // vehicleMarkers.set(e.id, { coords: [e?.lat, e?.lng], marker: newmarker })
         }
    } )
-
-  
 
    ws.onmessage = async (e) => {
         const obj = JSON.parse(e.data)
@@ -169,7 +192,6 @@ onMounted( async () => {
                 if (obj.status === 0) {
                     vehicleMarkers.get(obj.vhcID).marker.setIcon(vehicleMarkers.get(obj.vhcID).marker.DisabledIcon)
                     console.log( obj.vhcID, 'offline')
-
                     console.log( 'all mrkrs', vehicleMarkers)
                     vehicleMarkers.get(obj.vhcID).status = 0
                     manager.vehicles.get(obj.vhcID).status = 0
@@ -177,12 +199,9 @@ onMounted( async () => {
                 } else if (obj.status === 1) {
                     vehicleMarkers.get(obj.vhcID).marker.setIcon(vehicleMarkers.get(obj.vhcID).marker.ActiveIcon)
                     console.log( obj.vhcID, 'online')
-  
                     console.log( 'all mrkrs', vehicleMarkers)
                     vehicleMarkers.get(obj.vhcID).status = 1
-                    manager.vehicles.get(obj.vhcID).status = 1
-        
-                  
+                    manager.vehicles.get(obj.vhcID).status = 1 
                 }
    
                 break;

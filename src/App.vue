@@ -6,6 +6,7 @@ import LoginDialog from './LoginDialog.vue';
 import SignUpDialog from './SignUpDialog.vue';
 import { usePtrLineCoords, useUser } from './main';
 import LogoutDialog from './LogoutDialog.vue';
+import Toaster from '@/components/ui/toast/Toaster.vue'
 
 const userObj = useUser()
 const route = useRoute()
@@ -36,4 +37,5 @@ watch( () => userObj.isAuth, async  () => {
 
 <template>
   <router-view />
+  <Toaster />
 </template>

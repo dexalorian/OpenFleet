@@ -25,7 +25,7 @@
     "lucide-vue-next": "^0.470.0",
     "pinia": "^2.3.0",
     "radix-vue": "^1.9.12",
-    "reka-ui": "^2.0.2",
+    "reka-ui": "^2.2.0",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "trading-vue": "^0.0.1",

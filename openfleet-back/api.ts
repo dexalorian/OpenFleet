@@ -109,6 +109,30 @@ async function bindVehicle(req, res) {
 }
 
 
+async function unbindVehicle(req, res) {
+    try {
+        console.log("Unbind vhc", req.body.vhcID)
+        const mngr = await manager.findOne({id: req.jwt.id})
+        const vhcl = await vehicle.findOne({ id: req.body.vhcID })
+        const vhcIdx =  mngr.vehicles.findIndex( e => e.id = req.body.vhcID );
+        mngr?.vehicles.splice( vhcIdx,  1)
+        const mngIdx =  vhcl?.managers.findIndex( e => e.id === req.jwt.id)
+        vhcl?.managers.splice(mngIdx, 1)
+        
+
+        mngr.save()
+        vhcl.save()
+        res.status(200).json({error: ''})
+
+    } catch (err) {
+        res.status(404).json({error: 'Vehicle not unbinded'})
+        console.log('Vehicle not unbinded', err);
+        
+    }
+}
+
+
+
 api.post('/vehicle/bindmanager', async (req, res) => {
 
     try {
@@ -170,6 +194,7 @@ api.get('/manager/mediatoken',  async (req, res) => {
 
 
 api.post( '/manager/bindvehicle', bindVehicle )
+api.post( '/manager/unbindvehicle', unbindVehicle )
 
 api.post('/vehicle/signup', regVehicle )
 

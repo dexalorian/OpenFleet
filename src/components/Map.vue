@@ -1,9 +1,20 @@
 <script lang="ts">
 import leaflet, { Circle, icon, LatLng, latLng, Point, type LeafletEvent } from "leaflet"
 // import { useSelGeoPnt, usePtrLineCoords} from '@/main'
+
+import { useVehicleStore } from '@/VehicleApp/Index.vue';
+
 let map: leaflet.Map ;
 
-export function createMapMarker(LatLng: LatLng, type: 'car' | 'gasstation' | 'base'): leaflet.Marker {
+
+
+export function setViewCenter(lat: number, lng: number, zoom?: number) {
+    map.setView([ lat, lng ])
+    zoom ? map.setZoom(zoom) : null
+
+  }
+  
+export async function createMapMarker(LatLng: LatLng, type: 'car' | 'gasstation' | 'base'): leaflet.Marker {
 
 let icon_html = '<div class="car_wrapper"> <div class="caricon"></div><div class="probe_flash"></div> </div>';
 let icon_html_disabled = '<div class="car_wrapper"> <div class="caricon_disabled"></div> </div> </div>';
@@ -27,9 +38,6 @@ let icon_html_disabled = '<div class="car_wrapper"> <div class="caricon_disabled
 
         newMarker.setIcon(newMarker.DisabledIcon )
 
-
-        
-       
       newMarker.addTo(map);
       return newMarker
 
@@ -62,7 +70,9 @@ newTrail.addTo(map)
 <script lang="ts" setup>
 
 import { onMounted } from 'vue'
-      onMounted(() => { map = leaflet.map('map', {
+      onMounted(() => {
+        const vehicle = useVehicleStore();
+        map = leaflet.map('map', {
         center: [0, 0], // Initial center
         zoom: 2,
         minZoom: 2,        // Initial zoom
@@ -80,13 +90,29 @@ import { onMounted } from 'vue'
       map.zoomControl.setPosition('bottomright');
       map.on('zoomend', e => localStorage.setItem('zoom', map.getZoom()));
       map.on('moveend', e => localStorage.setItem('mapframecoords', map.getCenter().lat+'+'+map.getCenter().lng));
+      
+      const mapNavBtn = leaflet.Control.extend( { 
+        onAdd: (e) => {
+            let btn = leaflet.DomUtil.create('button', 'nav-button');
+            btn.onclick = () => setViewCenter(vehicle.currentGeo.lat, vehicle.currentGeo.lng );
+           
+            btn.textContent = 'Darkcake'
+            btn.innerHTML = '<ion-icon name="navigate"></ion-icon>'
+            return btn
+        }
+      } )
 
+      new mapNavBtn({ position: 'bottomright'}).addTo(map)
 
+     
     })
+
+
+
+
 </script>
 
 <template>
-  
   <!-- <LineFrame class="z-20" :lines="lines" /> -->
   <div class="flex w-full h-full z-0" id="map"></div>
 
@@ -99,6 +125,22 @@ import { onMounted } from 'vue'
   position: absolute;
   transform: rotate(30deg);
 } */
+
+.nav-button {
+
+    border: 2px solid #9f9f9f;
+    background-color: #ffffff;
+    color: black;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: large;
+
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    width: 34px;
+    height: 34px;
+}
 
 .caricon {
     @apply w-fit z-10;
