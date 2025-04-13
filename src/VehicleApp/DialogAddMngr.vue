@@ -3,7 +3,7 @@
     <Dialog v-model:open="showDialog" @update:open="">
 
         <DialogTrigger as-child>
-                <Button>Add mаana</Button>
+                <Button>Add mаnager</Button>
         </DialogTrigger>
     
         <DialogContent>

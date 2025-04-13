@@ -21,6 +21,12 @@ const SelfLocation = ref(null)
 let track;
 const vehicle = useVehicleStore()
 
+
+let link = document.querySelector("link[rel~='icon']");
+link.rel = 'icon';
+link.href = '/favicon_vhc.png';
+document.head.appendChild(link);
+
 watch(() => vehicle.isAuth, () => 
     vehicle.isAuth ? 
         null : router.push({ name: 'vehicle-enter'}) )
@@ -31,13 +37,15 @@ async function myDevices() {
   return devs
 }  
 
+
+
 onMounted(async () => {
         await vehicle.CheckAuth()
-
-
        if (vehicle.isAuth) {
         //    router.push({ name: 'vehicle-main' })
        } else { router.push( { name: 'vehicle-enter' }) }
+
+
    })
 
 // async function createSDPanswer() {
@@ -65,20 +73,19 @@ const options = useOptionsStore()
 
 // watch( options.common,  (e) => localStorage.setItem('settings', JSON.stringify(e)))
 
-watch( options,  (e) => {
-    localStorage.setItem('settings', JSON.stringify(e.common))
-})
+
+
 
 // const router = useRouter()
 
 </script>
 
 <script lang="ts">
-    import { addOfflineLogout } from '@/services'
-import type { LatLng } from 'leaflet';
+
+    import type { LatLng } from 'leaflet';
 
     export const useOptionsStore = defineStore('Options', () => {
-        const common = ref({debug_geo: false, debug_geo_drag: false})
+        const common = ref({debug_geo: false, debug_geo_drag: false, show_trail: false})
         return { common }
     })
 
@@ -92,14 +99,16 @@ import type { LatLng } from 'leaflet';
     const mediatoken = ref('')
 
     async function getManagers() {
-        const res = await fetch( import.meta.env.VITE_SRV_URL + '/vehicle/managers', {method: 'GET', credentials: 'include'} )
+        const res = await fetch( import.meta.env.VITE_SRV_URL + '/vehicle/managers', 
+        {method: 'GET', credentials: 'include'} )
         const resp = await res.json()
         managers.value = resp.mngrs;
         return resp.mngrs
     }
 
     async function getOwners() {
-        const res = await fetch( import.meta.env.VITE_SRV_URL + '/vehicle/owners', {method: 'GET', credentials: 'include'} )
+        const res = await fetch( import.meta.env.VITE_SRV_URL + '/vehicle/owners', 
+        {method: 'GET', credentials: 'include'} )
         const resp = await res.json()
         owners.value = resp.mngrs;
     }
@@ -167,11 +176,13 @@ import type { LatLng } from 'leaflet';
     }
 
     async function SignUp(login: String, pwd: String, email: String, phoneNums: String[]) {
-       await fetch(import.meta.env.VITE_SRV_URL+'/vehicle/signup', {method: 'POST', body: { login , pwd, email, phoneNums } }) 
+       await fetch(import.meta.env.VITE_SRV_URL+'/vehicle/signup', 
+       {method: 'POST', body: { login , pwd, email, phoneNums } }) 
     }
 
     async function Logout() {
-        const resp = await fetch(import.meta.env.VITE_SRV_URL+'/vehicle/logout', {method: 'GET', credentials: 'include'});
+        const resp = await fetch(import.meta.env.VITE_SRV_URL+'/vehicle/logout', 
+        {method: 'GET', credentials: 'include'});
 
         if (resp.status !== 200) {
             addOfflineLogout('vhc')
@@ -197,35 +208,38 @@ import type { LatLng } from 'leaflet';
             mediatoken }
 }) 
 
-
-
-
-
 </script>
 
 
 <template>
     <div class=" h-full flex flex-col w-full min-w-80 max-w-lg">
-        <div class="text-xs flex gap-2 py-1">OpenFleet. Car app
+        <div class="text-[8px] font-bold flex gap-2 py-1 items-center content-center">
+             OpenFleet. Car app.
             <div class="text-[8px] ">{{ vehicle?.vehicle?.id }}</div>
         </div>
-        <RouterView  v-if="!vhc.isAuth" class="flex flex-col h-full w-full border bg-green-600"/>
+        
+        <RouterView  v-if="!vhc.isAuth" class="flex flex-col h-full
+         w-full border"/>
         <div v-if="vhc.isAuth" class="flex h-full w-full">
        
             <Tabs class="w-full h-full flex flex-col" default-value="map-page">
-                <TabsContent force-mount class="data-[state=inactive]:hidden flex flex-col h-full mt-0" value="map-page">
+                <TabsContent force-mount class="data-[state=inactive]:hidden
+                    flex flex-col h-full mt-0" value="map-page">
+                 
                         <Main />
                 </TabsContent>
-                <TabsContent force-mount class="data-[state=inactive]:hidden flex flex-col h-full mt-0" value="profile-page">
+                <TabsContent force-mount class="data-[state=inactive]:hidden flex
+                    flex-col h-full mt-0" value="profile-page">
                     <Settings />
                 </TabsContent>
-                <TabsContent force-mount class="data-[state=inactive]:hidden flex flex-col h-full mt-0" value="history-page">
+                <TabsContent force-mount class="data-[state=inactive]:hidden flex
+                    flex-col h-full mt-0" value="history-page">
                     <Moves />
                 </TabsContent>
                   <TabsList class="w-full *:w-full  flex *:h-12 group-">
                     <TabsTrigger   value="map-page">Map</TabsTrigger>
-                    <TabsTrigger  value="profile-page">Settings</TabsTrigger>
-                    <TabsTrigger  value="history-page">Moves</TabsTrigger>
+                    <TabsTrigger  value="history-page">History</TabsTrigger>
+                    <TabsTrigger  value="profile-page"><ion-icon class="text-2xl" name="cog"></ion-icon></TabsTrigger>
                  </TabsList>
             </Tabs>
         </div>

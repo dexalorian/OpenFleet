@@ -1,7 +1,13 @@
 <template>
-    <div class="flex flex-col h-screen w-full items-center">
-        <p>OpenFleet. Manager App</p>
-        <RouterView />
+    <div class="flex flex-col h-screen w-full items-center justify-center">
+        <div class="scale- font-bold text-4xl w-full h-40 gap-1 content-center items-center flex flex-col">
+        <div class="flex w-14 h-14 bg-[length:80%] rounded-xl bg-blue-200 bg-[url('/public/car.svg')] bg-center" > </div>
+    
+        <p class="tracking-tight">Open Fleet</p>
+   
+        <p class="text-xs font-light">Manager app</p>
+    </div>
+        <RouterView  class=""/>
     </div>
     
 </template>
@@ -10,6 +16,12 @@
 import { RouterView } from 'vue-router';
 import { useRouter } from 'vue-router';
 import { watch } from 'vue'
+
+
+let link = document.querySelector("link[rel~='icon']");
+link.rel = 'icon';
+link.href = '/favicon_mng.png';
+document.head.appendChild(link);
 
 const manager = useManagerStore();
 const router = useRouter();
@@ -32,6 +44,8 @@ watch( () => manager.isAuth, () => (manager.isAuth) ? router.push({ name: 'manag
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { onMounted } from 'vue';
+
+document.title = 'Open Fleet | Manager app'
 
 export const useManagerStore = defineStore('ManagerStore', () => {
 
@@ -80,16 +94,18 @@ export const useManagerStore = defineStore('ManagerStore', () => {
     async function Login( login: String, pwd: String ) {
         try {
             const res =  await fetch(import.meta.env.VITE_SRV_URL + '/manager/login', 
-                {method: 'POST', body: JSON.stringify({login, pwd}), headers: { "Content-Type": "application/json" }, credentials: 'include' })
+                {method: 'POST', body: JSON.stringify({login, pwd}), 
+                headers: { "Content-Type": "application/json" }, credentials: 'include' })
             const resp = await res.json()
             if (res.status === 200) {
             console.log(resp.id);
             isAuth.value = true
             manager.value = resp
-            }
+            } else { throw new Error("Something went wrong") }
         } catch {
             isAuth.value = false;
             manager.value = {}
+            return 'error'
         }
         // await fetch(window.BASE_SRV_URL+'/manager/login', { method: 'POST', body: JSON.stringify({ login: login, pwd: pwd })})
     }

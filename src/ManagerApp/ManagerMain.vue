@@ -3,7 +3,7 @@
         
         <div id="sidebar_vhc" class="flex flex-col border p-2 justify-between overflow-scroll w-96">
            
-            <div class="flex flex-col">
+            <div class="flex flex-col ">
                 <p class="font-bold">OpenFleet</p>
                 <div class="text-xs text-slate-400">Manager ID</div>
                 <div class="text-xs text-slate-400">{{ manager.manager.id }} 
@@ -19,7 +19,9 @@
                 <ul class="text-xs flex flex-col">
                     <VhcSideItem class="hover:bg-slate-200 cursor-pointer" @menuclick="(e) => {activeSideMenuId = e; ListenOutsideClick() }" 
                         :showmenu="activeSideMenuId === v.id" v-for="[k, v] in manager.vehicles" 
-                        :id="v.id" :status="v.status" @click="() => { v.lat && v.lng ? setViewCenter(v.lat, v.lng) : toast({title: 'No coordinates yet', description: `Looks like vehicle doesn't have a cordinates`, variant: 'destructive'})} " :key="v.id" ref="vidEls" />
+                        :id="v.id" :status="v.status" @click="() => { v.lat && v.lng ? setViewCenter(v.lat, v.lng) : 
+                            toast({title: 'No coordinates yet', description: `Looks like vehicle doesn't have a cordinates`, 
+                            variant: 'destructive'})} " :key="v.id" ref="vidEls" />
                 </ul>
             </div>
             <Button variant="link" @click="manager.Logout()">Logout</Button>
@@ -44,6 +46,7 @@ import { RemoteParticipant, RemoteTrackPublication, Room } from 'livekit-client'
 import { Table } from 'lucide-vue-next';    
 import { watch } from 'vue';
 import { useToast } from '@/components/ui/toast';
+
 
 const vidEls = ref([])
 
@@ -142,7 +145,6 @@ function ViewVhcCam(id) {
 
 }
 
-
 onMounted( async () => {
    const receivedVehs = await fetchBindedVehicles("manager")
 
@@ -150,7 +152,8 @@ onMounted( async () => {
 
    await manager.GetMediaToken()
 
-   watch(manager.vehicles, async () => manager.vehicles = await sidebarSort(manager.vehicles))
+   watch(manager.vehicles, async () => manager.vehicles = 
+    await sidebarSort(manager.vehicles))
 
 
    manager.vehicles.forEach( async (e) => {
@@ -177,14 +180,19 @@ onMounted( async () => {
                     vehicleMarkers.set(obj.vhcID, { coords: [obj.data.lat, obj.data.lng], 
                         marker: createMapMarker( { lat: obj.data.lat, lng: obj.data.lng }, "car") });
                     vehicleTrails.set( obj.vhcID, { trail: createMapTrail({ lat: obj.data.lat, lng: obj.data.lng }) } )
-                    // console.log('trails', vehicleTrails)
+                    manager.vehicles.get( obj.vhcID).lat = obj.data.lat;
+                    manager.vehicles.get( obj.vhcID).lng = obj.data.lng;
+
+                    console.log('trails',manager.vehicles.get(obj.vhcID))
                 } else {
                     vehicleMarkers.get(obj.vhcID).coords = [obj.data.lat, obj.data.lng]; 
                     vehicleMarkers.get(obj.vhcID).marker.setLatLng({ lat: obj.data.lat, lng: obj.data.lng  });
                     vehicleTrails.has(obj.vhcID) ?
                         vehicleTrails.get(obj.vhcID).trail.addLatLng({ lat: obj.data.lat, lng: obj.data.lng }) : 
                         vehicleTrails.set(obj.vhcID, { trail: createMapTrail({ lat: obj.data.lat, lng: obj.data.lng }) })
-                    console.log(' trails ', vehicleTrails.get(obj.vhcID).trail.getLatLngs())
+                        manager.vehicles.get( obj.vhcID).lat = obj.data.lat;
+                        manager.vehicles.get( obj.vhcID).lng = obj.data.lng;
+                    console.log(' trails ', manager.vehicles.get(obj.vhcID).lat)
                     }
                 break;
             case "status": 

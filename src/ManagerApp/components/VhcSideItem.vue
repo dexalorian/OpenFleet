@@ -1,10 +1,10 @@
 <template>
-    <li  class="flex py-1 px-0 gap-2 group relative" >
+    <li  class="flex py-1 px-0 gap-2 group relative " >
         <div class="flex w-20" >
             <!-- <div class="font-bold flex gap-1">
                 <div v-if="props.status == 1" class="bg-green-500 size-2.5 rounded-full" />
             </div> -->
-            <div class="text-[7pt] flex w-20 h-fit" :class=" { 'bg-green-200' : props.status == 1 }">{{ id }}</div>  
+            <div class="text-[7pt] flex w-20 h-fit " :class=" { 'bg-green-200' : props.status == 1 }">{{ id }}</div>  
         </div>
         <div class="flex items-center content-center justify-center 
             relative text-slate-800 pointer-events-none group">
@@ -13,8 +13,8 @@
                     pointer-events-auto cursor-pointer  bg-green-500">Menu</div>
                 <transition name="fade">
 
-                    <div v-if="showmenu" class="flex z-50 absolute bg-white w-24 min-h-28 
-                        overflow-hidden rounded-sm shadow-xl">
+                    <div v-if="showmenu"  class="flex z-50 absolute bg-white w-24 min-h-28 
+                        overflow-hidden rounded-sm shadow-xl pointer-events-auto">
                         <ul class="flex flex-col gap-2 text-sm w-full z-50 ">
                             <li @click="() => i.cb(props.id)" v-for="i in MenuItems" 
                                 class="hover:bg-slate-200 flex w-full p-3 

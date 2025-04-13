@@ -71,7 +71,8 @@ const Submit = form.handleSubmit(
 
           <form @submit.prevent="Submit">
      
-              <FormField v-slot="{ componentField, errors, errorMessage }" :rules="() => {return (res.status === 401) ? 'Wrong creds' : true  }" name="username" >
+              <FormField v-slot="{ componentField, errors, errorMessage }" :rules="() => 
+                {return (res.status === 401) ? 'Wrong creds' : true  }" name="username" >
                 <FormItem>
                   <FormLabel>E-mail</FormLabel>
                  
@@ -94,7 +95,6 @@ const Submit = form.handleSubmit(
               </FormField>
           
                   
-           
             </form>
                 
             <DialogFooter>
@@ -102,10 +102,6 @@ const Submit = form.handleSubmit(
                 <Button variant="secondary" @click.prevent=" () => router.push('/signup') ">Sign Up</Button>
                 
                 </DialogFooter>
-
-
-         
-
 
       </DialogContent>
 

@@ -3,6 +3,8 @@ import leaflet, { Circle, icon, LatLng, latLng, Point, type LeafletEvent } from 
 // import { useSelGeoPnt, usePtrLineCoords} from '@/main'
 
 import { useVehicleStore } from '@/VehicleApp/Index.vue';
+import { watch } from "vue";
+import { use } from 'echarts';
 
 let map: leaflet.Map ;
 
@@ -12,7 +14,7 @@ export function setViewCenter(lat: number, lng: number, zoom?: number) {
     map.setView([ lat, lng ])
     zoom ? map.setZoom(zoom) : null
 
-  }
+  } 
   
 export async function createMapMarker(LatLng: LatLng, type: 'car' | 'gasstation' | 'base'): leaflet.Marker {
 
@@ -39,9 +41,24 @@ let icon_html_disabled = '<div class="car_wrapper"> <div class="caricon_disabled
         newMarker.setIcon(newMarker.DisabledIcon )
 
       newMarker.addTo(map);
+
       return newMarker
 
+
 }
+
+export function removeMapTrail(polyline: leaflet.Polyline): leaflet.Polygon {
+
+  polyline.remove()
+  
+}
+
+export function addMapTrail(polyline: leaflet.Polyline): leaflet.Polygon {
+
+polyline.addTo(map)
+
+}
+
 
 export function createMapTrail(pointArray: LatLng[]): leaflet.Polyline {
   console.log('new tail', pointArray)
@@ -69,6 +86,8 @@ newTrail.addTo(map)
 
 <script lang="ts" setup>
 
+import { useOptionsStore } from '@/VehicleApp/Index.vue';
+const options = useOptionsStore()
 import { onMounted } from 'vue'
       onMounted(() => {
         const vehicle = useVehicleStore();
@@ -108,7 +127,7 @@ import { onMounted } from 'vue'
     })
 
 
-
+    // watch( () => options.common.show_trail, (e) => e ? map.removeLayer(Own) );
 
 </script>
 
@@ -194,7 +213,7 @@ import { onMounted } from 'vue'
 }
 
 .probe_flash {
-    @apply flex bg-lime-600 rounded-full z-0;
+    @reference flex bg-green-400 rounded-full z-0;
     width: 24px;
     height: 24px;
 

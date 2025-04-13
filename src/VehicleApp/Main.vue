@@ -30,13 +30,13 @@ import { watch } from 'vue';
 
 <script lang="ts" setup>
 
-import MapBox, { createMapMarker, createMapTrail } from '@/components/Map.vue';
+import MapBox, { addMapTrail, createMapMarker, createMapTrail, removeMapTrail } from '@/components/Map.vue';
 import Button from '@/components/ui/button/Button.vue';
 import { onMounted, ref } from 'vue';
 import { useOptionsStore, useVehicleStore } from './Index.vue';
 import { StartWS, ws } from '@/ws';
 import { useRouter } from 'vue-router'
-import { marker, Polyline, type LeafletEvent, type polyline, Leaflet } from 'leaflet';
+import { marker, Polyline, type LeafletEvent, type polyline, Leaflet, map } from 'leaflet';
 import { Room, LocalParticipant, RoomEvent, Track } from 'livekit-client'
 
 const router = useRouter()
@@ -48,6 +48,7 @@ window.onbeforeunload = (e) => { vehicle.saveOwnGeo( vehicle.currentGeo.lat,
     vehicle.currentGeo.lng); e.preventDefault }
 
 const videoCnv = ref<HTMLVideoElement>()
+ 
   
 async function startMediaRoom() {
     const mediaroom = new Room();
@@ -66,7 +67,7 @@ async function startMediaRoom() {
         localstream.addTrack(pub.track.mediaStreamTrack)
         showStartStreamBtn.value = false
     })
-2
+
     mediaroom.on('participantConnected', e => e.trackPublications.forEach( k => 
         {console.log('track pub', k); k.setSubscribed(true)} ))
 
@@ -78,9 +79,8 @@ async function startMediaRoom() {
 let marker: Leaflet.marker = null;
 
 
-
-
 onMounted( async () => {
+  
     StartWS('vhc')
     let managers = vehicle.getManagers()
     vehicle.currentGeo = await vehicle.fetchOwnGeo() 
@@ -92,11 +92,20 @@ onMounted( async () => {
     
 
     marker.on('dragend', (k) => { console.log('drag end', k.target.getLatLng(), options.common.debug_geo_drag ); 
+            let coords = k.target.getLatLng();
+            console.log(k.target.getLatLng())
             true ? ws.send( JSON.stringify( { type: 'telemetry' , 
             data: { lat: k.target.getLatLng().lat, lng: k.target.getLatLng().lng }  } ) ) : null
+            OwnTail.addLatLng( k.target.getLatLng())
+            let date = new Date();
+                vehicle.geoHistory.push({ time: date.toLocaleTimeString(), date: date.toLocaleDateString(), lat: coords.lat, lng: coords.lng })
+                vehicle.currentGeo = { lat: coords.lat, lng: coords.lng };
              })
 
     let OwnTail: Polyline;
+
+
+
     ws.onopen = () => {
         ws.send( JSON.stringify( { type: 'telemetry', 
         data: { lat: vehicle.currentGeo.lat, lng: vehicle.currentGeo.lng }  } ) )
@@ -108,6 +117,7 @@ onMounted( async () => {
     //   Teltimer()
        
     }
+
 
     navigator.geolocation.getCurrentPosition( async e => {
             console.log('position getter')
@@ -128,13 +138,14 @@ function setGeoFetcher() {
             console.log('geo watcher event', k)
             if (!options.common.debug_geo_drag) {
                 let date = new Date(k.timestamp);
-                vehicle.geoHistory.push({ time: date.toUTCString(), lat: k.coords.latitude, lng: k.coords.longitude })
+                vehicle.geoHistory.push({ time: date.toLocaleTimeString(), date: date.toLocaleDateString(), lat: k.coords.latitude, lng: k.coords.longitude })
                 vehicle.currentGeo = { lat: k.coords.latitude, lng: k.coords.longitude };
                 console.log('current geo watcher', vehicle.currentGeo);
                 marker.setLatLng(vehicle.currentGeo);
                 OwnTail.addLatLng(vehicle.currentGeo);
                 OwnTail.on('pointadded', () => console.log('Own tail updated'));
                 ws.send( JSON.stringify( { type: 'telemetry',  data: { lat: k.coords.latitude, lng: k.coords.longitude }  } ) );
+                
             }
 
         })
@@ -143,14 +154,33 @@ function setGeoFetcher() {
 let startPos = {};
 
 watch( () =>  options.common.debug_geo_drag,  (e) => {
+    console.log('switch')
     e ? marker.dragging.enable() : marker.dragging.disable()
 } )
 
 
 localStorage.getItem('settings')?.length > 0 ? options.common = 
-            JSON.parse(localStorage.getItem('settings')) : null
+JSON.parse(localStorage.getItem('settings')) : null
+
+
+watch( options,  (e) => {
+    localStorage.setItem('settings', JSON.stringify(e.common))
+})
+
+
+
+
+watch( () => options.common.show_trail, (e) => {
+    e ? addMapTrail(OwnTail) : removeMapTrail(OwnTail)
+} )
+
+
+
+
 
 } )
+
+
 
  //POST offer to vehicle record
 

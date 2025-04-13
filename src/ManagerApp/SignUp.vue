@@ -1,31 +1,35 @@
 <template>
 
     <div>
-        Sign up page
-        <form @submit="onSubmit" class="flex flex-col gap-2">
+
+        <form @submit="onSubmit" class="flex flex-col gap-3">
             <FormField v-slot="{ componentField }" name="login">
-                <FormLabel>Login</FormLabel>
+                
                 <FormItem>
+                    <FormLabel>Login</FormLabel>
                     <Input placeholder="New login" v-bind="componentField"/>
                 </FormItem>
 
             </FormField>
             <FormField name="pwd" v-slot="{ componentField }">
-                <FormLabel>Password</FormLabel>
+                
                 <FormItem>
+                    <FormLabel>Password</FormLabel>
                     <Input placeholder="Password" v-bind="componentField"/>
                 </FormItem>
             </FormField>
             <FormField name="email" v-slot="{ componentField }">
-                <FormLabel>E-mail</FormLabel>
+               
                 <FormItem>
+                    <FormLabel>E-mail</FormLabel>
                     <Input placeholder="Email" v-bind="componentField"/>
                 </FormItem>
 
             </FormField>
             <FormField name="phoneNums" v-slot="{ componentField }">
-                <FormLabel>Phone number</FormLabel>
+               
                 <FormItem>
+                    <FormLabel>Phone number</FormLabel>
                     <Input placeholder="Phone number" v-bind="componentField"/>
                 </FormItem>
 

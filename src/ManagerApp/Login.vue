@@ -1,17 +1,17 @@
 <template>
-    Manager app Login
-    
-    <form @submit="onSubmit">
-        <FormField name="login" v-slot="{ componentField }">
-            <FormLabel>Login or e-mail</FormLabel>
+
+
+    <form  @submit="onSubmit" class="flex flex-col gap-4">
+        <FormField name="login"  v-slot="{ componentField }">
             <FormItem>
+                <FormLabel>Login or e-mail</FormLabel>
                 <Input placeholder="Login" v-bind="componentField" />
             </FormItem>
         </FormField>
         <FormField name="pwd" v-slot="{ componentField }">
-            <FormLabel>Password</FormLabel>
             <FormItem>
-                <Input placeholder="Password" v-bind="componentField" />
+                <FormLabel>Password</FormLabel>
+                <Input placeholder="Password" type="password"  v-bind="componentField" />
             </FormItem>
         </FormField>
         <Button type="submit">Login</Button>
@@ -28,6 +28,10 @@ import Button from '@/components/ui/button/Button.vue';
 import FormLabel from '@/components/ui/form/FormLabel.vue';
 import { useRouter } from 'vue-router';
 import { useManagerStore } from './ManagerPage.vue';
+import { useToast } from '@/components/ui/toast';
+import { ref } from 'vue'
+import { watch } from 'vue';
+import { toast } from 'vue-sonner';
 
 const form = useForm()
 
@@ -35,14 +39,16 @@ const router = useRouter()
 
 const manager = useManagerStore()
 
+const err = ref('')
+
+
+watch( err, () => toast.error('kek', {position: 'top-center', }) )
+
 
 
 const onSubmit = form.handleSubmit( async (e) => {
     console.log(' form data ', e)
-
-
-    manager.Login(e.login, e.pwd)
-
+    err.value = manager.Login(e.login, e.pwd)
    
 }
 )

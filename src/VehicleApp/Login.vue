@@ -1,8 +1,9 @@
 <template>
+    
     <div class=" flex flex-col justify-center h-full w-full">
+        
     <div v-if="generalError.length > 0"> Error {{  generalError  }}</div>
     <form @submit="onSubmit" class="flex flex-col gap-2 w-full">
-
         <FormField name="login" v-slot="{ componentField }">
             <FormLabel>Login or e-mail</FormLabel>
             <FormItem>

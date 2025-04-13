@@ -14,6 +14,8 @@ import { runInNewContext } from "vm";
 
 const api = express.Router({ mergeParams: true })
 
+
+
 export default api
 
 // api.use(express.json());
@@ -323,7 +325,9 @@ api.post('/vehicle/auth', async (req, res) => {
     
 
 api.get('/vehicle/managers', async (req, res) => {
-    const vhc = await vehicle.findOne({id: req.jwt.id}).populate("managers");
+    const vhc = await vehicle.findOne({id: req.jwt.id}).populate({path: "managers.manager"})
+
+  
 
     
     const mngrs = await vhc?.managers
