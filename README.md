@@ -1,6 +1,7 @@
 # OpenFleet
 
-Open Cross-platform Saas for operating taxi and cargo fleet
+Open Cross-platform Saas for operating taxi and cargo fleet.
+Fullstack app, node/vue.
 
 ## Project Setup
 
