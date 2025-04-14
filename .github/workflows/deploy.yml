@@ -25,4 +25,4 @@ jobs:
       - run: npm ci
       - run: npm run build
       # Deploy
-      - run: cd dist && rsync -e "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress --delete . root@transtaxi.app:/var/www/html/
+      - run: cd dist && rsync -e "ssh -p 54853 -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress --delete . root@transtaxi.app:/var/www/html/
