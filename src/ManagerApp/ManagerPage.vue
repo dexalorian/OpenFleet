@@ -1,12 +1,6 @@
 <template>
     <div class="flex flex-col h-screen w-full items-center justify-center">
-        <div class="scale- font-bold text-4xl w-full h-40 gap-1 content-center items-center flex flex-col">
-        <div class="flex w-14 h-14 bg-[length:80%] rounded-xl bg-blue-200 bg-[url('/public/car.svg')] bg-center" > </div>
-    
-        <p class="tracking-tight">Open Fleet</p>
-   
-        <p class="text-xs font-light">Manager app</p>
-    </div>
+
         <RouterView  class=""/>
     </div>
     
@@ -35,7 +29,8 @@ onMounted( async () => {
    }
 )
 
-watch( () => manager.isAuth, () => (manager.isAuth) ? router.push({ name: 'manager-main'})  : router.push({ name: 'manager-enter'})  )
+watch( () => manager.isAuth, () => (manager.isAuth) ? router.push({ name: 'manager-main'}) 
+: router.push({ name: 'manager-enter'})  )
 
 </script>
 
@@ -79,7 +74,8 @@ export const useManagerStore = defineStore('ManagerStore', () => {
     }
 
     async function SignUp(login: String, pwd: String, email: String, phoneNums: String[]) {
-       await fetch(import.meta.env.VITE_SRV_URL+'/manager/signup', {method: 'POST', headers: { "Content-Type": "application/json" }, body: 
+       await fetch(import.meta.env.VITE_SRV_URL+'/manager/signup', {method: 'POST', 
+       headers: { "Content-Type": "application/json" }, body: 
        { login , pwd, email, phoneNums } }) 
     }
 

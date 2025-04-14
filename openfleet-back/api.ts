@@ -175,43 +175,39 @@ api.get('/manager/mediatoken',  async (req, res) => {
 
     // const mng =  await manager.findOne({ id: req?.jwt.id }).populate({ path: 'vehicles', select: 'id login lat lng -_id' }).select('vehicles -_id')
     // res.status(200).json( mng.vehicles ).send()
-
     try {
             let tkn: AccessToken = new AccessToken( 'kekcheburek', 
                 'kekcheburek_kekcheburek_kekcheburek', { identity: req.jwt.id } )
             tkn.addGrant({canSubscribe: true, canPublish: false, roomJoin: true, roomCreate: true, room: 'general_room'})
-                tkn.toJwt().then( e => console.log('tkn', e))
-    
-        res.status(200).json({ token: await tkn.toJwt() }).send()
+                tkn.toJwt().then( e => console.log('tkn', e));
+        res.status(200).json({ token: await tkn.toJwt() });
 
-       
-      
     } catch (e) {
         res.status(503)
         console.error(e)
     }
-    
-
 })
 
 
 api.post( '/manager/bindvehicle', bindVehicle )
 api.post( '/manager/unbindvehicle', unbindVehicle )
-
 api.post('/vehicle/signup', regVehicle )
-
 api.post('/manager/newvehicle', newVehicle )
 
-
-
-
 api.post('/manager/signup', async (req ,res) => {
-    let hashed =  await bcrypt.hash( req.body.pwd , 8)
-    let newManager =  await manager.create( { ... req.body, pwd: hashed, id: uuid(), 
-        activated: false  } )
+    
+    try {
+        let hashed =  await bcrypt.hash( req.body.pwd , 8);
+        let newManager =  await manager.create( { ... req.body, pwd: hashed, id: uuid(), 
+            activated: false  } );
+        res.status(200).send('Account created');
+
+    } catch (e) {
+        res.status(400).send('Something went wronf during account creation')
+
+    }
 
 })
-
 
 api.post('/manager/login', async (req, res) => { 
     console.log('login triggered', req.body.login)

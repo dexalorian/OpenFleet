@@ -1,6 +1,4 @@
 <template>
-
-
     <form  @submit="onSubmit" class="flex flex-col gap-4">
         <FormField name="login"  v-slot="{ componentField }">
             <FormItem>
@@ -42,14 +40,21 @@ const manager = useManagerStore()
 const err = ref('')
 
 
-watch( err, () => toast.error('kek', {position: 'top-center', }) )
+watch( err, (k) =>{
+    if (err.value) {
+        toast.error('Wrong credentials', {position: 'top-center', 
+        description: 'There is no such login/pass pair' });
+    }
 
+    console.log('err м',  err.value)
+    console.log('err',  k)
+    err.value = null;
 
+ }  )
 
 const onSubmit = form.handleSubmit( async (e) => {
     console.log(' form data ', e)
-    err.value = manager.Login(e.login, e.pwd)
-   
+    err.value = await manager.Login(e.login, e.pwd)
 }
 )
 

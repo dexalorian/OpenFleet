@@ -17,15 +17,16 @@ export function setViewCenter(lat: number, lng: number, zoom?: number) {
   } 
   
 export async function createMapMarker(LatLng: LatLng, type: 'car' | 'gasstation' | 'base'): leaflet.Marker {
-
-let icon_html = '<div class="car_wrapper"> <div class="caricon"></div><div class="probe_flash"></div> </div>';
-let icon_html_disabled = '<div class="car_wrapper"> <div class="caricon_disabled"></div> </div> </div>';
+let icon_html = 
+    '<div class="car_wrapper"> <div class="caricon"></div><div class="probe_flash"></div> </div>';
+let icon_html_disabled = 
+    '<div class="car_wrapper"> <div class="caricon_disabled"></div> </div> </div>';
     
       let carIcon = leaflet.divIcon({ html: icon_html, iconSize: [24, 24], 
       className: 'dummy',
       iconSize: [32, 32], // Adjust size as needed
         })
-  
+
       let newMarker = leaflet.marker(LatLng, {icon: carIcon, draggable: false} );
  
       newMarker.ActiveIcon =  leaflet.divIcon({ html: icon_html, iconSize: [24, 24], 
@@ -42,23 +43,21 @@ let icon_html_disabled = '<div class="car_wrapper"> <div class="caricon_disabled
 
       newMarker.addTo(map);
 
-      return newMarker
+      return newMarker;
 
 
 }
 
 export function removeMapTrail(polyline: leaflet.Polyline): leaflet.Polygon {
-
   polyline.remove()
   
 }
 
 export function addMapTrail(polyline: leaflet.Polyline): leaflet.Polygon {
 
-polyline.addTo(map)
+  polyline.addTo(map)
 
 }
-
 
 export function createMapTrail(pointArray: LatLng[]): leaflet.Polyline {
   console.log('new tail', pointArray)
@@ -85,10 +84,11 @@ newTrail.addTo(map)
 </script>
 
 <script lang="ts" setup>
+  import { onMounted } from 'vue';
+  import { useOptionsStore } from '@/VehicleApp/Index.vue';
+  const options = useOptionsStore()
+  const props = defineProps(['geobtn'])
 
-import { useOptionsStore } from '@/VehicleApp/Index.vue';
-const options = useOptionsStore()
-import { onMounted } from 'vue'
       onMounted(() => {
         const vehicle = useVehicleStore();
         map = leaflet.map('map', {
@@ -121,7 +121,7 @@ import { onMounted } from 'vue'
         }
       } )
 
-      new mapNavBtn({ position: 'bottomright'}).addTo(map)
+       props.geobtn ? new mapNavBtn({ position: 'bottomright'}).addTo(map) : null
 
      
     })

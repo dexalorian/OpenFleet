@@ -26,7 +26,7 @@
             </div>
             <Button variant="link" @click="manager.Logout()">Logout</Button>
         </div>
-        <MapBox />
+        <MapBox :geobtn="false" />
 
     </div>
 </template>

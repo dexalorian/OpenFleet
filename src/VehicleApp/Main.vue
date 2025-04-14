@@ -14,7 +14,7 @@
                 </div>
             </div>
             
-             <MapBox />
+             <MapBox :geobtn="true" />
             <!-- <Button @click="() => ws.send('Hello from vehicle!')">Hello to WS!]</Button> -->
             <!-- <Button @click="() =>  sendCurrentGeo()">Send geo w WS</Button> -->
     </div>
@@ -36,7 +36,7 @@ import { onMounted, ref } from 'vue';
 import { useOptionsStore, useVehicleStore } from './Index.vue';
 import { StartWS, ws } from '@/ws';
 import { useRouter } from 'vue-router'
-import { marker, Polyline, type LeafletEvent, type polyline, Leaflet, map } from 'leaflet';
+import { Polyline, type LeafletEvent, type polyline, Leaflet, map } from 'leaflet';
 import { Room, LocalParticipant, RoomEvent, Track } from 'livekit-client'
 
 const router = useRouter()
@@ -47,8 +47,7 @@ const showStartStreamBtn = ref(true)
 window.onbeforeunload = (e) => { vehicle.saveOwnGeo( vehicle.currentGeo.lat, 
     vehicle.currentGeo.lng); e.preventDefault }
 
-const videoCnv = ref<HTMLVideoElement>()
- 
+const videoCnv = ref<HTMLVideoElement>();
   
 async function startMediaRoom() {
     const mediaroom = new Room();
@@ -73,11 +72,9 @@ async function startMediaRoom() {
 
     videoCnv.value.srcObject = localstream;
     mediaroom.on('disconnected', () => showStartStreamBtn.value = true)
-
 }
 
 let marker: Leaflet.marker = null;
-
 
 onMounted( async () => {
   
@@ -89,7 +86,6 @@ onMounted( async () => {
     console.log('src obj', videoCnv.value?.srcObject)
     marker = await createMapMarker(vehicle.currentGeo, 'car')
     marker.setIcon(marker.ActiveIcon)
-    
 
     marker.on('dragend', (k) => { console.log('drag end', k.target.getLatLng(), options.common.debug_geo_drag ); 
             let coords = k.target.getLatLng();
@@ -98,13 +94,12 @@ onMounted( async () => {
             data: { lat: k.target.getLatLng().lat, lng: k.target.getLatLng().lng }  } ) ) : null
             OwnTail.addLatLng( k.target.getLatLng())
             let date = new Date();
-                vehicle.geoHistory.push({ time: date.toLocaleTimeString(), date: date.toLocaleDateString(), lat: coords.lat, lng: coords.lng })
+                vehicle.geoHistory.push({ time: date.toLocaleTimeString(), 
+                    date: date.toLocaleDateString(), lat: coords.lat, lng: coords.lng })
                 vehicle.currentGeo = { lat: coords.lat, lng: coords.lng };
              })
 
     let OwnTail: Polyline;
-
-
 
     ws.onopen = () => {
         ws.send( JSON.stringify( { type: 'telemetry', 
@@ -118,34 +113,39 @@ onMounted( async () => {
        
     }
 
-
-    navigator.geolocation.getCurrentPosition( async e => {
-            console.log('position getter')
     
-             marker.setLatLng(vehicle.currentGeo)
-             console.log('currgeo', vehicle.currentGeo)
+
+    navigator.geolocation.getCurrentPosition( async (e) => {
+            console.log('position getter')
+            ws.send(JSON.stringify( { type: 'telemetry',  data: { lat: e.coords.latitude, lng: e.coords.longitude }  }  ))
             vehicle.currentGeo = { lat: e.coords.latitude, lng: e.coords.longitude };
+            let date = new Date();
+            vehicle.geoHistory.push({ time: date.toLocaleTimeString(), 
+                date: date.toLocaleDateString(), lat: e.coords.latitude, lng: e.coords.longitude })
+             marker.setLatLng(vehicle.currentGeo)
+             console.log('currgeo', vehicle.currentGeo,  e.coords)
+            vehicle.currentGeo = { lat: e.coords.latitude, lng: e.coords.longitude };
+            marker.setLatLng( { lat: e.coords.latitude, lng: e.coords.longitude })
             
         OwnTail =  await createMapTrail([{ lat: e.coords.latitude, lng: e.coords.longitude }]);
         setGeoFetcher()
 
-    }, () =>  {console.log('get location error'); setGeoFetcher()}, {timeout: 10000} )
+    }, () =>  {console.log('get location error'); setGeoFetcher(); }, {timeout: 10000} )
 
 
 function setGeoFetcher() {
-
     navigator.geolocation.watchPosition( k =>  {
-            console.log('geo watcher event', k)
+
             if (!options.common.debug_geo_drag) {
                 let date = new Date(k.timestamp);
-                vehicle.geoHistory.push({ time: date.toLocaleTimeString(), date: date.toLocaleDateString(), lat: k.coords.latitude, lng: k.coords.longitude })
+                vehicle.geoHistory.push({ time: date.toLocaleTimeString(), 
+                    date: date.toLocaleDateString(), lat: k.coords.latitude, lng: k.coords.longitude })
                 vehicle.currentGeo = { lat: k.coords.latitude, lng: k.coords.longitude };
                 console.log('current geo watcher', vehicle.currentGeo);
                 marker.setLatLng(vehicle.currentGeo);
                 OwnTail.addLatLng(vehicle.currentGeo);
                 OwnTail.on('pointadded', () => console.log('Own tail updated'));
-                ws.send( JSON.stringify( { type: 'telemetry',  data: { lat: k.coords.latitude, lng: k.coords.longitude }  } ) );
-                
+                ws.send( JSON.stringify( { type: 'telemetry',  data: { lat: k.coords.latitude, lng: k.coords.longitude }  } ) ); 
             }
 
         })
@@ -175,6 +175,7 @@ watch( () => options.common.show_trail, (e) => {
 } )
 
 
+console.log('current geo state:', vehicle.currentGeo)
 
 
 
