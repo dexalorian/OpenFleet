@@ -27,4 +27,4 @@ jobs:
       - run: cd openfleet-back && npm ci && tsc
       # Deploy
       - run: cd dist && rsync -e "ssh -p 54853 -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress --delete . root@transtaxi.app:/var/www/html/
-      - run: cd openfleet-back && rsync -e "ssh -p 54853 -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress dist root@transtaxi.app:/var/www/openfleet-node
+      - run: cd openfleet-back && rsync -e "ssh -p 54853 -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress dist/* root@transtaxi.app:/var/www/openfleet-node

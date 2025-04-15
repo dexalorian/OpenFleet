@@ -1,5 +1,4 @@
 import mongoose, { mongo, Mongoose, Types } from "mongoose"
-import { type } from "os"
 
 const rideSchema = new mongoose.Schema(
     {
