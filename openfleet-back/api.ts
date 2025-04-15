@@ -7,8 +7,8 @@ import jwt from 'jsonwebtoken'
 const fileparser  =  multer({ dest:  'uploads/' })
 import { v4 as uuid, validate } from "uuid"
 
-import { manager, vehicle, driver } from "./schemas.ts";
-import { regVehicle, newVehicle } from "./services.ts";  
+import { manager, vehicle, driver } from "./schemas";
+import { regVehicle, newVehicle } from "./services";  
 import { AccessToken } from "livekit-server-sdk";
 import { runInNewContext } from "vm";
 

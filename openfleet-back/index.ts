@@ -9,10 +9,10 @@ import multer from "multer";
 const fileparser  =  multer({ dest:  'uploads/' })
 import { v4 as uuid, validate } from "uuid"
 import cookieParser from "cookie-parser";
-import { startSignalingServ } from "./wsserv.ts";
-import { randomString } from "./utils.ts";
+import { startSignalingServ } from "./wsserv";
+import { randomString } from "./utils";
 import http from "http"
-import api from './api.ts'
+import api from './api'
 
 const app = express()
 

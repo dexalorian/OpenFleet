@@ -2,7 +2,7 @@
 import  WebSocket, { WebSocketServer } from "ws";
 
 import jwt from "jsonwebtoken"
-import { manager, vehicle } from "./schemas.ts";
+import { manager, vehicle } from "./schemas";
 let wsRooms = new Map();
 let wsActiveSockets = new Map();
 let telemetry = new Map();
