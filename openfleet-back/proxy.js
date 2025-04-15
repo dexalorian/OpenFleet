@@ -46,11 +46,11 @@ app.use(
 
 
 
-// Proxy main frontend (localhost:3000 → localhost:5173)[]
+// Proxy main frontend (localhost:3000 → localhost:80)[]
 app.use(
   '/',
   createProxyMiddleware({
-    target: 'http://localhost',
+    target: 'http://localhost:80',
     changeOrigin: true,
     secure: false,
     // ws: true
