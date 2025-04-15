@@ -47,15 +47,16 @@ app.use(
 
 
 // Proxy main frontend (localhost:3000 → localhost:80)[]
-app.use(
-  '/',
-  createProxyMiddleware({
-    target: 'http://localhost:80',
-    changeOrigin: true,
-    secure: false,
-    // ws: true
-    // logger: console
-  })
-);
+// Disable this block for nginx vps
+// app.use(
+//   '/',
+//   createProxyMiddleware({
+//     target: 'http://localhost:80',
+//     changeOrigin: true,
+//     secure: false,
+//     // ws: true
+//     // logger: console
+//   })
+// );
 
 app.listen(3000, () => console.log("Proxy server running on port 3000"))
