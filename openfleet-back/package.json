@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon --env-file=.env index.ts",
     "dev": "nodemon --watch . -r dotenv/config -r ts-node/register index.ts",
-    "proxy": "nodemon proxy.ts"
+    "proxy": "nodemon proxy.ts",
+    "build": "npx tsc"
   },
   "author": "",
   "license": "ISC",
@@ -37,6 +38,7 @@
     "@types/node": "^22.13.1",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
+    "ttypescript": "^1.5.15",
     "typescript": "^5.7.3"
   }
 }

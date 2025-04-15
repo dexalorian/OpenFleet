@@ -4,25 +4,12 @@ import path from "path"
 import { fileURLToPath } from "url";
 import bcrypt from "bcrypt"
 import { manager, vehicle, driver } from "./schemas.ts";
-// import { dbUser } from "./schemas.js";
+
 import nodemailer from 'nodemailer'
 import { AccessToken } from 'livekit-server-sdk'
+import { randomString } from "./utils.ts";
 
 let __dirname = path.dirname(fileURLToPath(import.meta.url))
-
-export async function createNewPhoto(req, res) {
-    const newfilename = uuid() +  path.extname(req.file.originalname)
-    fs.renameSync(__dirname + '/uploads/' +req.file.filename, 
-        __dirname + '/uploads/'  + newfilename  ); 
-        let user = await dbUser.findOne( {id: req.jwt.id }  )
-        const { lat, lng } = JSON.parse(req.body.coords)
-        const newPhoto = await dbPhoto.create({id: uuid(), lat, lng, 
-          uploadedBy: user._id,
-          filename: newfilename, ... JSON.parse(req.body.params)})
-        user.photos.push( newPhoto._id  )
-        user.save()
-   res.status(200).send()
-}
 
 export function sendActivationMail(adress, token) {
 const mail = nodemailer.createTransport(

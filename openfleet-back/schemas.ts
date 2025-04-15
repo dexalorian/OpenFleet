@@ -44,18 +44,31 @@ const supervisorSchema = new mongoose.Schema(
     }
 )
 
-const taskSchema = new mongoose.Schema(
+const taskSchema: any = new mongoose.Schema(
     {
         ride: { type: mongoose.Schema.Types.ObjectId, ref: 'Ride' },
         cargo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Cargo' }],
         loadDate: [{type: Date}],
         startDate:  [{type: Date}],
         endDate:  [{type: Date}],
-        creator:  { type: mongoose.Schema.Types.ObjectId, ref: 'Manager' } || { type: mongoose.Schema.Types.ObjectId, ref: 'Supervisor' },
-        сontractor: { type: mongoose.Schema.Types.ObjectId, ref: 'Manager' } || { type: mongoose.Schema.Types.ObjectId, ref: 'Driver' },
+        creator:  { type: mongoose.Schema.Types.ObjectId, refPath: 'contractorRole' },
+        сontractor: { type: mongoose.Schema.Types.ObjectId, refPath: 'creatorRole' },
+        creatorRole: {  // Define the role to determine the reference
+            type: String,
+            required: true,
+            enum: ['Manager', 'Supervisor']  // Either Manager or Supervisor
+          },
+
+          contractorRole: {  // Define the role to determine the reference
+            type: String,
+            required: true,
+            enum: ['Manager', 'Driver']  // Either Manager or Driver
+          }
+        
 
     }
 )
+
 
 const cargoSchema = new mongoose.Schema(
     { 
