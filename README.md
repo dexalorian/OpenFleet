@@ -3,6 +3,11 @@
 Open Cross-platform Saas for operating taxi and cargo fleet.
 Fullstack app, node/vue.
 
+TypeScript
+Vue (SFC)
+Livekit TURN for video/audio
+Websockets
+
 ## Project Setup
 
 ```sh
