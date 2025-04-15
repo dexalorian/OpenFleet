@@ -10,6 +10,9 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['trading-vue-js', 'vue-echarts']
   },
+  build: {
+    target: 'esnext' // or 'esnext' for modern
+  },
   server: {
 
     // hmr: {
