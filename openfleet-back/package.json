@@ -5,10 +5,9 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --env-file=.env index.ts",
-    "dev": "nodemon --watch . -r dotenv/config -r ts-node/register index.ts",
-    "proxy": "nodemon proxy.ts",
-    "build": "npx tsc"
+    "start": "nodemon --env-file=.env index.js",
+    "dev": "nodemon --watch . -r dotenv/config -r index.js",
+    "proxy": "nodemon proxy.js"
   },
   "author": "",
   "license": "ISC",
