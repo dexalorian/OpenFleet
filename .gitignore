@@ -29,5 +29,6 @@ coverage
 .env
 .env.loc
 .env.*
+/**/node_modules
 
 *.tsbuildinfo
