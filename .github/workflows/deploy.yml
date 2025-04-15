@@ -17,7 +17,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       # Setup key
-      - run: mkdir "$HOME/.ssh"
+      - run: mkdir "$HOME/.ssh" 
       - run: echo "${{ secrets.VPS_KEY }}" > "$HOME/.ssh/key"
       - run: chmod 600 "$HOME/.ssh/key"
       - run: echo "StrictHostKeyChecking no" >> "$HOME/.ssh/config"
