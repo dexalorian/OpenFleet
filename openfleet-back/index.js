@@ -25,7 +25,9 @@ mongoose.connect('mongodb://localhost:27017/').then(
 let __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 app.use(cookieParser())
-app.use(cors({ origin: ['http://localhost:3000', 'http://localhost:8484', 'http://localhost:5173','https://45.9.72.39', 'https://transtaxi.app'], credentials: true}))
+app.use(cors({ origin: ['http://localhost:3000', 'http://localhost:8484', 
+  'http://localhost:5173','https://45.9.72.39', 'https://transtaxi.app'], 
+  credentials: true}))
 app.use(express.json());
 app.use('/api', api )
   

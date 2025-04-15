@@ -2,13 +2,13 @@
 import  WebSocket, { WebSocketServer } from "ws";
 
 import jwt from "jsonwebtoken"
-import { manager, vehicle } from "./schemas";
+import { manager, vehicle } from "./schemas.js";
 let wsRooms = new Map();
 let wsActiveSockets = new Map();
 let telemetry = new Map();
 
  async function subscribe( id ) {
-    let mng:any = await manager.findOne({ id: id }).select('vehicles').populate('vehicles', 'id -_id')
+    let mng = await manager.findOne({ id: id }).select('vehicles').populate('vehicles', 'id -_id')
     if (mng.vehicles.length > 0) {
         mng.vehicles?.forEach( e => { 
             if (wsRooms.has(e.id)) {
@@ -32,7 +32,7 @@ let telemetry = new Map();
 
 export function startSignalingServ(srv) {
 
-    const wss: WebSocketServer = new WebSocketServer({ noServer: true })
+    const wss = new WebSocketServer({ noServer: true })
     console.log('Sign serv started')
 
     srv.on('upgrade', (req, socket, head) => {
@@ -54,14 +54,14 @@ export function startSignalingServ(srv) {
     //         //if that an vehicle - 1) find vID in wsRooms 2) Get of wsRooms vID all subscribers 3) search all subscribers in wsActiveSockets 4) get sockets of those connections 5) call .send on each obtained socket
     //         // console.log('WS headers',  req.headers.cookie?.split(`${req.headers['sec-websocket-protocol']}_access_tkn=`)[1].split('; ')[0])
         try{
-            const accessTkn: any = req.headers.cookie?.split(`${req.headers['sec-websocket-protocol']}_access_tkn=`)[1].split('; ')[0]
+            const accessTkn = req.headers.cookie?.split(`${req.headers['sec-websocket-protocol']}_access_tkn=`)[1].split('; ')[0]
             console.log('WS headers',req.url,  accessTkn )
 
             if (accessTkn?.length > 0 ) {
-                const user: any = jwt.verify( accessTkn, process.env.SCRT as string)
+                const user = jwt.verify( accessTkn, process.env.SCRT)
                 switch (user.role) {
                     case 'vhc':
-                        socket.onmessage = async ( e: any ) => {
+                        socket.onmessage = async ( e ) => {
                             console.log('vhc msg', e.data)
                             console.log(wsActiveSockets.keys())
                             let json = JSON.parse(e.data)
@@ -91,12 +91,12 @@ export function startSignalingServ(srv) {
                             wsRooms.get(user.id)?.forEach( 
                                 (s) => wsActiveSockets.get(s)?.forEach( 
                                     x => {
-                                        let json: any = {type: "status", status: 0 }
+                                        let json = {type: "status", status: 0 }
                                         json.vhcID = user.id
                                         x.send(JSON.stringify(json))
                                     } )
                             )
-                            const vhc: any =  await vehicle.findOne( { $and: [{ id: user.id }, { id: { $exists: true}} ]} )
+                            const vhc =  await vehicle.findOne( { $and: [{ id: user.id }, { id: { $exists: true}} ]} )
                             let vhc_tel = telemetry.get(user.id)
                             console.log('last cords', vhc_tel)
                             vhc.lat = vhc_tel.lat 
@@ -116,7 +116,7 @@ export function startSignalingServ(srv) {
                         break;
                     case 'mng':
                         let mng_unsub = await subscribe(user.id)
-                        socket.onmessage = async ( msg: any ) => {
+                        socket.onmessage = async ( msg ) => {
                             console.log('msg ', msg.data.type )
 
                             if (msg.data.type === 'broadcast') {

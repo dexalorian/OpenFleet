@@ -43,7 +43,7 @@ const supervisorSchema = new mongoose.Schema(
     }
 )
 
-const taskSchema: any = new mongoose.Schema(
+const taskSchema = new mongoose.Schema(
     {
         ride: { type: mongoose.Schema.Types.ObjectId, ref: 'Ride' },
         cargo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Cargo' }],

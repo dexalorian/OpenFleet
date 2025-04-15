@@ -3,11 +3,11 @@ import { v4 as uuid } from "uuid"
 import path from "path"
 import { fileURLToPath } from "url";
 import bcrypt from "bcrypt"
-import { manager, vehicle, driver } from "./schemas";
+import { manager, vehicle, driver } from "./schemas.js";
 
 import nodemailer from 'nodemailer'
 import { AccessToken } from 'livekit-server-sdk'
-import { randomString } from "./utils";
+import { randomString } from "./utils.js";
 
 let __dirname = path.dirname(fileURLToPath(import.meta.url))
 

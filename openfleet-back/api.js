@@ -7,8 +7,8 @@ import jwt from 'jsonwebtoken'
 const fileparser  =  multer({ dest:  'uploads/' })
 import { v4 as uuid, validate } from "uuid"
 
-import { manager, vehicle, driver } from "./schemas";
-import { regVehicle, newVehicle } from "./services";  
+import { manager, vehicle, driver } from "./schemas.js";
+import { regVehicle, newVehicle } from "./services.js";  
 import { AccessToken } from "livekit-server-sdk";
 import { runInNewContext } from "vm";
 
@@ -41,7 +41,7 @@ export default api
 //     next()
 // } )
   
-api.use( ['/manager', '/vehicle', '/driver'], async (req: any, res: any, next) => {
+api.use( ['/manager', '/vehicle', '/driver'], async (req, res, next) => {
 
     let role = (() => {
         switch (  req.baseUrl.split('/').at(-1)) {
@@ -77,7 +77,7 @@ api.use( ['/manager', '/vehicle', '/driver'], async (req: any, res: any, next) =
 
     if (req.cookies[role+'_access_tkn']?.length > 0) {
  
-        req.jwt = await jwt.verify(req.cookies[role+'_access_tkn'], process.env.SCRT as string)
+        req.jwt = await jwt.verify(req.cookies[role+'_access_tkn'], process.env.SCRT )
 
         if (req.jwt.id.length > 0) {
             next()
@@ -95,8 +95,8 @@ api.use( ['/manager', '/vehicle', '/driver'], async (req: any, res: any, next) =
 
 async function bindVehicle(req, res) {
     try {
-        const mngr: any = await manager.findOne({id: req.jwt.id})
-        const vhcl: any = await vehicle.findOne({ id: req.body.vhcID })
+        const mngr = await manager.findOne({id: req.jwt.id})
+        const vhcl = await vehicle.findOne({ id: req.body.vhcID })
         vhcl.managers.push( {manager: mngr._id, active: false} )
         mngr.vehicles.push( vhcl._id )
         mngr.save()
@@ -114,11 +114,11 @@ async function bindVehicle(req, res) {
 async function unbindVehicle(req, res) {
     try {
         console.log("Unbind vhc", req.body.vhcID)
-        const mngr: any = await manager.findOne({id: req.jwt.id})
-        const vhcl: any = await vehicle.findOne({ id: req.body.vhcID })
-        const vhcIdx: any =  mngr.vehicles.findIndex( e => e.id = req.body.vhcID );
+        const mngr = await manager.findOne({id: req.jwt.id})
+        const vhcl = await vehicle.findOne({ id: req.body.vhcID })
+        const vhcIdx =  mngr.vehicles.findIndex( e => e.id = req.body.vhcID );
         mngr?.vehicles.splice( vhcIdx,  1)
-        const mngIdx: number =  vhcl?.managers.findIndex( e => e.id === req.jwt.id)
+        const mngIdx =  vhcl?.managers.findIndex( e => e.id === req.jwt.id)
         vhcl?.managers.splice(mngIdx, 1)
         
 
@@ -135,12 +135,12 @@ async function unbindVehicle(req, res) {
 
 
 
-api.post('/vehicle/bindmanager', async (req: any, res: any) => {
+api.post('/vehicle/bindmanager', async (req, res) => {
 
     try {
-        const vhcl: any = await vehicle.findOne({ id: req.jwt.id })
+        const vhcl = await vehicle.findOne({ id: req.jwt.id })
         console.log("mngrID", req.body.mngID)
-        const mngr: any = await manager.findOne({ id: req.body.mngID })
+        const mngr = await manager.findOne({ id: req.body.mngID })
         vhcl.managers.push( {manager: mngr._id, active: false} )
         mngr.vehicles.push( vhcl._id )
         mngr.save()
@@ -155,7 +155,7 @@ api.post('/vehicle/bindmanager', async (req: any, res: any) => {
 
 })
 
-api.get('/vehicle/mediatoken', async (req: any, res: any) => {
+api.get('/vehicle/mediatoken', async (req, res) => {
     try {       
             const tkn = new AccessToken( 'kekcheburek', 'kekcheburek_kekcheburek_kekcheburek', { identity: req.jwt.id } )
             tkn.addGrant( { canSubscribe: false, canPublish: true, roomJoin: true, room: 'general_room', roomCreate: true })
@@ -171,12 +171,12 @@ api.get('/vehicle/mediatoken', async (req: any, res: any) => {
 
 })
 
-api.get('/manager/mediatoken',  async (req: any, res: any) => {
+api.get('/manager/mediatoken',  async (req, res) => {
 
     // const mng =  await manager.findOne({ id: req?.jwt.id }).populate({ path: 'vehicles', select: 'id login lat lng -_id' }).select('vehicles -_id')
     // res.status(200).json( mng.vehicles ).send()
     try {
-            let tkn: AccessToken = new AccessToken( 'kekcheburek', 
+            let tkn = new AccessToken( 'kekcheburek', 
                 'kekcheburek_kekcheburek_kekcheburek', { identity: req.jwt.id } )
             tkn.addGrant({canSubscribe: true, canPublish: false, roomJoin: true, roomCreate: true, room: 'general_room'})
                 tkn.toJwt().then( e => console.log('tkn', e));
@@ -209,12 +209,12 @@ api.post('/manager/signup', async (req ,res) => {
 
 })
 
-api.post('/manager/login', async (req: any, res: any) => { 
+api.post('/manager/login', async (req, res) => { 
     console.log('login triggered', req.body.login)
     try {
-        let managerObj: any =  await manager.findOne({login: req.body.login})
+        let managerObj =  await manager.findOne({login: req.body.login})
     if  (await bcrypt.compare( req.body.login, managerObj.login )) {
-        let jwt_enc = jwt.sign({id: managerObj.id, role: 'mng'}, process.env.SCRT as string)
+        let jwt_enc = jwt.sign({id: managerObj.id, role: 'mng'}, process.env.SCRT)
         managerObj.save()
         res.cookie( 'mng_access_tkn', jwt_enc, {
             secure: false, // Make sure you're using HTTPS in production
@@ -233,9 +233,9 @@ api.post('/manager/login', async (req: any, res: any) => {
 api.post('/manager/auth', async (req, res) => {
    
         try {
-            let user: any = req.cookies.mng_access_tkn ? jwt.verify(req.cookies?.mng_access_tkn, process.env.SCRT as string) : null
+            let user = req.cookies.mng_access_tkn ? jwt.verify(req.cookies?.mng_access_tkn, process.env.SCRT) : null
             if (user?.id) {
-                const managerdb: any = await manager.findOne( {id: user.id})
+                const managerdb = await manager.findOne( {id: user.id})
                 res.json({valid: true, manager: {id: managerdb.id, role: 'mng'}}).status(200).send()
             } else { res.json({valid: false }).status(401).send() }
         } catch (e) {
@@ -256,8 +256,8 @@ api.get('/manager/logout', async (req, res) => {
 })
 
 
-api.post( '/manager/vehicles', async (req: any, res: any) => {
-    const mng: any =  await manager.findOne({ id: req?.jwt.id }).populate({ path: 'vehicles', select: 'id login lat lng -_id' }).select('vehicles -_id')
+api.post( '/manager/vehicles', async (req, res) => {
+    const mng =  await manager.findOne({ id: req?.jwt.id }).populate({ path: 'vehicles', select: 'id login lat lng -_id' }).select('vehicles -_id')
     res.status(200).json( mng.vehicles ).send()
 } )
 
@@ -268,13 +268,13 @@ api.post('/driver/login', (req, res) => {} )
 api.post('/vehicle/login', async (req, res) => { 
     console.log('login ', req.body.login )
     try { 
-        const vehicleObj: any =  await vehicle.findOne({
+        const vehicleObj =  await vehicle.findOne({
             $and: [{login: req.body.login}, {login: { $exists: true }}]
           })
 
         if  (await bcrypt.compare( req.body.pwd, vehicleObj.pwd )) {
            
-            const jwt_enc = jwt.sign({id: vehicleObj.id, role: 'vhc'}, process.env.SCRT as string)
+            const jwt_enc = jwt.sign({id: vehicleObj.id, role: 'vhc'}, process.env.SCRT)
 
             res.cookie( 'vhc_access_tkn', jwt_enc, {
                 secure: false, // Make sure you're using HTTPS in production
@@ -313,37 +313,36 @@ api.post('/vehicle/login', async (req, res) => {
 
 api.post('/vehicle/auth', async (req, res) => {
 
-     let user: any = req.cookies.vhc_access_tkn ? jwt.verify(req.cookies?.vhc_access_tkn, process.env.SCRT as string) : null
+     let user = req.cookies.vhc_access_tkn ? jwt.verify(req.cookies?.vhc_access_tkn, process.env.SCRT) : null
 
     if (user?.id) {
         res.status(200).json({valid: true, vehicle: {id: user.id, role: 'vhc'}})
     } else { res.json({valid: false }) } })
     
 
-api.get('/vehicle/managers', async (req: any, res: any) => {
+api.get('/vehicle/managers', async (req, res) => {
     const vhc = await vehicle.findOne({id: req.jwt.id}).populate({path: "managers.manager"})
     const mngrs = await vhc?.managers
     console.log('managers', mngrs)
     res.status(200).json({ mngrs} )
 })
 
-api.get('/vehicle/owners', async (req: any, res: any) => {
+api.get('/vehicle/owners', async (req, res) => {
     const vhcID = req.jwt.id;
-    const owns = vehicle.findOne({id: req.jwt.id}).then( (e: any) => e.owners );
+    const owns = vehicle.findOne({id: req.jwt.id}).then( (e) => e.owners );
     res.status(200).json( { owns } )
 })
 
-api.get('/vehicle/getgeo', async (req: any, res: any) => {
-
+api.get('/vehicle/getgeo', async (req, res) => {
        const veh =  await vehicle.findOne( { $and: [{ id: req.jwt.id }, { lat: { $exists: true}  } ] } )
             res.status(200).json({ lat: veh?.lat, lng: veh?.lng })
             console.log('coords ', veh?.lat, veh?.lng)
 
       } ) 
 
-api.post('/vehicle/setgeo', async (req: any, res: any) => {
+api.post('/vehicle/setgeo', async (req, res) => {
     console.log('Before close set geo')
-        const veh: any = await vehicle.findOne( { id: req.jwt.id } )
+        const veh = await vehicle.findOne( { id: req.jwt.id } )
         veh.lat = req.body.lat;
         veh.lng = req.body.lng;
         veh.save();
