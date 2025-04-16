@@ -50,7 +50,7 @@ import FormLabel from '@/components/ui/form/FormLabel.vue';
 
     const onSubmit = form.handleSubmit(async (values) => {
         console.log(values)
-       let res = await fetch(import.meta.env + '/vehicle/signup', 
+       let res = await fetch(import.meta.env.VITE_SRV_URL + '/vehicle/signup', 
             { body: JSON.stringify( {... values, phoneNums: [ values.phoneNums ]} ), 
             method: 'POST', headers: { "Content-Type": "application/json" } } )
 
