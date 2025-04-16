@@ -75,7 +75,7 @@
 
     const onSubmit = form.handleSubmit(async (values) => {
         console.log(values)
-       let res = await fetch('/signup', 
+       let res = await fetch(import.meta.env.VITE_SRV_URL + '/manager/signup', 
             { body: JSON.stringify( {... values, phoneNums: [ values.phoneNums ]} ), 
             method: 'POST', headers: { "Content-Type": "application/json" } } )
 
