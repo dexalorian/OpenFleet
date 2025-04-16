@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+env:
+  VITE_SRV_URL: ${{ secrets.VITE_SRV_URL }}
+  VITE_SRV_WS: ${{ secrets.VITE_SRV_WS }}
 
 jobs:
   deploy:
@@ -21,7 +24,7 @@ jobs:
       - run: echo "${{ secrets.VPS_KEY }}" > "$HOME/.ssh/key"
       - run: chmod 600 "$HOME/.ssh/key"
       - run: echo "StrictHostKeyChecking no" >> "$HOME/.ssh/config"
-      # Build
+      # Buil
       - run: npm ci && npm run build
       # Deploy
       - run: cd dist && rsync -e "ssh -p 54853 -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress --delete . root@transtaxi.app:/var/www/html/
