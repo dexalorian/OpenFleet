@@ -17,7 +17,12 @@ import api from './api.js'
 const app = express()
 
 
-mongoose.connect('mongodb://localhost:27017/').then(
+mongoose.connect('mongodb://localhost:27017/openfleet', {
+  user: process.env.MONGO_USR,
+  pass: process.env.MONGO_PWD,
+  authSource: 'admin'
+
+}).then(
     () => console.log('Mongoose connected'),
     err => console.log('Mongoose not connected')    
 )

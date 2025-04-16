@@ -6,20 +6,15 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 const fileparser  =  multer({ dest:  'uploads/' })
 import { v4 as uuid, validate } from "uuid"
-
 import { manager, vehicle, driver } from "./schemas.js";
 import { regVehicle, newVehicle } from "./services.js";  
 import { AccessToken } from "livekit-server-sdk";
 import { runInNewContext } from "vm";
 
 const api = express.Router({ mergeParams: true })
-
-
-
 export default api
 
 // api.use(express.json());
-
 // api.use( (req, res, next) => {
 //     console.log('ccokies', req.cookies)
 //     if (req.cookies?.logout?.length > 0) {
@@ -35,7 +30,6 @@ export default api
 //                 }  )
 //             }
 //         } )
-
 //         res.cookie( 'logout', null )
 //     }
 //     next()

@@ -27,8 +27,6 @@ mail.sendMail({from: 'MS_It5ww6@trial-pr9084zqd9j4w63d.mlsender.net',
   text: 'http://localhost:3000/activate?act_tkn='+token}, e => { console.log(e)})
 }
 
-
-
 export async function regVehicle(req, res) {
     let hashed =  await bcrypt.hash( req.body.pwd , 8)
     let newVehicle =  await vehicle.create( { ... req.body, pwd: hashed, id: uuid(), 
