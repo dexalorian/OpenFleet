@@ -73,9 +73,6 @@ const options = useOptionsStore()
 
 // watch( options.common,  (e) => localStorage.setItem('settings', JSON.stringify(e)))
 
-
-
-
 // const router = useRouter()
 
 </script>
@@ -142,7 +139,7 @@ const options = useOptionsStore()
 
     async function CheckAuth() {
         try {
-        const res = await fetch(import.meta.env.VITE_SRV_URL + '/vehicle//auth', {method: 'POST', credentials: 'include'} )
+        const res = await fetch(import.meta.env.VITE_SRV_URL + '/vehicle/auth', {method: 'POST', credentials: 'include'} )
       const resp = await res.json()
       if (resp.valid) {
         isAuth.value = true;
