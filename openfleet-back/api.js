@@ -213,6 +213,7 @@ api.post('/manager/login', async (req, res) => {
     console.log('login triggered', req.body.login)
     try {
         let managerObj =  await manager.findOne({login: req.body.login})
+        console.log('manager found', managerObj.id)
     if  (await bcrypt.compare( req.body.login, managerObj.login )) {
         let jwt_enc = jwt.sign({id: managerObj.id, role: 'mng'}, process.env.SCRT)
         managerObj.save()
