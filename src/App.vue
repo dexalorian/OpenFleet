@@ -17,7 +17,7 @@ const SharedMapId = ref({})
 
 
 watch( () => userObj.isAuth, async  () => {
-   let e = await fetch('/auth', {method: 'POST', 
+   let e = await fetch('auth', {method: 'POST', 
    credentials: 'include', headers: {'Content-Type': 'application/json'}})
    let res = await e.json()
       res.valid ? userObj.isAuth = true : userObj.isAuth = false
