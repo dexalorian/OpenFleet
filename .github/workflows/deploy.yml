@@ -21,10 +21,6 @@ jobs:
       - run: echo "${{ secrets.VPS_KEY }}" > "$HOME/.ssh/key"
       - run: chmod 600 "$HOME/.ssh/key"
       - run: echo "StrictHostKeyChecking no" >> "$HOME/.ssh/config"
-      # Build
-      - run: npm ci
-      - run: npm run build
-      - run: cd openfleet-back && npm ci
       # Deploy
       - run: cd dist && rsync -e "ssh -p 54853 -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress --delete . root@transtaxi.app:/var/www/html/
       - run: cd openfleet-back && rsync -e "ssh -p 54853 -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress . root@transtaxi.app:/var/www/openfleet-node
