@@ -10,7 +10,7 @@
                 <p class="text-2xl font-bold tracking-tight">Success</p>
                 <p class="text-xs">Account successfully been created</p>
             </div>
-            <Button type="submit" @click="() => {  emit('tologin', 'login') } ">Back to login</Button>
+            <Button type="submit" @click="() => { emit('tologin', 'login') } ">Back to login</Button>
 
         </div>
 
@@ -75,7 +75,7 @@
 
     const onSubmit = form.handleSubmit(async (values) => {
         console.log(values)
-       let res = await fetch(import.meta.env.VITE_SRV_URL+ '/manager/signup', 
+       let res = await fetch('/signup', 
             { body: JSON.stringify( {... values, phoneNums: [ values.phoneNums ]} ), 
             method: 'POST', headers: { "Content-Type": "application/json" } } )
 

@@ -18,10 +18,10 @@ watch( () => props.show, () => open.value = props.show)
 const Submit = form.handleSubmit( 
 
 async (val) => {
-fetch(import.meta.env.VITE_BASE_VEHICLE_URL + '/signup', { headers: {'Content-Type': 'application/json'}, 
+fetch('/signup', { headers: {'Content-Type': 'application/json'}, 
 method: 'POST', credentials: 'include', body: JSON.stringify(val)}).then( )
 
-fetch(import.meta.env.VITE_BASE_VEHICLE_URL + '/', {})
+fetch('/', {})
 
 console.log(val)
 DoneStageVisible.value = true

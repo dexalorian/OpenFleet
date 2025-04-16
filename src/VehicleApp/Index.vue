@@ -99,7 +99,7 @@ const options = useOptionsStore()
     const mediatoken = ref('')
 
     async function getManagers() {
-        const res = await fetch( import.meta.env.VITE_SRV_URL + '/vehicle/managers', 
+        const res = await fetch( '/managers', 
         {method: 'GET', credentials: 'include'} )
         const resp = await res.json()
         managers.value = resp.mngrs;
@@ -107,7 +107,7 @@ const options = useOptionsStore()
     }
 
     async function getOwners() {
-        const res = await fetch( import.meta.env.VITE_SRV_URL + '/vehicle/owners', 
+        const res = await fetch( '/owners', 
         {method: 'GET', credentials: 'include'} )
         const resp = await res.json()
         owners.value = resp.mngrs;
@@ -115,7 +115,7 @@ const options = useOptionsStore()
 
     async function Login( login: String , pwd: String ): String {
         try {
-            const res =  await fetch( import.meta.env.VITE_SRV_URL +'/vehicle/login', 
+            const res =  await fetch( '/login', 
                 {body: JSON.stringify({login, pwd}), headers: { "Content-Type" : 'application/json' } , 
             credentials: 'include', method: 'POST'})
             const resp = await res.json()
@@ -131,7 +131,7 @@ const options = useOptionsStore()
     }
 
     async function getMediaToken(room_ids: Array) {
-        const resp = await fetch(import.meta.env.VITE_SRV_URL+'/vehicle/mediatoken', 
+        const resp = await fetch('/mediatoken', 
             { method: 'GET' , credentials: 'include'})
      
         return await resp.json().then( e => e.token )
@@ -139,7 +139,7 @@ const options = useOptionsStore()
 
     async function CheckAuth() {
         try {
-        const res = await fetch( import.meta.env.VITE_SRV_URL + '/vehicle/auth', {method: 'POST', credentials: 'include'} )
+        const res = await fetch( '/auth', {method: 'POST', credentials: 'include'} )
       const resp = await res.json()
       if (resp.valid) {
         isAuth.value = true;
@@ -157,7 +157,7 @@ const options = useOptionsStore()
     }
 
     async function fetchOwnGeo(): LatLng {
-       let resp = await fetch(import.meta.env.VITE_SRV_URL + '/vehicle/getgeo', 
+       let resp = await fetch('/getgeo', 
        { method: 'GET', credentials: 'include', headers: { "Content-type": "application/json"}})
 
        if (resp.status === 200) {
@@ -170,18 +170,18 @@ const options = useOptionsStore()
     }
 
     async function saveOwnGeo(lat, lng) {
-        await fetch(import.meta.env.VITE_SRV_URL + '/vehicle/setgeo', 
+        await fetch('/setgeo', 
         { body: JSON.stringify({ lat: lat, lng: lng }), method: 'POST', credentials: 'include', 
             headers: { "Content-Type": "application/json" }})
     }
 
     async function SignUp(login: String, pwd: String, email: String, phoneNums: String[]) {
-       await fetch(import.meta.env.VITE_SRV_URL+'/vehicle/signup', 
+       await fetch('/signup', 
        {method: 'POST', body: { login , pwd, email, phoneNums } }) 
     }
 
     async function Logout() {
-        const resp = await fetch(import.meta.env.VITE_SRV_URL+'/vehicle/logout', 
+        const resp = await fetch('/logout', 
         {method: 'GET', credentials: 'include'});
 
         if (resp.status !== 200) {

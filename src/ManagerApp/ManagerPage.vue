@@ -52,7 +52,7 @@ export const useManagerStore = defineStore('ManagerStore', () => {
     async function checkAuth() {
 
         try {
-            const res = await fetch( import.meta.env.VITE_SRV_URL + '/manager/auth', {method: 'POST', credentials: 'include'} )
+            const res = await fetch( '/auth', {method: 'POST', credentials: 'include'} )
             const resp = await res.json()
             if (resp.valid) {
                 isAuth.value = true
@@ -67,20 +67,20 @@ export const useManagerStore = defineStore('ManagerStore', () => {
     }
 
     async function GetMediaToken () {
-        const resp = await fetch( import.meta.env.VITE_SRV_URL+'/manager/mediatoken', 
+        const resp = await fetch('/mediatoken', 
             { method: 'GET', credentials: 'include'} )
         mediatoken.value = await resp.json().then( e => e.token)
         console.log('Received mediatoken', mediatoken.value)
     }
 
     async function SignUp(login: String, pwd: String, email: String, phoneNums: String[]) {
-       await fetch(import.meta.env.VITE_SRV_URL+'/manager/signup', {method: 'POST', 
+       await fetch('/signup', {method: 'POST', 
        headers: { "Content-Type": "application/json" }, body: 
        { login , pwd, email, phoneNums } }) 
     }
 
     async function Logout () {
-        const res =  await fetch(import.meta.env.VITE_SRV_URL+'/manager/logout', { method: 'GET', credentials: 'include' } )
+        const res =  await fetch('/logout', { method: 'GET', credentials: 'include' } )
         if (res.status === 200) {
             console.log('status ', res.status)
             isAuth.value = false
@@ -89,7 +89,7 @@ export const useManagerStore = defineStore('ManagerStore', () => {
 
     async function Login( login: String, pwd: String ) {
         try {
-            const res =  await fetch(import.meta.env.VITE_SRV_URL + '/manager/login', 
+            const res =  await fetch('/login', 
                 {method: 'POST', body: JSON.stringify({login, pwd}), 
                 headers: { "Content-Type": "application/json" }, credentials: 'include' })
             const resp = await res.json()

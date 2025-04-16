@@ -21,7 +21,7 @@ watch( () => props.show, () => open.value = props.show )
 
 
 async function GlobalLogout() {
-    await fetch(import.meta.env.VITE_BASE_VEHICLE_URL+'/logout', { method: 'POST', credentials: 'include' } )
+    await fetch('/logout', { method: 'POST', credentials: 'include' } )
     ptrLineCoords.visible = true
     userObj.reset()
     

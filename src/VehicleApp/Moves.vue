@@ -8,7 +8,9 @@
             
         </div>
         <div class="flex gap-3">
-            <Switch v-on:update:model-value="(e) => options.common.show_trail = e" :model-value="options.common.show_trail" class="scale-125" id="show_on_map">
+            <Switch v-on:update:model-value="(e) => 
+                options.common.show_trail = e" :model-value="options.common.show_trail" 
+                class="scale-125" id="show_on_map">
             </Switch>
             <Label for="show_on_map" class="space">Show on map</Label>
         </div>

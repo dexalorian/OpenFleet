@@ -87,7 +87,8 @@ onMounted( async () => {
     marker = await createMapMarker(vehicle.currentGeo, 'car')
     marker.setIcon(marker.ActiveIcon)
 
-    marker.on('dragend', (k) => { console.log('drag end', k.target.getLatLng(), options.common.debug_geo_drag ); 
+    marker.on('dragend', (k) => { console.log('drag end', k.target.getLatLng(), 
+        options.common.debug_geo_drag ); 
             let coords = k.target.getLatLng();
             console.log(k.target.getLatLng())
             true ? ws.send( JSON.stringify( { type: 'telemetry' , 
@@ -112,8 +113,6 @@ onMounted( async () => {
     //   Teltimer()
        
     }
-
-    
 
     navigator.geolocation.getCurrentPosition( async (e) => {
             console.log('position getter')
@@ -163,7 +162,7 @@ localStorage.getItem('settings')?.length > 0 ? options.common =
 JSON.parse(localStorage.getItem('settings')) : null
 
 
-watch( options,  (e) => {
+watch( options, (e) => {
     localStorage.setItem('settings', JSON.stringify(e.common))
 })
 

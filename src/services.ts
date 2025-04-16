@@ -1,5 +1,5 @@
 async function fetchBindedVehicles(role: "manager" | "driver" ) {
-    const res = await fetch( import.meta.env.VITE_SRV_URL + `/${role}/vehicles`, 
+    const res = await fetch(`/${role}/vehicles`, 
       { method: 'POST', headers: {"Content-Type": "application/json"}, credentials: 'include'}) 
     const vehicles = await res.json();
    //  console.log('fetched vehicles ', vehicles)
@@ -7,7 +7,7 @@ async function fetchBindedVehicles(role: "manager" | "driver" ) {
  }
 
  async function newVehicle(login) {
-    const res = await fetch( import.meta.env.VITE_SRV_URL + '/manager/newvehicle', 
+    const res = await fetch('/newvehicle', 
         { method: 'POST', headers: {"Content-Type": "application/json"}, 
          body: JSON.stringify({ login: login }),  credentials: 'include'}) 
     const vehicle = await res.json();
@@ -26,7 +26,7 @@ async function fetchBindedVehicles(role: "manager" | "driver" ) {
 
 
  async function bindManager(mngID: String): Object {
-   const resp = await fetch( import.meta.env.VITE_SRV_URL + '/vehicle/bindmanager', 
+   const resp = await fetch( '/bindmanager', 
       { method: 'POST', credentials: 'include', body: JSON.stringify({ mngID }), 
       headers: { "Content-Type": "application/json" } } )
    const mng = await resp.json();
@@ -44,7 +44,7 @@ async function fetchBindedVehicles(role: "manager" | "driver" ) {
 
 
  async function bindVehicle(vhcID: String): Object {
-    const res = await fetch( import.meta.env.VITE_SRV_URL + `/manager/bindvehicle`, 
+    const res = await fetch( `/bindvehicle`, 
         { body: JSON.stringify({ vhcID }), method: 'POST', 
             headers: {"Content-Type": "application/json"},  credentials: 'include'}) 
 
