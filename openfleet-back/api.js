@@ -204,33 +204,9 @@ api.post('/manager/signup', async (req ,res) => {
 
     } catch (e) {
         res.status(400).send('Something went wronf during account creation')
-
     }
-
 })
 
-api.post('/manager/login', async (req, res) => { 
-    console.log('login triggered', req.body.login)
-    try {
-        let managerObj =  await manager.findOne({login: req.body.login})
-        console.log('manager found', managerObj.id)
-    if  (await bcrypt.compare( req.body.login, managerObj.login )) {
-        let jwt_enc = jwt.sign({id: managerObj.id, role: 'mng'}, process.env.SCRT)
-        res.cookie( 'mng_access_tkn', jwt_enc, {
-            secure: false, // Make sure you're using HTTPS in production
-            httpOnly: true,
-            // sameSite: 'none',
-            maxAge: 30 * 24 * 60 * 60 * 1000 // Set cookie expiration to match JWT expiration
-          } )
-         res.json( { id: managerObj.id, role: 'mng'} ).status(200).send()
-    }
-
-    } catch { 
-        console.log('login error')
-        res.status(401).send() }} )
-
-
-      
 
 
 
@@ -291,16 +267,63 @@ api.post('/vehicle/login', async (req, res) => {
     
         } else {
             res.status(401).send()
-            
         } 
     
 } catch {
         e => console.log(e);
         res.status(401).send()
-        
     }
-
  } )
+
+ api.post('/manager/login', async (req, res) => { 
+    console.log('login ', req.body.login )
+    try { 
+        const managerObj =  await manager.findOne({
+            $and: [{login: req.body.login}, {login: { $exists: true }}]
+          })
+
+        if  (await bcrypt.compare( req.body.pwd, vehicleObj.pwd )) {
+           
+            const jwt_enc = jwt.sign({id: managerObj.id, role: 'mng'}, process.env.SCRT)
+
+            res.cookie( 'mng_access_tkn', jwt_enc, {
+                secure: false, // Make sure you're using HTTPS in production
+                httpOnly: true,
+                // sameSite: 'none',
+                maxAge: 30 * 24 * 60 * 60 * 1000 // Set cookie expiration to match JWT expiration
+              } )
+            //  res.json( { id: vehicleObj.id, role: 'vhc' } ).status(200)
+             res.json({valid: true, manager: {id: managerObj?.id, role: 'mng'}}).status(200).send()
+    
+        } else {
+            res.status(401).send()
+        } 
+    
+} catch {
+        e => console.log(e);
+        res.status(401).send()
+    }
+ } )
+
+//  api.post('/manager/login', async (req, res) => { 
+//     console.log('login triggered', req.body.login)
+//     try {
+//         let managerObj =  await manager.findOne({login: req.body.login})
+//         console.log('manager found', managerObj.id)
+//     if  (await bcrypt.compare( req.body.login, managerObj.login )) {
+//         let jwt_enc = jwt.sign({id: managerObj.id, role: 'mng'}, process.env.SCRT)
+//         res.cookie( 'mng_access_tkn', jwt_enc, {
+//             secure: false, // Make sure you're using HTTPS in production
+//             httpOnly: true,
+//             // sameSite: 'none',
+//             maxAge: 30 * 24 * 60 * 60 * 1000 // Set cookie expiration to match JWT expiration
+//           } )
+//          res.json( { id: managerObj.id, role: 'mng'} ).status(200).send()
+//     }
+
+//     } catch { 
+//         console.log('login error')
+//         res.status(401).send() }} )
 
 
 
