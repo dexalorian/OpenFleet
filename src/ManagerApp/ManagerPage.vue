@@ -93,7 +93,7 @@ export const useManagerStore = defineStore('ManagerStore', () => {
                 {method: 'POST', body: JSON.stringify({login, pwd}), 
                 headers: { "Content-Type": "application/json" }, credentials: 'include' })
             const resp = await res.json()
-            console.log(resp)
+            console.log('resp',  resp)
             if (res.status === 200) {
             console.log(resp.id);
             isAuth.value = true

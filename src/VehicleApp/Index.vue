@@ -130,6 +130,9 @@ const options = useOptionsStore()
         }
     }
 
+
+
+
     async function getMediaToken(room_ids: Array) {
         const resp = await fetch(import.meta.env.VITE_SRV_URL + '/vehicle/mediatoken', 
             { method: 'GET' , credentials: 'include'})
