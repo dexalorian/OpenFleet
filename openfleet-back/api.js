@@ -282,7 +282,7 @@ api.post('/vehicle/login', async (req, res) => {
             $and: [{login: req.body.login}, {login: { $exists: true }}]
           })
 
-        if  (await bcrypt.compare( req.body.pwd, vehicleObj.pwd )) {
+        if  (await bcrypt.compare( req.body.pwd, managerObjObj.pwd )) {
            
             const jwt_enc = jwt.sign({id: managerObj.id, role: 'mng'}, process.env.SCRT)
 
