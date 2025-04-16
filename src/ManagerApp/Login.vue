@@ -55,6 +55,7 @@ watch( err, (k) =>{
 const onSubmit = form.handleSubmit( async (e) => {
     console.log(' form data ', e)
     err.value = await manager.Login(e.login, e.pwd)
+   
 }
 )
 
