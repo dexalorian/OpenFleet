@@ -88,6 +88,7 @@ export const useManagerStore = defineStore('ManagerStore', () => {
     }
 
     async function Login( login: String, pwd: String ) {
+        console.log('login triggered')
         try {
             const res =  await fetch(import.meta.env.VITE_SRV_URL+'/manager/login', 
                 {method: 'POST', body: JSON.stringify({login, pwd}), 
