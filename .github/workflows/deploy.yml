@@ -9,8 +9,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      VITE_SRV_URL: ${{ secrets.VITE_SRV_URL }}
-      VITE_SRV_WS: ${{ secrets.VITE_SRV_WS }}
+      VITE_SRV_URL: "${{ secrets.VITE_SRV_URL }}"
+      VITE_SRV_WS: "${{ secrets.VITE_SRV_WS }}"
 
     strategy:
       matrix:
