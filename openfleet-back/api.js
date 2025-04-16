@@ -216,19 +216,22 @@ api.post('/manager/login', async (req, res) => {
         console.log('manager found', managerObj.id)
     if  (await bcrypt.compare( req.body.login, managerObj.login )) {
         let jwt_enc = jwt.sign({id: managerObj.id, role: 'mng'}, process.env.SCRT)
-        managerObj.save()
         res.cookie( 'mng_access_tkn', jwt_enc, {
             secure: false, // Make sure you're using HTTPS in production
             httpOnly: true,
             // sameSite: 'none',
             maxAge: 30 * 24 * 60 * 60 * 1000 // Set cookie expiration to match JWT expiration
           } )
-         res.json( { id: managerObj.id, role: 'mng'} ).status(200)
+         res.json( { id: managerObj.id, role: 'mng'} ).status(200).send()
     }
 
     } catch { 
         console.log('login error')
         res.status(401).send() }} )
+
+
+      
+
 
 
 api.post('/manager/auth', async (req, res) => {
