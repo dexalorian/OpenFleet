@@ -71,6 +71,7 @@ export function startSignalingServ(srv) {
                                 telemetry.set(user.id, json.data)
                             }
 
+                    
                             if (json.type === 'sdp_offer' ) {
                                 console.log('sdp_offer', json.data)
                             }
@@ -117,15 +118,34 @@ export function startSignalingServ(srv) {
                     case 'mng':
                         let mng_unsub = await subscribe(user.id)
                         socket.onmessage = async ( msg ) => {
-                            console.log('msg ', msg.data.type )
+                            let json = JSON.parse(msg.data)
+                            console.log('msg ', json )
 
-                            if (msg.data.type === 'broadcast') {
+                            if (json.type === 'broadcast') {
                                 const allVhc =  await manager.findOne({ id: user.id }).select('vehicles').populate('vehicles', 'id');
                                 // console.log('active sockets: ', wsActiveSockets)
                                 allVhc?.vehicles.forEach( e => wsActiveSockets.get(e.id)?.forEach( x => x.send(msg.data.text)) )
-                            } else if (msg.data.type === 'direct') {
-    
-                                wsActiveSockets.get(msg.data.id).forEach( e => e.send ( JSON.stringify({ sender: user.id , content: msg.data.text })  ) )
+                            } else if (json.type === 'direct') {
+
+                                if (json.command === 'send_telemetry') {
+                                    // console.log(wsActiveSockets)
+                                    wsActiveSockets.get(json.to)?.forEach( e => 
+                                    {e.send ( JSON.stringify({ sender: user.id, command: json.command }) )
+                               
+                                        console.log('telemetry sended to')}
+                                         
+                                      
+                                   )
+
+                                   if (wsActiveSockets.has(json.to)) {
+                                    wsActiveSockets.get(user.id).forEach( e => {
+                                        e.send(JSON.stringify({type: "status", vhcID: json.to, status: 1}))
+                                    })
+                                    
+                                 }
+                                    
+                                }
+                                
                             }
                     //   
                         }
