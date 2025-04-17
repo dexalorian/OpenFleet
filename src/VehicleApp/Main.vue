@@ -114,6 +114,18 @@ onMounted( async () => {
        
     }
 
+    ws.onmessage = (e) => {
+        console.log('ws msg', e.data)
+        let json = JSON.parse(e.data)
+        if (json.command === 'send_telemetry') {
+
+            ws.send( JSON.stringify( { type: 'telemetry', 
+            data: { lat: vehicle.currentGeo.lat, lng: vehicle.currentGeo.lng }  } ) )
+            ws.send( JSON.stringify( { type: 'status',  vhcID: user.id,  status: 1 } ) )
+
+        }
+
+    }
     navigator.geolocation.getCurrentPosition( async (e) => {
             console.log('position getter')
             ws.send(JSON.stringify( { type: 'telemetry',  data: { lat: e.coords.latitude, lng: e.coords.longitude }  }  ))

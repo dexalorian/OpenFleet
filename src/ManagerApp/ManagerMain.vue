@@ -157,6 +157,7 @@ onMounted( async () => {
 
 
    manager.vehicles.forEach( async (e) => {
+       
         if (e?.lat & e?.lng) {
             let newmarker = await createMapMarker( { lat: e.lat, lng: e.lng }, "car");
             // newmarker.on('dragend', () => console.log('drag end'))
@@ -168,6 +169,7 @@ onMounted( async () => {
             // newmarker.on('dragend', () => console.log('drag end'));
             // vehicleMarkers.set(e.id, { coords: [e?.lat, e?.lng], marker: newmarker })
         }
+        ws.send(JSON.stringify({ type: 'direct', to: e.id, command: 'send_telemetry' }))
    } )
 
    ws.onmessage = async (e) => {
