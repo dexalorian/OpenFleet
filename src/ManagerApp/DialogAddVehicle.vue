@@ -9,9 +9,10 @@
                 <div v-if="false" class="flex flex-col gap-2 items-center">
                     <CheckCircleIcon class="size-1/6 text-green-500" />
                     <p class="text-lg">Success</p>
-                    <div class="flex bg-green-200 justify-center py-1 w-full min-h-16 items-center">ddd{{ msg }} </div>
+                    <div class="flex bg-green-200 justify-center py-1 w-full min-h-16 items-center">
+                        ddd{{ msg }} </div>
                     <div class="flex flex-row gap-2 justify-center">
-                        <Button @click=" async () =>{ fetchRes.value = await bindVehicle(vhcID);}"> Repeat </Button>
+                        <Button @click=" async () =>{ fetchRes.value = await bindVehicle(vhcID) }"> Repeat </Button>
                         <DialogClose>
                             <Button variant="outline" @click="() => showDialog = false"> Done </Button>
                         </DialogClose>
@@ -30,27 +31,36 @@
                         <Input v-model="vhcID"></Input>
                         <div id="generalError" class="bg-red-200">{{ fetchRes?.error }}</div>
                 <div class="flex flex-row gap-2">
-                    <Button @click="async () => {  fetchRes =  await bindVehicle(vhcID);}"> Send request </Button>
+                    <Button @click="async () => {  fetchRes =  await bindVehicle(vhcID);}">
+                        Send request </Button>
                     <DialogClose>
-                        <Button variant="outline" @click="() => showDialog = false"> Cancel </Button>
+                        <Button variant="outline" @click="() => showDialog = false"> 
+                            Cancel</Button>
                     </DialogClose>
                 </div>
             </TabsContent>
 
-            <TabsContent value="new">
-                    Login
-                    <div class="bg-slate-400 p-3">{{ pwd }}</div>
-                <Input v-model="login"></Input>
+            <TabsContent class="flex flex-col gap-3" value="new">
+                    <div class="flex flex-col gap-1">
+                        <p>Enter new login</p>
+                        
+                                        <Input v-model="login"></Input>
+                    </div>
+                <div v-if="pwd.length > 0">
+                        Password:
+                        <div  class="bg-slate-400 p-3">Password: {{ pwd }}</div>
+                    </div>
                 <div class="flex flex-row gap-2">
 
-                <Button @click="async () => pwd = await newVehicle(login).then(e => e.pwd)"> Create & get credentials</Button>
+                    <Button @click="async () => pwd = await newVehicle(login).then(e => e.pwd)"> 
+                        Create & get credentials</Button>
 
-                <DialogClose>
-                    <Button variant="outline"> Cancel </Button>
-                </DialogClose>
+                    <DialogClose>
+                        <Button variant="outline"> Cancel </Button>
+                    </DialogClose>
                 
                 </div>
-                            </TabsContent>
+            </TabsContent>
                 </Tabs>
         </DialogContent>
     </Dialog>

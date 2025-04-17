@@ -42,7 +42,7 @@ export async function newVehicle(req, res) {
     let author;
     if (role === 'mng') {
         author = await manager.findOne({id: req.jwt.id})
-        let newVehicle =  await vehicle.create({login: req.body.login, pwd: 'temporary', id: uuid(), 
+        let newVehicle =  await vehicle.create({login: req.body.login, pwd: hashed, id: uuid(), 
             activated: false, managers: [ author?._id ], owners: [ author?._id] } )
         author.vehicles.push( newVehicle._id)
         author?.save()
@@ -50,7 +50,7 @@ export async function newVehicle(req, res) {
         res.json({ id: newVehicle.id, pwd: pwd_gen }).send()
     } else if (role === 'driver') {
         author = await driver.findOne({id: req.jwt.id})
-        let newVehicle =  await vehicle.create({pwd: 'temporary', id: uuid(), 
+        let newVehicle =  await vehicle.create({pwd: hashed, id: uuid(), 
             activated: false, drivers: [ author?._id ], owners: [ author?._id] } )
         author?.vehicles.push( newVehicle?._id)
   
