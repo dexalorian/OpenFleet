@@ -28,8 +28,8 @@
 
                 </transition>
 
-            <p class="absolute flex text-slate-600">No signal</p>
-                <video autoplay :id="props.id" ref="vidEl"  class="bg-slate-500 rounded-sm w-52 flex">
+                <p v-if="!playing" class="absolute flex text-slate-600">No signal</p>
+                <video @play="() => playing = true" @ended="() => playing = false" autoplay :id="props.id" ref="vidEl"  class="bg-slate-500 rounded-sm w-52 flex">
                     
                 </video>
                 
@@ -43,6 +43,9 @@
 import { onMounted } from 'vue'
 import { watch, watchEffect, defineModel } from 'vue'
 import { ref} from 'vue'
+
+const playing = ref(false)
+
 
 const MenuItems = [
     {title: 'Stop video', cb: () => console.log('Stop video placeholder')},
@@ -59,6 +62,9 @@ const MenuItems = [
 const vidEl = ref()
 defineExpose({ vidEl })
 const emit = defineEmits(['menuclick'])
+
+
+
 
 const props = defineProps({ status: Number, id: String, showmenu: Boolean })
 
