@@ -10,7 +10,7 @@
             relative text-slate-800 pointer-events-none group">
             
                 <div @click.stop="e => emit('menuclick', props.id)" 
-                    class="flex absolute top-2 right-2 group-hover:flex hidden hover:opacity-100
+                    class="flex absolute z-10 top-2 right-2 group-hover:flex hidden hover:opacity-100
                     pointer-events-auto cursor-pointer rounded-full p-1  bg-slate-50 opacity-35">
                       <ion-icon class="size-4" name="menu-outline"></ion-icon>
                 </div>
@@ -28,7 +28,7 @@
 
                 </transition>
 
-                <p v-if="!playing" class="absolute flex text-slate-600">No signal</p>
+                <p v-if="!playing" class="absolute flex text-slate-600 z-0">No signal</p>
                 <video @play="() => playing = true" @ended="() => playing = false" autoplay :id="props.id" ref="vidEl"  class="bg-slate-500 rounded-sm w-52 flex">
                     
                 </video>
@@ -52,7 +52,7 @@ const MenuItems = [
     {title: 'Unbind vehicle', cb: async (vhcID: string) => {
         console.log("Unbinding", vhcID)
         await fetch(import.meta.env.VITE_SRV_URL + '/manager/unbindvehicle', 
-        {method: 'POST', credentials: 'include', body: JSON.stringify({vhcID}), 
+        {method: 'POST', credentials: 'include', body: JSON.stringify({vhcID: vhcID}), 
         headers: {"Content-Type": "application/json"}})
     } },
     {title: 'Connect', cb: () => console.log('placeholder')},
