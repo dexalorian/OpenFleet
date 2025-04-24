@@ -23,3 +23,5 @@ turn:
   domain: transtaxi.app
   # defaults to 3478. If not using a load balancer, must be set to 443.
   tls_port: 3478
+  cert_file: /etc/letsencrypt/archive/transtaxi.app/fullchain1.pem
+  key_file: /etc/letsencrypt/archive/transtaxi.app/privkey1.pem
