@@ -20,6 +20,6 @@ keys:
 turn:
   enabled: true
   # domain must match tls certificate
-  domain: live.transtaxi.app
+  domain: transtaxi.app
   # defaults to 3478. If not using a load balancer, must be set to 443.
   tls_port: 3478
