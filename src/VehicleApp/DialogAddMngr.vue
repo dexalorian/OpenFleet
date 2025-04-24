@@ -13,7 +13,7 @@
      
              <Input v-model="mngID"  placeholder="Manger ID" />
              <div class="flex flex-row gap-1">
-                 <Button @click = "async () => { await bindManager(mngID); vehicle.getManagers() }" > Add </Button>
+                 <Button @click = "async () => { await bindManager(mngID); vehicle.getManagers() }"> Add </Button>
                  <Button @click = "() => showDialog = false"> Close </Button>
              </div>
         </DialogContent>

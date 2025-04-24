@@ -15,11 +15,11 @@ const app = createApp(App)
 app.use(pinia)
 app.use(router)
 
+// Не стоит создавать сторы в main.ts чтобы избежать циклических зависимостей
 export const useVideoConnections = defineStore('videoConnections', () => {
   const connections = ref({})
   return { connections }
 } )
-
 
 
 export const useUser = defineStore('userParams', 
@@ -40,7 +40,8 @@ export const useUser = defineStore('userParams',
       id.value = ''
       isAuth.value = false
     }
-      return { accessTkn, refreshTkn, email, name, isAuth, reset }
+      
+    return { accessTkn, refreshTkn, email, name, isAuth, reset }
    }
 )
 
