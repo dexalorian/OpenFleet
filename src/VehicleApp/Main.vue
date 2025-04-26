@@ -83,6 +83,7 @@ onMounted( async () => {
     vehicle.currentGeo = await vehicle.fetchOwnGeo() 
     console.log('geo form db', vehicle.currentGeo)
     vehicle.mediatoken = await vehicle.getMediaToken(managers)
+    console.log('media tkn:', vehicle.mediatoken)
     console.log('src obj', videoCnv.value?.srcObject)
     marker = await createMapMarker(vehicle.currentGeo, 'car')
     marker.setIcon(marker.ActiveIcon)
