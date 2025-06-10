@@ -43,7 +43,8 @@
 </template>
 
 <script lang="ts" setup>
-    import { Table,TableCaption, TableHeader, TableRow, TableHead, TableBody, TableCell  } from '@/components/ui/table'
+    import { Table,TableCaption, TableHeader, 
+            TableRow, TableHead, TableBody, TableCell  } from '@/components/ui/table'
     import Switch from '@/components/ui/switch/Switch.vue';
     import { useOptionsStore, useVehicleStore } from './Index.vue';
 

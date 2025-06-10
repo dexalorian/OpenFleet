@@ -28,7 +28,7 @@ jobs:
       # Build
       - run: VITE_SRV_URL=$VITE_SRV_URL VITE_SRV_WS=$VITE_SRV_WS npm ci && npm run build
       # Deploy
-      - run: cd dist && rsync -e "ssh -p 54853 -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress --delete . root@transtaxi.app:/var/www/html/
-      - run: cd openfleet-back && rsync -e "ssh -p 54853 -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress . root@transtaxi.app:/var/www/openfleet-node
-      - run: cd openfleet-back && rsync -e "ssh -p 54853 -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress ./package.json root@transtaxi.app:/var/www/openfleet-node
-      - run: ssh -p 54853 -i $HOME/.ssh/key -o StrictHostKeyChecking=no root@transtaxi.app 'cd /var/www/openfleet-node && npm install'
+      - run: cd dist && rsync -e "ssh -p 54853 -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress --delete . root@45.9.72.39:/var/www/html/
+      - run: cd openfleet-back && rsync -e "ssh -p 54853 -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress . root@45.9.72.39:/var/www/openfleet-node
+      - run: cd openfleet-back && rsync -e "ssh -p 54853 -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress ./package.json root@45.9.72.39:/var/www/openfleet-node
+      - run: ssh -p 54853 -i $HOME/.ssh/key -o StrictHostKeyChecking=no root@45.9.72.39 'cd /var/www/openfleet-node && npm install'

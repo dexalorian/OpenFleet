@@ -1,6 +1,7 @@
 async function fetchBindedVehicles(role: "manager" | "driver" ) {
     const res = await fetch(import.meta.env.VITE_SRV_URL+`/${role}/vehicles`, 
-      { method: 'POST', headers: {"Content-Type": "application/json"}, credentials: 'include'}) 
+      { method: 'POST', headers: {"Content-Type": "application/json"}, 
+      credentials: 'include'}) 
     const vehicles = await res.json();
    //  console.log('fetched vehicles ', vehicles)
     return vehicles

@@ -51,8 +51,12 @@ export function startSignalingServ(srv) {
 
     
     wss.on('connection', async (socket, req) => { 
-    //         //if that an vehicle - 1) find vID in wsRooms 2) Get of wsRooms vID all subscribers 3) search all subscribers in wsActiveSockets 4) get sockets of those connections 5) call .send on each obtained socket
-    //         // console.log('WS headers',  req.headers.cookie?.split(`${req.headers['sec-websocket-protocol']}_access_tkn=`)[1].split('; ')[0])
+    //         //if that an vehicle - 1) find vID in wsRooms 2) Get of 
+    //  wsRooms vID all subscribers 3) search all subscribers in 
+    // wsActiveSockets 4) get sockets of those connections 5) call 
+    // .send on each obtained socket
+    //         // console.log('WS headers',  
+    // req.headers.cookie?.split(`${req.headers['sec-websocket-protocol']}_access_tkn=`)[1].split('; ')[0])
         try{
             const accessTkn = req.headers.cookie?.split(`${req.headers['sec-websocket-protocol']}_access_tkn=`)[1].split('; ')[0]
             console.log('WS headers',req.url,  accessTkn )

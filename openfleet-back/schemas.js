@@ -8,7 +8,8 @@ const rideSchema = new mongoose.Schema(
         endPoint: [],
         state: String,
         creationDate: {type: Date},
-        vehicle: {type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle'}
+        vehicle: {type: mongoose.Schema.Types.ObjectId, 
+            ref: 'Vehicle'}
     }
 )
 
@@ -45,13 +46,17 @@ const supervisorSchema = new mongoose.Schema(
 
 const taskSchema = new mongoose.Schema(
     {
-        ride: { type: mongoose.Schema.Types.ObjectId, ref: 'Ride' },
-        cargo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Cargo' }],
+        ride: { type: mongoose.Schema.Types.ObjectId, 
+            ref: 'Ride' },
+        cargo: [{ type: mongoose.Schema.Types.ObjectId, 
+            ref: 'Cargo' }],
         loadDate: [{type: Date}],
         startDate:  [{type: Date}],
         endDate:  [{type: Date}],
-        creator:  { type: mongoose.Schema.Types.ObjectId, refPath: 'contractorRole' },
-        сontractor: { type: mongoose.Schema.Types.ObjectId, refPath: 'creatorRole' },
+        creator:  { type: mongoose.Schema.Types.ObjectId, 
+            refPath: 'contractorRole' },
+        сontractor: { type: mongoose.Schema.Types.ObjectId, 
+            refPath: 'creatorRole' },
         creatorRole: {  // Define the role to determine the reference
             type: String,
             required: true,
@@ -113,9 +118,11 @@ const vehicleSchema  = new mongoose.Schema(
         color: {type: String},
         countryOfReg: {type: String},
         regNum: {type: String},
-        currentActiveDriver: {type: mongoose.Schema.Types.ObjectId, ref: 'Driver'},
+        currentActiveDriver: {type: mongoose.Schema.Types.ObjectId, 
+            ref: 'Driver'},
         drivers: [{type: mongoose.Schema.Types.ObjectId, ref: 'Driver'}],
-        managers: [{ manager: {type: mongoose.Schema.Types.ObjectId, ref: 'Manager'}, active: Boolean}],
+        managers: [{ manager: {type: mongoose.Schema.Types.ObjectId, ref: 'Manager'}, 
+            active: Boolean}],
         owners: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Driver' },
             { type: mongoose.Schema.Types.ObjectId, ref: 'Manager' },
             { type: mongoose.Schema.Types.ObjectId, ref: 'Supervisor' }

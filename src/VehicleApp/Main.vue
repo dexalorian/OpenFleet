@@ -51,8 +51,10 @@ const videoCnv = ref<HTMLVideoElement>();
   
 async function startMediaRoom() {
     const mediaroom = new Room();
-    await mediaroom.prepareConnection('https://live.transtaxi.app', vehicle.mediatoken);
-    await mediaroom.connect( 'https://live.transtaxi.app', vehicle.mediatoken, {autoSubscribe: false})
+    await mediaroom.prepareConnection('https://live.transtaxi.app', 
+        vehicle.mediatoken);
+    await mediaroom.connect( 'https://live.transtaxi.app', 
+        vehicle.mediatoken, {autoSubscribe: false})
     console.log('connected to room', mediaroom.name);
     mediaroom.localParticipant.setCameraEnabled(true)
     mediaroom.localParticipant.setMicrophoneEnabled(false)
@@ -107,7 +109,8 @@ onMounted( async () => {
         ws.send( JSON.stringify( { type: 'telemetry', 
         data: { lat: vehicle.currentGeo.lat, lng: vehicle.currentGeo.lng }  } ) )
     //     const Teltimer = () => {
-    //         ws.send( JSON.stringify( { type: 'telemetry' , data: { lat: vehicle.currentGeo.value?.lat, lng: vehicle.currentGeo.value?.lng }  } ) )
+    //         ws.send( JSON.stringify( { type: 'telemetry' , data: { lat: 
+    //          vehicle.currentGeo.value?.lat, lng: vehicle.currentGeo.value?.lng }  } ) )
     //         console.log('ws sended')
     //         setTimeout( () => Teltimer(), 4000 )
     //     }
@@ -129,11 +132,13 @@ onMounted( async () => {
     }
     navigator.geolocation.getCurrentPosition( async (e) => {
             console.log('position getter')
-            ws.send(JSON.stringify( { type: 'telemetry',  data: { lat: e.coords.latitude, lng: e.coords.longitude }  }  ))
+            ws.send(JSON.stringify( { type: 'telemetry',  data: 
+                { lat: e.coords.latitude, lng: e.coords.longitude }  }  ))
             vehicle.currentGeo = { lat: e.coords.latitude, lng: e.coords.longitude };
             let date = new Date();
             vehicle.geoHistory.push({ time: date.toLocaleTimeString(), 
-                date: date.toLocaleDateString(), lat: e.coords.latitude, lng: e.coords.longitude })
+                date: date.toLocaleDateString(), lat: e.coords.latitude, 
+                    lng: e.coords.longitude })
              marker.setLatLng(vehicle.currentGeo)
              console.log('currgeo', vehicle.currentGeo,  e.coords)
             vehicle.currentGeo = { lat: e.coords.latitude, lng: e.coords.longitude };
@@ -157,7 +162,8 @@ function setGeoFetcher() {
                 marker.setLatLng(vehicle.currentGeo);
                 OwnTail.addLatLng(vehicle.currentGeo);
                 OwnTail.on('pointadded', () => console.log('Own tail updated'));
-                ws.send( JSON.stringify( { type: 'telemetry',  data: { lat: k.coords.latitude, lng: k.coords.longitude }  } ) ); 
+                ws.send( JSON.stringify( { type: 'telemetry',  data: { lat: k.coords.latitude, 
+                    lng: k.coords.longitude }  } ) ); 
             }
 
         })

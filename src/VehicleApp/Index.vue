@@ -139,7 +139,8 @@ const options = useOptionsStore()
 
     async function CheckAuth() {
         try {
-        const res = await fetch(import.meta.env.VITE_SRV_URL + '/vehicle/auth', {method: 'POST', credentials: 'include'} )
+        const res = await fetch(import.meta.env.VITE_SRV_URL + '/vehicle/auth', 
+        {method: 'POST', credentials: 'include'} )
       const resp = await res.json()
       if (resp.valid) {
         isAuth.value = true;
@@ -239,7 +240,8 @@ const options = useOptionsStore()
                   <TabsList class="w-full *:w-full  flex *:h-12 group-">
                     <TabsTrigger   value="map-page">Map</TabsTrigger>
                     <TabsTrigger  value="history-page">History</TabsTrigger>
-                    <TabsTrigger  value="profile-page"><ion-icon class="text-2xl" name="cog"></ion-icon></TabsTrigger>
+                    <TabsTrigger  value="profile-page"><ion-icon class="text-2xl" 
+                        name="cog"></ion-icon></TabsTrigger>
                  </TabsList>
             </Tabs>
         </div>

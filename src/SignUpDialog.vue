@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, 
+        DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input'
 import { useForm, ErrorMessage } from 'vee-validate';
 import { ref, watch } from 'vue'
@@ -35,7 +36,8 @@ DoneStageVisible.value = true
     <Dialog v-model:open="open" @update:open="router.push('/')">
 
         <DialogContent v-if="DoneStageVisible">
-            <div>Activation email been sent to your e-mail.<br>Click link in the letter to activate account.</div>
+            <div>Activation email been sent to your e-mail.
+              <br>Click link in the letter to activate account.</div>
             <Button @click="router.push('/')">Done</Button>
         </DialogContent>
 
@@ -47,7 +49,8 @@ DoneStageVisible.value = true
               </DialogHeader>
                 <form @submit.prevent="Submit"> 
 
-              <FormField v-slot="{ componentField }" :rules="e => e.length > 2 ? true : false" name="email" >
+              <FormField v-slot="{ componentField }" :rules="e => e.length > 2 ? 
+                    true : false" name="email" >
                 <FormLabel>E-mail</FormLabel>
              
                     <Input type="text" placeholder="shadcn" v-bind="componentField" />
@@ -55,7 +58,8 @@ DoneStageVisible.value = true
                   <!-- <FormMessage /> -->
 
               </FormField>
-              <FormField v-slot="{ componentField }" :rules="e => e.length > 2 ? true : false" name="name" >
+              <FormField v-slot="{ componentField }" :rules="e => e.length > 2 ? 
+                    true : false" name="name" >
                 <FormLabel>Your name</FormLabel>
              
                     <Input type="text" placeholder="shadcn" v-bind="componentField" />
@@ -64,7 +68,8 @@ DoneStageVisible.value = true
 
               </FormField>
               <br>
-              <FormField v-slot="{ componentField }" :rules="e => e.length > 2 ? true : false" name="password">
+              <FormField v-slot="{ componentField }" :rules="e => 
+                    e.length > 2 ?  true : false" name="password">
            
                   <FormLabel>Password</FormLabel>
                     <Input type="password" placeholder="Password" v-bind="componentField" />
@@ -74,7 +79,8 @@ DoneStageVisible.value = true
               </FormField>
 
               <br>
-              <FormField v-slot="{ componentField }" :rules="e => e.length > 2 ? true : false" name="repassword">
+              <FormField v-slot="{ componentField }" :rules="e => 
+                  e.length > 2 ? true : false" name="repassword">
            
                   <FormLabel>Retype password</FormLabel>
                     <Input type="password" placeholder="Retype password" v-bind="componentField" />
@@ -84,7 +90,8 @@ DoneStageVisible.value = true
               </FormField>
                 
                 <DialogFooter>
-                  <Button variant="secondary" @click.prevent=" () => router.push('/login') ">Back to login</Button>
+                  <Button variant="secondary" @click.prevent=" () => 
+                        router.push('/login') ">Back to login</Button>
                   <Button type="submit">Sign up</Button>  
                 
                 </DialogFooter>

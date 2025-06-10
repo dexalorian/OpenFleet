@@ -1,12 +1,14 @@
 <template>
 
-    <div class="h-full justify-center w-full items-center flex flex-col text-xs text-left">
+    <div class="h-full justify-center w-full items-center flex
+                flex-col text-xs text-left">
         
         <div class="text-left py-4 px-4 flex flex-col w-full gap-2">
 
                   <div class="flex items-center gap-2">
                     
-                    <Switch :model-value="options.common?.debug_geo" @update:model-value="(e) => 
+                    <Switch :model-value="options.common?.debug_geo" 
+                            @update:model-value="(e) => 
                         { options.common.debug_geo = e }" id="debug_geo"/>
                     <Label for="debug_geo" class="space">Use debug values</Label>
                 </div>

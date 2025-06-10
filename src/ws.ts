@@ -11,7 +11,8 @@ function StartWS(role: 'mng' | 'vhc' | 'drv'): WebSocket {
     ws = new WebSocket(wsUrl, [role] )
     
     console.log('ws started', role);
-    ws.onclose = (e) => { console.log('trying to reconnect'); setTimeout(() =>  StartWS( roleBkp ) , 3000 ) }  
+    ws.onclose = (e) => { console.log('trying to reconnect'); setTimeout(() => 
+        StartWS( roleBkp ) , 3000 ) }  
     ws.onerror = (e) => console.log('ws error', e)
 }
 

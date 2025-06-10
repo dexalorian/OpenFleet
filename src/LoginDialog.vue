@@ -13,7 +13,8 @@ import { ref, Teleport } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { FormMessage, FormControl, Form, FormLabel, FormField, FormItem } from '@/components/ui/form'
+import { FormMessage, FormControl, Form, FormLabel, FormField, FormItem } 
+      from '@/components/ui/form'
 import { ErrorMessage, useForm } from 'vee-validate';
 import { useRoute, useRouter } from 'vue-router'
 import { useUser} from './main';
@@ -83,7 +84,8 @@ const Submit = form.handleSubmit(
 
               </FormField>
               
-              <FormField v-slot="{ componentField }" :rules="e => e.length > 2 ? true : false" name="password">
+              <FormField v-slot="{ componentField }" :rules="e => 
+                  e.length > 2 ? true : false" name="password">
                 <FormItem>
 
                   <FormLabel>Password</FormLabel>
@@ -99,7 +101,8 @@ const Submit = form.handleSubmit(
                 
             <DialogFooter>
                 <Button type="button" @click="Submit">Login</Button> 
-                <Button variant="secondary" @click.prevent=" () => router.push('/signup') ">Sign Up</Button>
+                <Button variant="secondary" @click.prevent=" () => 
+                    router.push('/signup') ">Sign Up</Button>
                 
                 </DialogFooter>
 

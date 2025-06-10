@@ -1,7 +1,6 @@
 
 import VehicleIndex  from './VehicleApp/Index.vue'
 import AppHeader from './components/AppHeader.vue'
-import DriverPage from './DriverApp/Index.vue'
 import SignUp from './VehicleApp/SignUp.vue'
 import Login from './VehicleApp/Login.vue'
 import Trade from './TradePage.vue'
@@ -42,13 +41,6 @@ export const routes = [
       },
       
     ]
-  },
-  {
-    path: '/driverapp',
-    name: 'DriverApp',
-    components: {
-      default: DriverPage
-    }
   },
   {
     path: '/trade',

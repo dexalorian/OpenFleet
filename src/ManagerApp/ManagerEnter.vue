@@ -2,7 +2,7 @@
 <div class="scale- font-bold text-4xl w-full h-40 gap-1 content-center items-center flex flex-col">
         <div class="flex w-14 h-14 bg-[length:80%] rounded-xl bg-blue-200 bg-[url('/public/car.svg')] bg-center" > </div>
     
-        <p class="tracking-tight">Open Fleet</p>
+        <p class="tracking-tight">DriveTrace</p>
    
         <p class="text-xs font-light">Manager app</p>
     </div>
