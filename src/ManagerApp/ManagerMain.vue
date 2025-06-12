@@ -2,7 +2,7 @@
     <div v-if="manager.isAuth" class="flex h-full w-full">
         
         <div id="sidebar_vhc" class="flex flex-col border p-2 justify-between overflow-scroll w-96">
-           
+             
             <div class="flex flex-col ">
                 <p class="font-bold">OpenFleet</p>
                 <div class="text-xs text-slate-400">Manager ID</div>
