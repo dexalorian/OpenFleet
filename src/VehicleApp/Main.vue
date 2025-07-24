@@ -51,9 +51,9 @@ const videoCnv = ref<HTMLVideoElement>();
   
 async function startMediaRoom() {
     const mediaroom = new Room();
-    await mediaroom.prepareConnection('https://live.transtaxi.app', 
+    await mediaroom.prepareConnection('https://live.drivetrace.ru', 
         vehicle.mediatoken);
-    await mediaroom.connect( 'https://live.transtaxi.app', 
+    await mediaroom.connect( 'https://live.drivetrace.ru', 
         vehicle.mediatoken, {autoSubscribe: false})
     console.log('connected to room', mediaroom.name);
     mediaroom.localParticipant.setCameraEnabled(true)

@@ -85,8 +85,8 @@ function ViewVhcCam(id) {
 
     mediaroom.on('connectionStateChanged', e => console.log(" LiveKit conn state", e))
     
-    mediaroom.prepareConnection('https://live.transtaxi.app', manager.mediatoken)
-    mediaroom.connect('https://live.transtaxi.app', manager.mediatoken, { autoSubscribe: false})
+    mediaroom.prepareConnection('https://live.drivetrace.ru', manager.mediatoken)
+    mediaroom.connect('https://live.drivetrace.ru', manager.mediatoken, { autoSubscribe: false})
 
 
      mediaroom.on("connected", () => {  
