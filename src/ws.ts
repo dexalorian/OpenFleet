@@ -3,7 +3,6 @@ let ws: WebSocket;
 
 
 function StartWS(role: 'mng' | 'vhc' | 'drv'): WebSocket {
-    // let wsUrl =  'wss://'+window.location.origin.split('://')[1] +'/io' 
     let wsUrl = import.meta.env.VITE_SRV_WS
     
     console.log('WS URLS', wsUrl)
